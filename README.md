@@ -1,5 +1,4 @@
-<img src="https://github.com/pthomain/glitchy/blob/master/github/glitchy-header.png" height="256"/>
-Make sense of your API errors
+<img src="https://github.com/pthomain/glitchy/blob/master/github/glitchy-header.png" style="height: 256px; width: auto;"/>
 
 Ever had an API call exception?
 -------------------------------
