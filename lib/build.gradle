@@ -103,7 +103,6 @@ artifacts {
 }
 
 dependencies {
-
     implementation "com.github.jitpack:gradle-simple:1.0"
     api "com.github.pthomain.boilerplate:core:4.0"
 
