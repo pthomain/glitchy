@@ -36,6 +36,7 @@ enum class ErrorCode(val retriable: Boolean) {
     NOT_FOUND(false),
     UNEXPECTED_RESPONSE(true),
     SERVER_ERROR(true),
-    UNKNOWN(true)
+    UNKNOWN(true),
+    UNHANDLED(false)
 }
 

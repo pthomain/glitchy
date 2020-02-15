@@ -23,10 +23,33 @@
 
 package dev.pthomain.android.glitchy.retrofit.type
 
+import dev.pthomain.android.glitchy.retrofit.RetrofitCallAdapterFactory.Companion.getFirstParameterUpperBound
+import dev.pthomain.android.glitchy.retrofit.RetrofitCallAdapterFactory.Companion.rawType
+import io.reactivex.Observable
+import io.reactivex.Single
 import java.lang.reflect.Type
 
-data class ParsedType<M>(
-    val metadata: M,
-    val returnType: Type,
-    val parsedType: Type
-)
+class RxReturnTypeParser<M>(
+    private val metadataResolver: (Type) -> M
+) : ReturnTypeParser<M> {
+
+    override fun parseReturnType(returnType: Type) = ParsedType(
+        metadataResolver(returnType),
+        returnType,
+        extractParam(returnType)
+    )
+
+    private fun extractParam(returnType: Type) =
+        with(rawType(returnType)) {
+            when (this) {
+                Single::class.java,
+                Observable::class.java -> getFirstParameterUpperBound(returnType)!!
+                else -> this
+            }
+        }
+
+    companion object {
+        @JvmStatic
+        val INSTANCE = RxReturnTypeParser { Unit }
+    }
+}

@@ -26,6 +26,7 @@ package dev.pthomain.android.glitchy.interceptor.error.glitch
 import dev.pthomain.android.glitchy.interceptor.error.ErrorFactory
 import dev.pthomain.android.glitchy.interceptor.error.glitch.ErrorCode.*
 import dev.pthomain.android.glitchy.interceptor.error.glitch.Glitch.Companion.NON_HTTP_STATUS
+import dev.pthomain.android.glitchy.interceptor.outcome.Outcome
 import retrofit2.HttpException
 import java.io.IOException
 import java.util.concurrent.TimeoutException
@@ -50,7 +51,7 @@ class GlitchFactory : ErrorFactory<Glitch> {
                 is IOException,
                 is TimeoutException -> getIoError(throwable)
                 is HttpException -> getHttpError(throwable)
-                else -> getDefaultError(throwable)
+                else -> getUnhandledError(throwable)
             }
 
     /**
@@ -87,12 +88,12 @@ class GlitchFactory : ErrorFactory<Glitch> {
      * @param throwable the original exception
      * @return the converted Glitch
      */
-    private fun getDefaultError(throwable: Throwable) =
-            Glitch.from(throwable) ?: Glitch(
-                    throwable,
-                    NON_HTTP_STATUS,
-                    UNKNOWN
-            )
+    private fun getUnhandledError(throwable: Throwable) =
+        Glitch.from(throwable) ?: Glitch(
+            throwable,
+            NON_HTTP_STATUS,
+            UNHANDLED
+        )
 
     /**
      * Parses an HttpException and returns an associated ErrorCode.
@@ -101,11 +102,25 @@ class GlitchFactory : ErrorFactory<Glitch> {
      * @return the associated ErrorCode
      */
     private fun parseErrorCode(httpException: HttpException) =
-            when (httpException.code()) {
-                401 -> UNAUTHORISED
-                404 -> NOT_FOUND
-                500 -> SERVER_ERROR
-                else -> UNKNOWN
-            }
+        when (httpException.code()) {
+            401 -> UNAUTHORISED
+            404 -> NOT_FOUND
+            500 -> SERVER_ERROR
+            else -> UNKNOWN
+        }
+
+    /**
+     * Returns this Throwable as a Result.Error if its type is handled by the factory
+     * and the cause is recognised as a handled error (i.e. an error that should be
+     * intercepted and returned as a Result via onNext() rather than be emitted via onError()).
+     * The logic above would only apply to types defined as Result in the Retrofit call.
+     * Exceptions that cannot be returned as a result will always be
+     * delivered via onError().
+     *
+     * @see dev.pthomain.android.glitchy.interceptor.outcome.Outcome
+     */
+    override fun asHandledError(throwable: Throwable) =
+        if (throwable is Glitch && throwable.errorCode != UNHANDLED) Outcome.Error(throwable)
+        else null
 
 }

@@ -23,17 +23,13 @@
 
 package dev.pthomain.android.glitchy.retrofit
 
-import dev.pthomain.android.boilerplate.core.utils.log.Logger
 import dev.pthomain.android.glitchy.interceptor.CompositeInterceptor
 import dev.pthomain.android.glitchy.interceptor.error.NetworkErrorPredicate
 import dev.pthomain.android.glitchy.retrofit.type.ParsedType
-import dev.pthomain.android.glitchy.retrofit.type.ReturnTypeParser
 import io.reactivex.Observable
 import io.reactivex.Single
 import retrofit2.Call
 import retrofit2.CallAdapter
-import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import java.lang.reflect.Type
 
 /**
@@ -42,7 +38,7 @@ import java.lang.reflect.Type
  *
  * @see dev.pthomain.android.glitchy.interceptor.error.ErrorFactory
  */
-internal class RetrofitCallAdapter<E, M> private constructor(
+internal class RetrofitCallAdapter<E, M>(
     private val compositeInterceptorFactory: CompositeInterceptor.Factory<E>,
     private val parsedType: ParsedType<M>,
     private val rxCallAdapter: CallAdapter<Any, Any>
@@ -74,44 +70,4 @@ internal class RetrofitCallAdapter<E, M> private constructor(
      */
     override fun responseType(): Type = rxCallAdapter.responseType()
 
-    /**
-     * Implements the call adapter factory for Retrofit composing the calls with DejaVuInterceptor.
-     *
-     * @param rxJava2CallAdapterFactory the default RxJava call adapter factory
-     * @param logger the logger
-     */
-    class Factory<E, M> internal constructor(
-        private val rxJava2CallAdapterFactory: RxJava2CallAdapterFactory,
-        private val compositeInterceptorFactory: CompositeInterceptor.Factory<E>,
-        private val returnTypeParser: ReturnTypeParser<M>,
-        private val logger: Logger
-    ) : CallAdapter.Factory()
-            where E : Throwable,
-                  E : NetworkErrorPredicate {
-
-        /**
-         * Returns a call adapter for interface methods that return {@code returnType}, or null if it
-         * cannot be handled by this factory.
-         *
-         * @param returnType the call's return type
-         * @param annotations the call's annotations
-         * @param retrofit Retrofit instance
-         *
-         * @return the Retrofit call adapter handling the cache
-         */
-        @Suppress("UNCHECKED_CAST")
-        override fun get(
-            returnType: Type,
-            annotations: Array<Annotation>,
-            retrofit: Retrofit
-        ): CallAdapter<*, *> = RetrofitCallAdapter(
-            compositeInterceptorFactory,
-            returnTypeParser.parseReturnType(returnType),
-            rxJava2CallAdapterFactory.get(
-                returnType,
-                annotations,
-                retrofit
-            ) as CallAdapter<Any, Any>
-        )
-    }
 }

@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (C) 2017-2020 Pierre Thomain
+ *  Copyright (C) 2017 Pierre Thomain
  *
  *  Licensed to the Apache Software Foundation (ASF) under one
  *  or more contributor license agreements.  See the NOTICE file
@@ -23,21 +23,8 @@
 
 package dev.pthomain.android.glitchy.demo
 
-import dev.pthomain.android.glitchy.interceptor.error.ErrorFactory
-import dev.pthomain.android.glitchy.interceptor.error.NetworkErrorPredicate
-import dev.pthomain.android.glitchy.interceptor.outcome.Outcome
-import java.io.IOException
+class CatFactResponse {
 
-class ApiError(override val cause: Throwable) : Throwable(), NetworkErrorPredicate {
+    var fact: String? = null
 
-    override fun isNetworkError() = cause is IOException
-
-    class Factory :
-        ErrorFactory<ApiError> {
-        override val exceptionClass = ApiError::class.java
-        override fun invoke(p1: Throwable) = ApiError(p1)
-
-        override fun asHandledError(throwable: Throwable) =
-            (throwable as? ApiError)?.let { Outcome.Error(it) }
-    }
 }

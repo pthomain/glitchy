@@ -25,19 +25,21 @@ package dev.pthomain.android.glitchy.interceptor
 
 import dev.pthomain.android.glitchy.interceptor.error.NetworkErrorPredicate
 import dev.pthomain.android.glitchy.retrofit.type.ParsedType
-import io.reactivex.*
+import io.reactivex.ObservableTransformer
+import io.reactivex.Single
+import io.reactivex.SingleTransformer
 
-interface RetrofitInterceptor
+interface Interceptor
     : ObservableTransformer<Any, Any>, SingleTransformer<Any, Any> {
 
     interface Factory<E> where E : Throwable,
                                E : NetworkErrorPredicate {
 
-        fun <M> create(parsedType: ParsedType<M>): RetrofitInterceptor?
+        fun <M> create(parsedType: ParsedType<M>): Interceptor?
 
     }
 
-    abstract class SimpleInterceptor : RetrofitInterceptor {
+    abstract class SimpleInterceptor : Interceptor {
 
         override fun apply(upstream: Single<Any>) = upstream
             .toObservable()

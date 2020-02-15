@@ -23,15 +23,19 @@
 
 package dev.pthomain.android.glitchy.interceptor
 
+import dev.pthomain.android.glitchy.interceptor.error.ErrorInterceptor
 import dev.pthomain.android.glitchy.interceptor.error.NetworkErrorPredicate
+import dev.pthomain.android.glitchy.interceptor.outcome.OutcomeInterceptor
 import dev.pthomain.android.glitchy.retrofit.type.ParsedType
 import io.reactivex.Observable
 import io.reactivex.ObservableSource
 
 class CompositeInterceptor<E, M> private constructor(
-    private val interceptorFactoryList: List<RetrofitInterceptor.Factory<E>>,
+    private val interceptorFactoryList: List<Interceptor.Factory<E>>,
+    private val errorInterceptorFactory: ErrorInterceptor.Factory<E>,
+    private val outcomeInterceptorFactory: OutcomeInterceptor.Factory<E>,
     private val parsedType: ParsedType<M>
-) : RetrofitInterceptor.SimpleInterceptor()
+) : Interceptor.SimpleInterceptor()
         where  E : Throwable,
                E : NetworkErrorPredicate {
 
@@ -39,6 +43,9 @@ class CompositeInterceptor<E, M> private constructor(
         var intercepted = upstream
 
         interceptorFactoryList
+            .asSequence()
+            .plus(errorInterceptorFactory)
+            .plus(outcomeInterceptorFactory)
             .mapNotNull { it.create(parsedType) }
             .forEach { intercepted = intercepted.compose(it) }
 
@@ -46,12 +53,16 @@ class CompositeInterceptor<E, M> private constructor(
     }
 
     class Factory<E> internal constructor(
-        private val interceptorFactoryList: List<RetrofitInterceptor.Factory<E>>
+        private val interceptorFactoryList: List<Interceptor.Factory<E>>,
+        private val errorInterceptorFactory: ErrorInterceptor.Factory<E>,
+        private val outcomeInterceptorFactory: OutcomeInterceptor.Factory<E>
     ) where  E : Throwable,
              E : NetworkErrorPredicate {
 
         fun <M> create(parsedType: ParsedType<M>) = CompositeInterceptor(
             interceptorFactoryList,
+            errorInterceptorFactory,
+            outcomeInterceptorFactory,
             parsedType
         )
     }

@@ -25,20 +25,23 @@ package dev.pthomain.android.glitchy.koin
 
 import dev.pthomain.android.boilerplate.core.utils.log.Logger
 import dev.pthomain.android.glitchy.interceptor.CompositeInterceptor
-import dev.pthomain.android.glitchy.interceptor.RetrofitInterceptor
+import dev.pthomain.android.glitchy.interceptor.Interceptor
 import dev.pthomain.android.glitchy.interceptor.error.ErrorFactory
+import dev.pthomain.android.glitchy.interceptor.error.ErrorInterceptor
 import dev.pthomain.android.glitchy.interceptor.error.NetworkErrorPredicate
-import dev.pthomain.android.glitchy.retrofit.RetrofitCallAdapter
+import dev.pthomain.android.glitchy.interceptor.outcome.OutcomeInterceptor
+import dev.pthomain.android.glitchy.retrofit.RetrofitCallAdapterFactory
 import dev.pthomain.android.glitchy.retrofit.type.ReturnTypeParser
 import org.koin.dsl.module
 import retrofit2.CallAdapter
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
+import java.util.*
 
 internal class GlitchyModule<E, M>(
-    private val logger: Logger,
-    private val errorFactory: ErrorFactory<E>,
-    private val returnTypeParser: ReturnTypeParser<M>,
-    private val interceptorFactoryList: List<RetrofitInterceptor.Factory<E>>
+    logger: Logger,
+    errorFactory: ErrorFactory<E>,
+    returnTypeParser: ReturnTypeParser<M>?,
+    interceptorFactoryList: LinkedList<Interceptor.Factory<E>>
 ) where E : Throwable,
         E : NetworkErrorPredicate {
 
@@ -46,12 +49,18 @@ internal class GlitchyModule<E, M>(
 
         single { errorFactory }
 
-        single { CompositeInterceptor.Factory(interceptorFactoryList) }
+        single {
+            CompositeInterceptor.Factory(
+                interceptorFactoryList,
+                ErrorInterceptor.Factory(errorFactory),
+                OutcomeInterceptor.Factory(errorFactory)
+            )
+        }
 
         single { RxJava2CallAdapterFactory.create() }
 
         single<CallAdapter.Factory> {
-            RetrofitCallAdapter.Factory<E, M>(
+            RetrofitCallAdapterFactory<E, M>(
                 get(),
                 get(),
                 returnTypeParser,

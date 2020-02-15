@@ -25,11 +25,19 @@ package dev.pthomain.android.glitchy.demo
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
 import com.google.gson.Gson
+import dev.pthomain.android.boilerplate.core.utils.rx.On
+import dev.pthomain.android.boilerplate.core.utils.rx.schedule
 import dev.pthomain.android.glitchy.Glitchy
+import dev.pthomain.android.glitchy.interceptor.outcome.Outcome
+import dev.pthomain.android.glitchy.interceptor.outcome.Outcome.*
+import io.reactivex.Single
+import io.reactivex.functions.Consumer
 import retrofit2.CallAdapter
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.GET
 
 class MainActivity : AppCompatActivity() {
 
@@ -38,10 +46,36 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val glitchCallAdapterFactory = Glitchy.createCallAdapterFactory()
-        val apiErrorCallAdapterFactory = Glitchy.createCallAdapterFactory(ApiError.Factory())
+        val apiErrorCallAdapterFactory = Glitchy.createCallAdapterFactory<ApiError, Any>(
+            ApiError.Factory()
+        )
 
         val glitchRetrofit = getRetrofit(glitchCallAdapterFactory)
         val apiErrorRetrofit = getRetrofit(apiErrorCallAdapterFactory)
+
+        val testClient = glitchRetrofit.create(TestClient::class.java)
+
+        testClient.getFact()
+            .schedule(On.Io, On.MainThread)
+            .subscribe(Consumer {
+                val message = when (it) {
+                    is Success -> it.response.fact
+                    is Error<*> -> it.exception.message
+                }
+
+                Toast.makeText(
+                    this,
+                    message,
+                    Toast.LENGTH_LONG
+                ).show()
+            })
+    }
+
+    interface TestClient {
+
+        @GET(ENDPOINT)
+        fun getFact(): Single<Outcome<CatFactResponse>>
+
     }
 
     private fun getRetrofit(callAdapterFactory: CallAdapter.Factory) =

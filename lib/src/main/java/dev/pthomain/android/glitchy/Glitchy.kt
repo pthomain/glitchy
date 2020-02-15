@@ -24,19 +24,18 @@
 package dev.pthomain.android.glitchy
 
 import dev.pthomain.android.boilerplate.core.utils.log.Logger
-import dev.pthomain.android.glitchy.interceptor.RetrofitInterceptor
+import dev.pthomain.android.glitchy.interceptor.Interceptor
 import dev.pthomain.android.glitchy.interceptor.error.ErrorFactory
 import dev.pthomain.android.glitchy.interceptor.error.NetworkErrorPredicate
 import dev.pthomain.android.glitchy.interceptor.error.glitch.Glitch
 import dev.pthomain.android.glitchy.interceptor.error.glitch.GlitchFactory
 import dev.pthomain.android.glitchy.koin.GlitchyModule
-import dev.pthomain.android.glitchy.retrofit.type.ParsedType
 import dev.pthomain.android.glitchy.retrofit.type.ReturnTypeParser
 import org.koin.core.Koin
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import retrofit2.CallAdapter
-import java.lang.reflect.Type
+import java.util.*
 
 object Glitchy {
 
@@ -48,20 +47,12 @@ object Glitchy {
         override fun e(tagOrCaller: Any, t: Throwable, message: String?) = Unit
     }
 
-    private fun defaultTypeParser() = object : ReturnTypeParser<Unit> {
-        override fun parseReturnType(returnType: Type) = object : ParsedType<Unit> {
-            override val metadata = Unit
-            override val returnType = returnType
-            override val responseClass: Class<*> = returnType as Class<*>
-        }
-    }
-
     @Synchronized
     private fun <E, M> getKoin(
         logger: Logger?,
         errorFactory: ErrorFactory<E>,
-        returnTypeParser: ReturnTypeParser<M>,
-        interceptorFactoryList: List<RetrofitInterceptor.Factory<E>>
+        returnTypeParser: ReturnTypeParser<M>?,
+        interceptorFactoryList: LinkedList<Interceptor.Factory<E>>
     ): Koin where E : Throwable, E : NetworkErrorPredicate {
         if (koin != null) stopKoin()
 
@@ -80,32 +71,32 @@ object Glitchy {
     }
 
     fun createCallAdapterFactory(
-        interceptorFactoryList: List<RetrofitInterceptor.Factory<Glitch>> = emptyList(),
+        interceptorFactoryList: LinkedList<Interceptor.Factory<Glitch>> = LinkedList(),
         logger: Logger? = null
     ) =
-        createCallAdapterFactory(
+        createCallAdapterFactory<Glitch, Unit>(
             GlitchFactory(),
-            defaultTypeParser(),
+            null,
             interceptorFactoryList,
             logger
         )
 
-    fun <E> createCallAdapterFactory(
+    fun <E, M> createCallAdapterFactory(
         errorFactory: ErrorFactory<E>,
-        interceptorFactoryList: List<RetrofitInterceptor.Factory<E>> = emptyList(),
+        interceptorFactoryList: LinkedList<Interceptor.Factory<E>> = LinkedList(),
         logger: Logger? = null
     ) where E : Throwable, E : NetworkErrorPredicate =
-        createCallAdapterFactory(
+        createCallAdapterFactory<E, M>(
             errorFactory,
-            defaultTypeParser(),
+            null,
             interceptorFactoryList,
             logger
         )
 
-    fun <M, E> createCallAdapterFactory(
+    fun <E, M> createCallAdapterFactory(
         errorFactory: ErrorFactory<E>,
-        returnTypeParser: ReturnTypeParser<M>,
-        interceptorFactoryList: List<RetrofitInterceptor.Factory<E>> = emptyList(),
+        returnTypeParser: ReturnTypeParser<M>?,
+        interceptorFactoryList: LinkedList<Interceptor.Factory<E>> = LinkedList(),
         logger: Logger? = null
     ) where E : Throwable, E : NetworkErrorPredicate =
         getKoin(
