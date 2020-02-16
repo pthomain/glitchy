@@ -27,7 +27,10 @@ import java.lang.reflect.Type
 
 interface ReturnTypeParser<M> {
 
-    fun parseReturnType(returnType : Type): ParsedType<M>
+    fun parseReturnType(
+        returnType: Type,
+        annotations: Array<Annotation>
+    ): ParsedType<M>
 
 }
 

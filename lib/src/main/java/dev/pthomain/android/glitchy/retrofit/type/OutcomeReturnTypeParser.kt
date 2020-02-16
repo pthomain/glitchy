@@ -35,8 +35,11 @@ class OutcomeReturnTypeParser<M>(
     private val metadataResolver: (ParsedType<*>) -> M
 ) : ReturnTypeParser<M> {
 
-    override fun parseReturnType(returnType: Type): ParsedType<M> {
-        val parsedRxType = RxReturnTypeParser.INSTANCE.parseReturnType(returnType)
+    override fun parseReturnType(
+        returnType: Type,
+        annotations: Array<Annotation>
+    ): ParsedType<M> {
+        val parsedRxType = RxReturnTypeParser.INSTANCE.parseReturnType(returnType, annotations)
         val parsedType = parsedRxType.parsedType
 
         val (parsedResultType, outcomeType) = if (rawType(parsedType) == Outcome::class.java ) {

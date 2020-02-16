@@ -78,7 +78,7 @@ class RetrofitCallAdapterFactory<E, M> internal constructor(
         retrofit: Retrofit
     ): CallAdapter<*, *> {
         val parser = returnTypeParser ?: OutcomeReturnTypeParser.INSTANCE
-        val parsedReturnType = parser.parseReturnType(returnType)
+        val parsedReturnType = parser.parseReturnType(returnType, annotations)
 
         return RetrofitCallAdapter(
             compositeInterceptorFactory,

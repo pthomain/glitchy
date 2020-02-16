@@ -33,7 +33,10 @@ class RxReturnTypeParser<M>(
     private val metadataResolver: (Type) -> M
 ) : ReturnTypeParser<M> {
 
-    override fun parseReturnType(returnType: Type) = ParsedType(
+    override fun parseReturnType(
+        returnType: Type,
+        annotations: Array<Annotation>
+    ): ParsedType<M> = ParsedType(
         metadataResolver(returnType),
         returnType,
         extractParam(returnType)
