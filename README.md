@@ -6,7 +6,7 @@ TL;DR
 This library provides interceptors to automatically categorise your Retrofit / RxJava exceptions in 2 types: 
 
 - Handled exceptions that can be handled gracefully in the UI (e.g. IO exceptions)
-- Unhandled exceptions that should be reported and from which the app might be able to recover (e.g. NPEs).
+- Unhandled exceptions that should be reported and from which the app might not be able to recover (e.g. NPEs).
 
 How does it work?
 -----------------
@@ -28,7 +28,7 @@ It's easier to abstract and group your exceptions by type (i.e. network, API, pa
 Set up
 ------
 
-Coming soon...
+Coming soon... (see app for implementation)
 
 More
 ----
