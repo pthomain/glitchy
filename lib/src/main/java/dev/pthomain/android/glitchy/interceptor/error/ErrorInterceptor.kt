@@ -52,7 +52,7 @@ internal class ErrorInterceptor<E> private constructor(
     override fun apply(upstream: Observable<Any>) =
         upstream.onErrorResumeNext(Function { Observable.error(errorFactory(it)) })!!
 
-    class Factory<E>(private val errorFactory: ErrorFactory<E>) : Interceptor.Factory<E>
+    class Factory<E>(private val errorFactory: ErrorFactory<E>) : Interceptor.TypeFactory<E>
             where E : Throwable,
                   E : NetworkErrorPredicate {
 

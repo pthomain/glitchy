@@ -24,7 +24,8 @@
 package dev.pthomain.android.glitchy.retrofit
 
 import dev.pthomain.android.boilerplate.core.utils.log.Logger
-import dev.pthomain.android.glitchy.interceptor.CompositeInterceptor
+import dev.pthomain.android.glitchy.interceptor.CompositeCallInterceptor
+import dev.pthomain.android.glitchy.interceptor.CompositeTypeInterceptor
 import dev.pthomain.android.glitchy.interceptor.error.NetworkErrorPredicate
 import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser
 import dev.pthomain.android.glitchy.retrofit.type.ReturnTypeParser
@@ -42,7 +43,8 @@ import java.lang.reflect.Type
  */
 class RetrofitCallAdapterFactory<E, M> internal constructor(
     private val rxJava2CallAdapterFactory: RxJava2CallAdapterFactory,
-    private val compositeInterceptorFactory: CompositeInterceptor.Factory<E>,
+    private val compositeTypeInterceptorFactory: CompositeTypeInterceptor.Factory<E>,
+    private val compositeCallInterceptorFactory: CompositeCallInterceptor.Factory<E>,
     private val returnTypeParser: ReturnTypeParser<M>?,
     private val logger: Logger
 ) : CallAdapter.Factory()
@@ -80,14 +82,17 @@ class RetrofitCallAdapterFactory<E, M> internal constructor(
         val parser = returnTypeParser ?: OutcomeReturnTypeParser.INSTANCE
         val parsedReturnType = parser.parseReturnType(returnType, annotations)
 
+        val glitchyCallAdapter = rxJava2CallAdapterFactory.get(
+            parsedReturnType.returnType,
+            annotations,
+            retrofit
+        ) as CallAdapter<Any, Any>
+
         return RetrofitCallAdapter(
-            compositeInterceptorFactory,
+            compositeTypeInterceptorFactory,
+            compositeCallInterceptorFactory,
             parsedReturnType,
-            rxJava2CallAdapterFactory.get(
-                parsedReturnType.returnType,
-                annotations,
-                retrofit
-            ) as CallAdapter<Any, Any>
+            glitchyCallAdapter
         )
     }
 }

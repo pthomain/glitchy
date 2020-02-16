@@ -53,7 +53,7 @@ internal class OutcomeInterceptor<E, M> private constructor(
             })!!
 
 
-    class Factory<E>(private val errorFactory: ErrorFactory<E>) : Interceptor.Factory<E>
+    class Factory<E>(private val errorFactory: ErrorFactory<E>) : Interceptor.TypeFactory<E>
             where E : Throwable,
                   E : NetworkErrorPredicate {
 

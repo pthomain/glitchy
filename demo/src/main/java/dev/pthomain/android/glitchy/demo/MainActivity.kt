@@ -78,10 +78,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun <E> getInterceptorFactoryList()
+    private fun <E> getTypeInterceptorFactoryList()
             where E : Throwable,
-                  E : NetworkErrorPredicate = LinkedList<Interceptor.Factory<E>>().apply {
-        add(object : Interceptor.Factory<E> {
+                  E : NetworkErrorPredicate = LinkedList<Interceptor.TypeFactory<E>>().apply {
+        add(object : Interceptor.TypeFactory<E> {
             override fun <M> create(parsedType: ParsedType<M>) = exceptionInterceptor
         })
     }
@@ -97,11 +97,11 @@ class MainActivity : AppCompatActivity() {
         val unhandledExceptionButton = findViewById<Button>(R.id.throw_unhandled_exception)
 
         val glitchCallAdapterFactory = Glitchy.createGlitchCallAdapterFactory(
-            getInterceptorFactoryList()
+            getTypeInterceptorFactoryList()
         )
         val apiErrorCallAdapterFactory = Glitchy.createCallAdapterFactory<ApiError, Any>(
             ApiError.Factory(),
-            interceptorFactoryList = getInterceptorFactoryList()
+            typeInterceptorFactoryList = getTypeInterceptorFactoryList()
         )
 
         glitchRetrofit = getRetrofit(glitchCallAdapterFactory)

@@ -30,8 +30,8 @@ import dev.pthomain.android.glitchy.retrofit.type.ParsedType
 import io.reactivex.Observable
 import io.reactivex.ObservableSource
 
-class CompositeInterceptor<E, M> private constructor(
-    private val interceptorFactoryList: List<Interceptor.Factory<E>>,
+class CompositeTypeInterceptor<E, M> private constructor(
+    private val typeInterceptorFactoryList: List<Interceptor.TypeFactory<E>>,
     private val errorInterceptorFactory: ErrorInterceptor.Factory<E>,
     private val outcomeInterceptorFactory: OutcomeInterceptor.Factory<E>,
     private val parsedType: ParsedType<M>
@@ -42,7 +42,7 @@ class CompositeInterceptor<E, M> private constructor(
     override fun apply(upstream: Observable<Any>): ObservableSource<Any> {
         var intercepted = upstream
 
-        interceptorFactoryList
+        typeInterceptorFactoryList
             .asSequence()
             .plus(errorInterceptorFactory)
             .plus(outcomeInterceptorFactory)
@@ -52,15 +52,15 @@ class CompositeInterceptor<E, M> private constructor(
         return intercepted
     }
 
-    class Factory<E> internal constructor(
-        private val interceptorFactoryList: List<Interceptor.Factory<E>>,
+    internal class Factory<E> internal constructor(
+        private val interceptorFactoryList: List<Interceptor.TypeFactory<E>>,
         private val errorInterceptorFactory: ErrorInterceptor.Factory<E>,
         private val outcomeInterceptorFactory: OutcomeInterceptor.Factory<E>
-    ) : Interceptor.Factory<E>
+    ) : Interceptor.TypeFactory<E>
             where  E : Throwable,
                    E : NetworkErrorPredicate {
 
-        override fun <M> create(parsedType: ParsedType<M>) = CompositeInterceptor(
+        override fun <M> create(parsedType: ParsedType<M>) = CompositeTypeInterceptor(
             interceptorFactoryList,
             errorInterceptorFactory,
             outcomeInterceptorFactory,

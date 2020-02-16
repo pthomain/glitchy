@@ -23,7 +23,8 @@
 
 package dev.pthomain.android.glitchy.retrofit
 
-import dev.pthomain.android.glitchy.interceptor.CompositeInterceptor
+import dev.pthomain.android.glitchy.interceptor.CompositeCallInterceptor
+import dev.pthomain.android.glitchy.interceptor.CompositeTypeInterceptor
 import dev.pthomain.android.glitchy.interceptor.error.NetworkErrorPredicate
 import dev.pthomain.android.glitchy.retrofit.type.ParsedType
 import io.reactivex.Observable
@@ -39,9 +40,10 @@ import java.lang.reflect.Type
  * @see dev.pthomain.android.glitchy.interceptor.error.ErrorFactory
  */
 internal class RetrofitCallAdapter<E, M>(
-    private val compositeInterceptorFactory: CompositeInterceptor.Factory<E>,
+    private val compositeTypeInterceptorFactory: CompositeTypeInterceptor.Factory<E>,
+    private val compositeCallInterceptorFactory: CompositeCallInterceptor.Factory<E>,
     private val parsedType: ParsedType<M>,
-    private val rxCallAdapter: CallAdapter<Any, Any>
+    private val glitchyCallAdapter: CallAdapter<Any, Any>
 ) : CallAdapter<Any, Any>
         where E : Throwable,
               E : NetworkErrorPredicate {
@@ -55,12 +57,13 @@ internal class RetrofitCallAdapter<E, M>(
      * @return the call adapted to RxJava type
      */
     override fun adapt(call: Call<Any>) =
-        with(rxCallAdapter.adapt(call)) {
-            val interceptor = compositeInterceptorFactory.create(parsedType)
+        with(glitchyCallAdapter.adapt(call)) {
+            val typeInterceptor = compositeTypeInterceptorFactory.create(parsedType)
+            val callInterceptor = compositeCallInterceptorFactory.create(call)
 
             when (this) {
-                is Single<*> -> compose(interceptor)
-                is Observable<*> -> compose(interceptor)
+                is Single<*> -> compose(typeInterceptor).compose(callInterceptor)
+                is Observable<*> -> compose(typeInterceptor).compose(callInterceptor)
                 else -> this
             }
         }!!
@@ -68,6 +71,6 @@ internal class RetrofitCallAdapter<E, M>(
     /**
      * @return the value type as defined by the default RxJava adapter.
      */
-    override fun responseType(): Type = rxCallAdapter.responseType()
+    override fun responseType(): Type = glitchyCallAdapter.responseType()
 
 }

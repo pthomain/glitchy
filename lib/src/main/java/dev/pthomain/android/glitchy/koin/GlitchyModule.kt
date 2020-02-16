@@ -24,7 +24,8 @@
 package dev.pthomain.android.glitchy.koin
 
 import dev.pthomain.android.boilerplate.core.utils.log.Logger
-import dev.pthomain.android.glitchy.interceptor.CompositeInterceptor
+import dev.pthomain.android.glitchy.interceptor.CompositeCallInterceptor
+import dev.pthomain.android.glitchy.interceptor.CompositeTypeInterceptor
 import dev.pthomain.android.glitchy.interceptor.Interceptor
 import dev.pthomain.android.glitchy.interceptor.error.ErrorFactory
 import dev.pthomain.android.glitchy.interceptor.error.ErrorInterceptor
@@ -41,7 +42,8 @@ internal class GlitchyModule<E, M>(
     logger: Logger,
     errorFactory: ErrorFactory<E>,
     returnTypeParser: ReturnTypeParser<M>?,
-    interceptorFactoryList: LinkedList<Interceptor.Factory<E>>
+    typeInterceptorFactoryList: LinkedList<Interceptor.TypeFactory<E>>,
+    callInterceptorFactoryList: LinkedList<Interceptor.CallFactory<E>>
 ) where E : Throwable,
         E : NetworkErrorPredicate {
 
@@ -50,10 +52,16 @@ internal class GlitchyModule<E, M>(
         single { errorFactory }
 
         single {
-            CompositeInterceptor.Factory(
-                interceptorFactoryList,
+            CompositeTypeInterceptor.Factory(
+                typeInterceptorFactoryList,
                 ErrorInterceptor.Factory(errorFactory),
                 OutcomeInterceptor.Factory(errorFactory)
+            )
+        }
+
+        single {
+            CompositeCallInterceptor.Factory(
+                callInterceptorFactoryList
             )
         }
 
@@ -61,6 +69,7 @@ internal class GlitchyModule<E, M>(
 
         single<CallAdapter.Factory> {
             RetrofitCallAdapterFactory<E, M>(
+                get(),
                 get(),
                 get(),
                 returnTypeParser,

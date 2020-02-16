@@ -28,14 +28,22 @@ import dev.pthomain.android.glitchy.retrofit.type.ParsedType
 import io.reactivex.ObservableTransformer
 import io.reactivex.Single
 import io.reactivex.SingleTransformer
+import retrofit2.Call
 
 interface Interceptor
     : ObservableTransformer<Any, Any>, SingleTransformer<Any, Any> {
 
-    interface Factory<E> where E : Throwable,
-                               E : NetworkErrorPredicate {
+    interface TypeFactory<E> where E : Throwable,
+                                   E : NetworkErrorPredicate {
 
         fun <M> create(parsedType: ParsedType<M>): Interceptor?
+
+    }
+
+    interface CallFactory<E> where E : Throwable,
+                                   E : NetworkErrorPredicate {
+
+        fun create(call: Call<Any>): Interceptor?
 
     }
 
