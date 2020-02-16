@@ -31,7 +31,7 @@ import io.reactivex.Single
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 
-class ResultReturnTypeParser<M>(
+class OutcomeReturnTypeParser<M>(
     private val metadataResolver: (ParsedType<*>) -> M
 ) : ReturnTypeParser<M> {
 
@@ -59,7 +59,7 @@ class ResultReturnTypeParser<M>(
 
     companion object {
         @JvmStatic
-        val INSTANCE = ResultReturnTypeParser {
+        val INSTANCE = OutcomeReturnTypeParser {
             ifElse(
                 rawType(it.parsedType) == Outcome::class.java,
                 OutcomeToken,

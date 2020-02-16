@@ -26,7 +26,7 @@ package dev.pthomain.android.glitchy.retrofit
 import dev.pthomain.android.boilerplate.core.utils.log.Logger
 import dev.pthomain.android.glitchy.interceptor.CompositeInterceptor
 import dev.pthomain.android.glitchy.interceptor.error.NetworkErrorPredicate
-import dev.pthomain.android.glitchy.retrofit.type.ResultReturnTypeParser
+import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser
 import dev.pthomain.android.glitchy.retrofit.type.ReturnTypeParser
 import retrofit2.CallAdapter
 import retrofit2.Retrofit
@@ -49,15 +49,17 @@ class RetrofitCallAdapterFactory<E, M> internal constructor(
         where E : Throwable,
               E : NetworkErrorPredicate {
 
-    internal companion object {
+     companion object {
 
-        internal fun rawType(type: Type) = getRawType(type)
+         @JvmStatic
+         fun rawType(type: Type): Class<*> = getRawType(type)
 
-        internal fun getFirstParameterUpperBound(returnType: Type) =
-            if (returnType is ParameterizedType)
-                getParameterUpperBound(0, returnType)
-            else null
-    }
+         @JvmStatic
+         fun getFirstParameterUpperBound(returnType: Type) =
+             (returnType as? ParameterizedType)?.let {
+                 getParameterUpperBound(0, it)
+             }
+     }
 
     /**
      * Returns a call adapter for interface methods that return {@code returnType}, or null if it
@@ -75,7 +77,7 @@ class RetrofitCallAdapterFactory<E, M> internal constructor(
         annotations: Array<Annotation>,
         retrofit: Retrofit
     ): CallAdapter<*, *> {
-        val parser = returnTypeParser ?: ResultReturnTypeParser.INSTANCE
+        val parser = returnTypeParser ?: OutcomeReturnTypeParser.INSTANCE
         val parsedReturnType = parser.parseReturnType(returnType)
 
         return RetrofitCallAdapter(

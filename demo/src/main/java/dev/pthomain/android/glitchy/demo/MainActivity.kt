@@ -23,59 +23,146 @@
 
 package dev.pthomain.android.glitchy.demo
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Toast
+import android.widget.Button
+import android.widget.RadioGroup
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.Gson
+import dev.pthomain.android.boilerplate.core.utils.kotlin.ifElse
 import dev.pthomain.android.boilerplate.core.utils.rx.On
 import dev.pthomain.android.boilerplate.core.utils.rx.schedule
 import dev.pthomain.android.glitchy.Glitchy
+import dev.pthomain.android.glitchy.demo.CatFactClient.Companion.BASE_URL
+import dev.pthomain.android.glitchy.interceptor.Interceptor
+import dev.pthomain.android.glitchy.interceptor.Interceptor.SimpleInterceptor
+import dev.pthomain.android.glitchy.interceptor.error.NetworkErrorPredicate
 import dev.pthomain.android.glitchy.interceptor.outcome.Outcome
-import dev.pthomain.android.glitchy.interceptor.outcome.Outcome.*
-import io.reactivex.Single
-import io.reactivex.functions.Consumer
+import dev.pthomain.android.glitchy.interceptor.outcome.Outcome.Error
+import dev.pthomain.android.glitchy.interceptor.outcome.Outcome.Success
+import dev.pthomain.android.glitchy.retrofit.type.ParsedType
+import io.reactivex.Observable
+import io.reactivex.disposables.Disposable
 import retrofit2.CallAdapter
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.GET
+import java.io.IOException
+import java.util.*
+import java.util.concurrent.atomic.AtomicBoolean
 
 class MainActivity : AppCompatActivity() {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+    private lateinit var glitchRetrofit: Retrofit
+    private lateinit var apiErrorRetrofit: Retrofit
+    private lateinit var textView: TextView
 
-        val glitchCallAdapterFactory = Glitchy.createCallAdapterFactory()
-        val apiErrorCallAdapterFactory = Glitchy.createCallAdapterFactory<ApiError, Any>(
-            ApiError.Factory()
-        )
+    private var disposable: Disposable? = null
+    private var useGlitch = true
 
-        val glitchRetrofit = getRetrofit(glitchCallAdapterFactory)
-        val apiErrorRetrofit = getRetrofit(apiErrorCallAdapterFactory)
+    private val throwHandledException = AtomicBoolean(false)
+    private val throwUnhandledException = AtomicBoolean(false)
 
-        val testClient = glitchRetrofit.create(TestClient::class.java)
+    private val exceptionInterceptor = object : SimpleInterceptor() {
+        override fun apply(upstream: Observable<Any>) = upstream.flatMap {
+            when {
+                throwHandledException.getAndSet(false) -> Observable.error<Any>(
+                    IOException("Some IO exception occurred")
+                )
 
-        testClient.getFact()
-            .schedule(On.Io, On.MainThread)
-            .subscribe(Consumer {
-                val message = when (it) {
-                    is Success -> it.response.fact
-                    is Error<*> -> it.exception.message
-                }
+                throwUnhandledException.getAndSet(false) -> Observable.error<Any>(
+                    NullPointerException("Something was null")
+                )
 
-                Toast.makeText(
-                    this,
-                    message,
-                    Toast.LENGTH_LONG
-                ).show()
-            })
+                else -> upstream
+            }
+        }
     }
 
-    interface TestClient {
+    private fun <E> getInterceptorFactoryList()
+            where E : Throwable,
+                  E : NetworkErrorPredicate = LinkedList<Interceptor.Factory<E>>().apply {
+        add(object : Interceptor.Factory<E> {
+            override fun <M> create(parsedType: ParsedType<M>) = exceptionInterceptor
+        })
+    }
 
-        @GET(ENDPOINT)
-        fun getFact(): Single<Outcome<CatFactResponse>>
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
+        setContentView(R.layout.activity_main)
+        textView = findViewById(R.id.fact)
+        val radioGroup = findViewById<RadioGroup>(R.id.radio_group)
+        val loadButton = findViewById<Button>(R.id.load)
+        val handledExceptionButton = findViewById<Button>(R.id.throw_handled_exception)
+        val unhandledExceptionButton = findViewById<Button>(R.id.throw_unhandled_exception)
+
+        val glitchCallAdapterFactory = Glitchy.createGlitchCallAdapterFactory(
+            getInterceptorFactoryList()
+        )
+        val apiErrorCallAdapterFactory = Glitchy.createCallAdapterFactory<ApiError, Any>(
+            ApiError.Factory(),
+            interceptorFactoryList = getInterceptorFactoryList()
+        )
+
+        glitchRetrofit = getRetrofit(glitchCallAdapterFactory)
+        apiErrorRetrofit = getRetrofit(apiErrorCallAdapterFactory)
+
+        radioGroup.setOnCheckedChangeListener { _, checkedId ->
+            useGlitch = checkedId == R.id.glitch
+        }
+
+        handledExceptionButton.setOnClickListener {
+            throwHandledException.set(true)
+            loadFact()
+        }
+        unhandledExceptionButton.setOnClickListener {
+            throwUnhandledException.set(true)
+            loadFact()
+        }
+
+        loadButton.setOnClickListener {
+            loadFact()
+        }
+    }
+
+    private fun loadFact() {
+        textView.text = getString(R.string.loading)
+
+        val client = ifElse(
+            useGlitch,
+            glitchRetrofit,
+            apiErrorRetrofit
+        ).create(CatFactClient::class.java)
+
+        disposable = client.getFact()
+            .schedule(On.Io, On.MainThread)
+            .doOnError { resetState() }
+            .subscribe(::onOutcome)
+    }
+
+    private fun onOutcome(outcome: Outcome<CatFactResponse>) {
+        textView.text = when (outcome) {
+
+            is Success -> getString(R.string.cat_fact, outcome.response.fact)
+
+            is Error<*> -> with(outcome.exception) {
+                getString(
+                    R.string.handled_error,
+                    "${javaClass.simpleName}: $message"
+                )
+            }
+        }
+    }
+
+    private fun resetState() {
+        textView.post { textView.text = "" }
+        throwHandledException.set(false)
+        throwUnhandledException.set(false)
+    }
+
+    override fun onDestroy() {
+        disposable?.dispose()
+        super.onDestroy()
     }
 
     private fun getRetrofit(callAdapterFactory: CallAdapter.Factory) =
@@ -85,8 +172,4 @@ class MainActivity : AppCompatActivity() {
             .addCallAdapterFactory(callAdapterFactory)
             .build()
 
-    companion object {
-        internal const val BASE_URL = "https://catfact.ninja/"
-        internal const val ENDPOINT = "fact"
-    }
 }

@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">Glitchy Demo</string>
+    <string name="loading">Loading…</string>
+    <string name="cat_fact">Here\'s a cat fact for you:\n\n%s</string>
+    <string name="handled_error">Gracefully handling an expected error:\n\n%s</string>
+    <string name="unhandled_error">Oops, this should not have happened:\n\n%s</string>
+    <string name="load_fact">Load a cat fact</string>
+    <string name="throw_handled_exception">Throw a handled exception</string>
+    <string name="throw_unhandled_exception">Throw an unhandled exception</string>
+    <string name="use_glitch">Use GlitchFactory</string>
+    <string name="use_api_error">Use ApiErrorFactory</string>
 </resources>

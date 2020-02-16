@@ -23,31 +23,16 @@
 
 package dev.pthomain.android.glitchy.demo
 
-import dev.pthomain.android.boilerplate.core.utils.kotlin.ifElse
-import dev.pthomain.android.glitchy.interceptor.error.ErrorFactory
-import dev.pthomain.android.glitchy.interceptor.error.NetworkErrorPredicate
 import dev.pthomain.android.glitchy.interceptor.outcome.Outcome
-import java.io.IOException
+import io.reactivex.Single
+import retrofit2.http.GET
 
-class ApiError(override val cause: Throwable) : Throwable(), NetworkErrorPredicate {
+interface CatFactClient {
+    @GET(ENDPOINT)
+    fun getFact(): Single<Outcome<CatFactResponse>>
 
-    override fun isNetworkError() = cause is IOException
-
-    override val message = "This is a custom ${ifElse(
-        isNetworkError(),
-        "handled",
-        "unhandled"
-    )} ApiError:\n$cause"
-
-    class Factory : ErrorFactory<ApiError> {
-
-        override val exceptionClass = ApiError::class.java
-
-        override fun invoke(p1: Throwable) = ApiError(p1)
-
-        override fun asHandledError(throwable: Throwable) =
-            if (throwable is ApiError && throwable.isNetworkError())
-                Outcome.Error(throwable)
-            else null
+    companion object {
+        internal const val BASE_URL = "https://catfact.ninja/"
+        internal const val ENDPOINT = "fact"
     }
 }

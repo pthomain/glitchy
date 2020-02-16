@@ -70,7 +70,7 @@ object Glitchy {
         return koin!!
     }
 
-    fun createCallAdapterFactory(
+    fun createGlitchCallAdapterFactory(
         interceptorFactoryList: LinkedList<Interceptor.Factory<Glitch>> = LinkedList(),
         logger: Logger? = null
     ) =
@@ -83,19 +83,7 @@ object Glitchy {
 
     fun <E, M> createCallAdapterFactory(
         errorFactory: ErrorFactory<E>,
-        interceptorFactoryList: LinkedList<Interceptor.Factory<E>> = LinkedList(),
-        logger: Logger? = null
-    ) where E : Throwable, E : NetworkErrorPredicate =
-        createCallAdapterFactory<E, M>(
-            errorFactory,
-            null,
-            interceptorFactoryList,
-            logger
-        )
-
-    fun <E, M> createCallAdapterFactory(
-        errorFactory: ErrorFactory<E>,
-        returnTypeParser: ReturnTypeParser<M>?,
+        returnTypeParser: ReturnTypeParser<M>? = null,
         interceptorFactoryList: LinkedList<Interceptor.Factory<E>> = LinkedList(),
         logger: Logger? = null
     ) where E : Throwable, E : NetworkErrorPredicate =

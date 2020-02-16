@@ -56,10 +56,11 @@ class CompositeInterceptor<E, M> private constructor(
         private val interceptorFactoryList: List<Interceptor.Factory<E>>,
         private val errorInterceptorFactory: ErrorInterceptor.Factory<E>,
         private val outcomeInterceptorFactory: OutcomeInterceptor.Factory<E>
-    ) where  E : Throwable,
-             E : NetworkErrorPredicate {
+    ) : Interceptor.Factory<E>
+            where  E : Throwable,
+                   E : NetworkErrorPredicate {
 
-        fun <M> create(parsedType: ParsedType<M>) = CompositeInterceptor(
+        override fun <M> create(parsedType: ParsedType<M>) = CompositeInterceptor(
             interceptorFactoryList,
             errorInterceptorFactory,
             outcomeInterceptorFactory,
