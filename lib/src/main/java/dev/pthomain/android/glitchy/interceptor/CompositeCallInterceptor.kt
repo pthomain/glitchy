@@ -24,13 +24,15 @@
 package dev.pthomain.android.glitchy.interceptor
 
 import dev.pthomain.android.glitchy.interceptor.error.NetworkErrorPredicate
+import dev.pthomain.android.glitchy.retrofit.type.ParsedType
 import io.reactivex.Observable
 import io.reactivex.ObservableSource
 import retrofit2.Call
 import java.util.*
 
-class CompositeCallInterceptor<E> private constructor(
+class CompositeCallInterceptor<E, M> private constructor(
     private val callInterceptors: LinkedList<Interceptor.CallFactory<E>>,
+    private val parsedType: ParsedType<M>,
     private val call: Call<Any>
 ) : Interceptor.SimpleInterceptor()
         where  E : Throwable,
@@ -41,7 +43,7 @@ class CompositeCallInterceptor<E> private constructor(
 
         callInterceptors
             .asSequence()
-            .mapNotNull { it.create(call) }
+            .mapNotNull { it.create(parsedType, call) }
             .forEach { intercepted = intercepted.compose(it) }
 
         return intercepted
@@ -53,9 +55,13 @@ class CompositeCallInterceptor<E> private constructor(
             where  E : Throwable,
                    E : NetworkErrorPredicate {
 
-        override fun create(call: Call<Any>) =
+        override fun <M> create(
+            parsedType: ParsedType<M>,
+            call: Call<Any>
+        ) =
             CompositeCallInterceptor(
                 callInterceptors,
+                parsedType,
                 call
             )
     }

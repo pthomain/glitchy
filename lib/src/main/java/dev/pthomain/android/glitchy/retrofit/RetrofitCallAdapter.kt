@@ -59,7 +59,7 @@ internal class RetrofitCallAdapter<E, M>(
     override fun adapt(call: Call<Any>) =
         with(glitchyCallAdapter.adapt(call)) {
             val typeInterceptor = compositeTypeInterceptorFactory.create(parsedType)
-            val callInterceptor = compositeCallInterceptorFactory.create(call)
+            val callInterceptor = compositeCallInterceptorFactory.create(parsedType, call)
 
             when (this) {
                 is Single<*> -> compose(typeInterceptor).compose(callInterceptor)

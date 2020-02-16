@@ -43,7 +43,10 @@ interface Interceptor
     interface CallFactory<E> where E : Throwable,
                                    E : NetworkErrorPredicate {
 
-        fun create(call: Call<Any>): Interceptor?
+        fun <M> create(
+            parsedType: ParsedType<M>,
+            call: Call<Any>
+        ): Interceptor?
 
     }
 
