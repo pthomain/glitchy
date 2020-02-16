@@ -1,29 +1,24 @@
 <img src="https://github.com/pthomain/glitchy/blob/master/github/glitchy-header.png" style="height: 256px; width: auto;"/>
 
-Ever had to handle an API exception?
-------------------------------------
+TL;DR
+-----
 
-If so was it:
+This library provides interceptors to automatically categorise your Retrofit / RxJava exceptions in 2 types: 
 
-- a network availability / IO error?
-- a parsing error with one of the models?
-- an serialised error returned from the application layer of the back-end?
-- an HTTP error?
-- a coding error?
-- an NPE?
+- Handled exceptions that can be handled gracefully in the UI (e.g. IO exceptions)
+- Unhandled exceptions that should be reported and from which the app might be able to recover (e.g. NPEs).
 
-If you've replied yes to more than one of the above then you probably have some error handling code that will check the type of the caught exception and whether you can gracefully recover from it.
+How does it work?
+-----------------
 
-And because this code is mostly redundant boilerplate, it's probably contained in a single class that generically handles the errors of all your calls. If that's the case then well done, you don't need this library 😄 
+The library allows you to define a custom exception to act as a wrapper to the original thrown exception.
+You can then add any type of metadata fields to your custom exception and provide a factory for the conversion of the original exception to your custom type.
 
-What does this library offer?
------------------------------
+Handled exceptions are wrapped in an `Outcome` object and delivered via `onNext()` while unhandled exceptions are delivered via `onError()` and can be dealt with using an RxJava uncaught error handler.
 
-This library primarily provides a way to register interceptors on your Retrofit RxJava calls (Single and Observable) and to compose on them.
+Alternatively, the default `onError()` mechanism can be maintained by not wrapping your response in an `Outcome`. In this case, you can handle your exceptions the usual way by checking if their type is the one you've defined in your factory.
 
-This allows for decorating network calls for the purpose of caching or error handling.
-
-Out of the box, a default error interceptor will catch Rx exceptions and reroute them via a factory that will convert them into a single custom type you can easily reason about (called Glitch, although you can create your own).  
+Additionally, this library provides a way to register different types of interceptors on your Retrofit RxJava calls (Single and Observable) and to compose on them. 
 
 But, why?
 ---------
