@@ -31,6 +31,7 @@ import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser.Compan
 import dev.pthomain.android.glitchy.retrofit.type.ParsedType
 import io.reactivex.Observable
 import io.reactivex.functions.Function
+import retrofit2.Call
 
 internal class OutcomeInterceptor<E, M> private constructor(
     private val errorFactory: ErrorFactory<E>,
@@ -53,11 +54,14 @@ internal class OutcomeInterceptor<E, M> private constructor(
             })!!
 
 
-    class Factory<E>(private val errorFactory: ErrorFactory<E>) : Interceptor.TypeFactory<E>
+    class Factory<E>(private val errorFactory: ErrorFactory<E>) : Interceptor.Factory<E>
             where E : Throwable,
                   E : NetworkErrorPredicate {
 
-        override fun <M> create(parsedType: ParsedType<M>) =
+        override fun <M> create(
+            parsedType: ParsedType<M>,
+            call: Call<Any>
+        ) =
             OutcomeInterceptor(
                 errorFactory,
                 parsedType

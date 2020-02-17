@@ -23,8 +23,7 @@
 
 package dev.pthomain.android.glitchy.retrofit
 
-import dev.pthomain.android.glitchy.interceptor.CompositeCallInterceptor
-import dev.pthomain.android.glitchy.interceptor.CompositeTypeInterceptor
+import dev.pthomain.android.glitchy.interceptor.CompositeInterceptor
 import dev.pthomain.android.glitchy.interceptor.error.NetworkErrorPredicate
 import dev.pthomain.android.glitchy.retrofit.type.ParsedType
 import io.reactivex.Observable
@@ -40,8 +39,7 @@ import java.lang.reflect.Type
  * @see dev.pthomain.android.glitchy.interceptor.error.ErrorFactory
  */
 internal class RetrofitCallAdapter<E, M>(
-    private val compositeTypeInterceptorFactory: CompositeTypeInterceptor.Factory<E>,
-    private val compositeCallInterceptorFactory: CompositeCallInterceptor.Factory<E>,
+    private val compositeInterceptorFactory: CompositeInterceptor.Factory<E>,
     private val parsedType: ParsedType<M>,
     private val glitchyCallAdapter: CallAdapter<Any, Any>
 ) : CallAdapter<Any, Any>
@@ -58,12 +56,11 @@ internal class RetrofitCallAdapter<E, M>(
      */
     override fun adapt(call: Call<Any>) =
         with(glitchyCallAdapter.adapt(call)) {
-            val typeInterceptor = compositeTypeInterceptorFactory.create(parsedType)
-            val callInterceptor = compositeCallInterceptorFactory.create(parsedType, call)
+            val interceptor = compositeInterceptorFactory.create(parsedType, call)
 
             when (this) {
-                is Single<*> -> compose(typeInterceptor).compose(callInterceptor)
-                is Observable<*> -> compose(typeInterceptor).compose(callInterceptor)
+                is Single<*> -> compose(interceptor)
+                is Observable<*> -> compose(interceptor)
                 else -> this
             }
         }!!

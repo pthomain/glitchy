@@ -29,12 +29,14 @@ import dev.pthomain.android.glitchy.interceptor.outcome.OutcomeInterceptor
 import dev.pthomain.android.glitchy.retrofit.type.ParsedType
 import io.reactivex.Observable
 import io.reactivex.ObservableSource
+import retrofit2.Call
 
-class CompositeTypeInterceptor<E, M> private constructor(
-    private val typeInterceptorFactoryList: List<Interceptor.TypeFactory<E>>,
+class CompositeInterceptor<E, M> private constructor(
+    private val typeInterceptorFactoryList: List<Interceptor.Factory<E>>,
     private val errorInterceptorFactory: ErrorInterceptor.Factory<E>,
     private val outcomeInterceptorFactory: OutcomeInterceptor.Factory<E>,
-    private val parsedType: ParsedType<M>
+    private val parsedType: ParsedType<M>,
+    private val call: Call<Any>
 ) : Interceptor.SimpleInterceptor()
         where  E : Throwable,
                E : NetworkErrorPredicate {
@@ -46,26 +48,31 @@ class CompositeTypeInterceptor<E, M> private constructor(
             .asSequence()
             .plus(errorInterceptorFactory)
             .plus(outcomeInterceptorFactory)
-            .mapNotNull { it.create(parsedType) }
+            .mapNotNull { it.create(parsedType, call) }
             .forEach { intercepted = intercepted.compose(it) }
 
         return intercepted
     }
 
     internal class Factory<E> internal constructor(
-        private val interceptorFactoryList: List<Interceptor.TypeFactory<E>>,
+        private val interceptorFactoryList: List<Interceptor.Factory<E>>,
         private val errorInterceptorFactory: ErrorInterceptor.Factory<E>,
         private val outcomeInterceptorFactory: OutcomeInterceptor.Factory<E>
-    ) : Interceptor.TypeFactory<E>
+    ) : Interceptor.Factory<E>
             where  E : Throwable,
                    E : NetworkErrorPredicate {
 
-        override fun <M> create(parsedType: ParsedType<M>) = CompositeTypeInterceptor(
-            interceptorFactoryList,
-            errorInterceptorFactory,
-            outcomeInterceptorFactory,
-            parsedType
-        )
+        override fun <M> create(
+            parsedType: ParsedType<M>,
+            call: Call<Any>
+        ): Interceptor? =
+            CompositeInterceptor(
+                interceptorFactoryList,
+                errorInterceptorFactory,
+                outcomeInterceptorFactory,
+                parsedType,
+                call
+            )
     }
 
 }

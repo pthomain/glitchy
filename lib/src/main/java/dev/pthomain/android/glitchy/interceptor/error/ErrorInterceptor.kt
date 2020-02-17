@@ -28,6 +28,7 @@ import dev.pthomain.android.glitchy.interceptor.Interceptor.SimpleInterceptor
 import dev.pthomain.android.glitchy.retrofit.type.ParsedType
 import io.reactivex.Observable
 import io.reactivex.functions.Function
+import retrofit2.Call
 
 /**
  * Interceptor handling network exceptions, converting them using the chosen ErrorFactory and
@@ -52,11 +53,14 @@ internal class ErrorInterceptor<E> private constructor(
     override fun apply(upstream: Observable<Any>) =
         upstream.onErrorResumeNext(Function { Observable.error(errorFactory(it)) })!!
 
-    class Factory<E>(private val errorFactory: ErrorFactory<E>) : Interceptor.TypeFactory<E>
+    class Factory<E>(private val errorFactory: ErrorFactory<E>) : Interceptor.Factory<E>
             where E : Throwable,
                   E : NetworkErrorPredicate {
 
-        override fun <M> create(parsedType: ParsedType<M>) =
+        override fun <M> create(
+            parsedType: ParsedType<M>,
+            call: Call<Any>
+        ) =
             ErrorInterceptor(errorFactory)
     }
 }

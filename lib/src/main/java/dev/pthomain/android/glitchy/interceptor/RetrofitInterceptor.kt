@@ -33,15 +33,8 @@ import retrofit2.Call
 interface Interceptor
     : ObservableTransformer<Any, Any>, SingleTransformer<Any, Any> {
 
-    interface TypeFactory<E> where E : Throwable,
-                                   E : NetworkErrorPredicate {
-
-        fun <M> create(parsedType: ParsedType<M>): Interceptor?
-
-    }
-
-    interface CallFactory<E> where E : Throwable,
-                                   E : NetworkErrorPredicate {
+    interface Factory<E> where E : Throwable,
+                               E : NetworkErrorPredicate {
 
         fun <M> create(
             parsedType: ParsedType<M>,

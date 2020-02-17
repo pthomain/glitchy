@@ -52,8 +52,7 @@ object Glitchy {
         logger: Logger?,
         errorFactory: ErrorFactory<E>,
         returnTypeParser: ReturnTypeParser<M>?,
-        typeInterceptorFactoryList: LinkedList<Interceptor.TypeFactory<E>>,
-        callInterceptorFactoryList: LinkedList<Interceptor.CallFactory<E>>
+        interceptorFactoryList: LinkedList<Interceptor.Factory<E>>
     ): Koin where E : Throwable, E : NetworkErrorPredicate {
         if (koin != null) stopKoin()
 
@@ -63,8 +62,7 @@ object Glitchy {
                     logger ?: defaultLogger(),
                     errorFactory,
                     returnTypeParser,
-                    typeInterceptorFactoryList,
-                    callInterceptorFactoryList
+                    interceptorFactoryList
                 ).module
             )
         }.koin
@@ -73,31 +71,27 @@ object Glitchy {
     }
 
     fun createGlitchCallAdapterFactory(
-        typeInterceptorFactoryList: LinkedList<Interceptor.TypeFactory<Glitch>> = LinkedList(),
-        callInterceptorFactoryList: LinkedList<Interceptor.CallFactory<Glitch>> = LinkedList(),
+        interceptorFactoryList: LinkedList<Interceptor.Factory<Glitch>> = LinkedList(),
         logger: Logger? = null
     ) =
         createCallAdapterFactory<Glitch, Unit>(
             GlitchFactory(),
             null,
-            typeInterceptorFactoryList,
-            callInterceptorFactoryList,
+            interceptorFactoryList,
             logger
         )
 
     fun <E, M> createCallAdapterFactory(
         errorFactory: ErrorFactory<E>,
         returnTypeParser: ReturnTypeParser<M>? = null,
-        typeInterceptorFactoryList: LinkedList<Interceptor.TypeFactory<E>> = LinkedList(),
-        callInterceptorFactoryList: LinkedList<Interceptor.CallFactory<E>> = LinkedList(),
+        interceptorFactoryList: LinkedList<Interceptor.Factory<E>> = LinkedList(),
         logger: Logger? = null
     ) where E : Throwable, E : NetworkErrorPredicate =
         getKoin(
             logger,
             errorFactory,
             returnTypeParser,
-            typeInterceptorFactoryList,
-            callInterceptorFactoryList
+            interceptorFactoryList
         ).get<CallAdapter.Factory>()
 
 }

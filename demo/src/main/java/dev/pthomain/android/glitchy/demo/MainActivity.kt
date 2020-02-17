@@ -43,6 +43,7 @@ import dev.pthomain.android.glitchy.interceptor.outcome.Outcome.Success
 import dev.pthomain.android.glitchy.retrofit.type.ParsedType
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
+import retrofit2.Call
 import retrofit2.CallAdapter
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -78,11 +79,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun <E> getTypeInterceptorFactoryList()
+    private fun <E> getInterceptorFactoryList()
             where E : Throwable,
-                  E : NetworkErrorPredicate = LinkedList<Interceptor.TypeFactory<E>>().apply {
-        add(object : Interceptor.TypeFactory<E> {
-            override fun <M> create(parsedType: ParsedType<M>) = exceptionInterceptor
+                  E : NetworkErrorPredicate = LinkedList<Interceptor.Factory<E>>().apply {
+        add(object : Interceptor.Factory<E> {
+            override fun <M> create(
+                parsedType: ParsedType<M>,
+                call: Call<Any>
+            ) = exceptionInterceptor
         })
     }
 
@@ -97,11 +101,11 @@ class MainActivity : AppCompatActivity() {
         val unhandledExceptionButton = findViewById<Button>(R.id.throw_unhandled_exception)
 
         val glitchCallAdapterFactory = Glitchy.createGlitchCallAdapterFactory(
-            getTypeInterceptorFactoryList()
+            getInterceptorFactoryList()
         )
         val apiErrorCallAdapterFactory = Glitchy.createCallAdapterFactory<ApiError, Any>(
             ApiError.Factory(),
-            typeInterceptorFactoryList = getTypeInterceptorFactoryList()
+            interceptorFactoryList = getInterceptorFactoryList()
         )
 
         glitchRetrofit = getRetrofit(glitchCallAdapterFactory)
