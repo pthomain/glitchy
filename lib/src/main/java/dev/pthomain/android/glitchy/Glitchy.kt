@@ -24,7 +24,7 @@
 package dev.pthomain.android.glitchy
 
 import dev.pthomain.android.boilerplate.core.utils.log.Logger
-import dev.pthomain.android.glitchy.interceptor.Interceptor
+import dev.pthomain.android.glitchy.interceptor.Interceptors
 import dev.pthomain.android.glitchy.interceptor.error.ErrorFactory
 import dev.pthomain.android.glitchy.interceptor.error.NetworkErrorPredicate
 import dev.pthomain.android.glitchy.interceptor.error.glitch.Glitch
@@ -35,7 +35,6 @@ import org.koin.core.Koin
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import retrofit2.CallAdapter
-import java.util.*
 
 object Glitchy {
 
@@ -52,7 +51,7 @@ object Glitchy {
         logger: Logger?,
         errorFactory: ErrorFactory<E>,
         returnTypeParser: ReturnTypeParser<M>?,
-        interceptorFactoryList: LinkedList<Interceptor.Factory<E>>
+        interceptors: Interceptors<E>
     ): Koin where E : Throwable, E : NetworkErrorPredicate {
         if (koin != null) stopKoin()
 
@@ -62,7 +61,7 @@ object Glitchy {
                     logger ?: defaultLogger(),
                     errorFactory,
                     returnTypeParser,
-                    interceptorFactoryList
+                    interceptors
                 ).module
             )
         }.koin
@@ -71,27 +70,27 @@ object Glitchy {
     }
 
     fun createGlitchCallAdapterFactory(
-        interceptorFactoryList: LinkedList<Interceptor.Factory<Glitch>> = LinkedList(),
+        interceptors: Interceptors<Glitch>? = null,
         logger: Logger? = null
     ) =
         createCallAdapterFactory<Glitch, Unit>(
             GlitchFactory(),
             null,
-            interceptorFactoryList,
+            interceptors,
             logger
         )
 
     fun <E, M> createCallAdapterFactory(
         errorFactory: ErrorFactory<E>,
         returnTypeParser: ReturnTypeParser<M>? = null,
-        interceptorFactoryList: LinkedList<Interceptor.Factory<E>> = LinkedList(),
+        interceptors: Interceptors<E>? = null,
         logger: Logger? = null
     ) where E : Throwable, E : NetworkErrorPredicate =
         getKoin(
             logger,
             errorFactory,
             returnTypeParser,
-            interceptorFactoryList
+            interceptors ?: Interceptors.None()
         ).get<CallAdapter.Factory>()
 
 }

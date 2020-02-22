@@ -36,6 +36,7 @@ import dev.pthomain.android.glitchy.Glitchy
 import dev.pthomain.android.glitchy.demo.CatFactClient.Companion.BASE_URL
 import dev.pthomain.android.glitchy.interceptor.Interceptor
 import dev.pthomain.android.glitchy.interceptor.Interceptor.SimpleInterceptor
+import dev.pthomain.android.glitchy.interceptor.Interceptors
 import dev.pthomain.android.glitchy.interceptor.error.NetworkErrorPredicate
 import dev.pthomain.android.glitchy.interceptor.outcome.Outcome
 import dev.pthomain.android.glitchy.interceptor.outcome.Outcome.Error
@@ -48,7 +49,6 @@ import retrofit2.CallAdapter
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
-import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 
 class MainActivity : AppCompatActivity() {
@@ -79,16 +79,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun <E> getInterceptorFactoryList()
+    private fun <E> getInterceptors()
             where E : Throwable,
-                  E : NetworkErrorPredicate = LinkedList<Interceptor.Factory<E>>().apply {
-        add(object : Interceptor.Factory<E> {
+                  E : NetworkErrorPredicate = Interceptors.Before(
+        object : Interceptor.Factory<E> {
             override fun <M> create(
                 parsedType: ParsedType<M>,
                 call: Call<Any>
             ) = exceptionInterceptor
-        })
-    }
+        }
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -101,11 +101,11 @@ class MainActivity : AppCompatActivity() {
         val unhandledExceptionButton = findViewById<Button>(R.id.throw_unhandled_exception)
 
         val glitchCallAdapterFactory = Glitchy.createGlitchCallAdapterFactory(
-            getInterceptorFactoryList()
+            getInterceptors()
         )
         val apiErrorCallAdapterFactory = Glitchy.createCallAdapterFactory<ApiError, Any>(
             ApiError.Factory(),
-            interceptorFactoryList = getInterceptorFactoryList()
+            interceptors = getInterceptors()
         )
 
         glitchRetrofit = getRetrofit(glitchCallAdapterFactory)

@@ -32,7 +32,7 @@ import io.reactivex.ObservableSource
 import retrofit2.Call
 
 class CompositeInterceptor<E, M> private constructor(
-    private val typeInterceptorFactoryList: List<Interceptor.Factory<E>>,
+    private val interceptors: Interceptors<E>,
     private val errorInterceptorFactory: ErrorInterceptor.Factory<E>,
     private val outcomeInterceptorFactory: OutcomeInterceptor.Factory<E>,
     private val parsedType: ParsedType<M>,
@@ -44,10 +44,10 @@ class CompositeInterceptor<E, M> private constructor(
     override fun apply(upstream: Observable<Any>): ObservableSource<Any> {
         var intercepted = upstream
 
-        typeInterceptorFactoryList
-            .asSequence()
+        interceptors.before.asSequence()
             .plus(errorInterceptorFactory)
             .plus(outcomeInterceptorFactory)
+            .plus(interceptors.after.asSequence())
             .mapNotNull { it.create(parsedType, call) }
             .forEach { intercepted = intercepted.compose(it) }
 
@@ -55,7 +55,7 @@ class CompositeInterceptor<E, M> private constructor(
     }
 
     internal class Factory<E> internal constructor(
-        private val interceptorFactoryList: List<Interceptor.Factory<E>>,
+        private val interceptors: Interceptors<E>,
         private val errorInterceptorFactory: ErrorInterceptor.Factory<E>,
         private val outcomeInterceptorFactory: OutcomeInterceptor.Factory<E>
     ) : Interceptor.Factory<E>
@@ -67,7 +67,7 @@ class CompositeInterceptor<E, M> private constructor(
             call: Call<Any>
         ): Interceptor? =
             CompositeInterceptor(
-                interceptorFactoryList,
+                interceptors,
                 errorInterceptorFactory,
                 outcomeInterceptorFactory,
                 parsedType,
