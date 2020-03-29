@@ -70,7 +70,8 @@ class OutcomeReturnTypeParser<M>(
             )
         }
 
-        object OutcomeToken
+        interface IsOutcome
+        object OutcomeToken : IsOutcome
     }
 
 }

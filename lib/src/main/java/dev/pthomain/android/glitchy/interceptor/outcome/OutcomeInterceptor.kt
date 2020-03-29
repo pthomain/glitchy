@@ -27,7 +27,7 @@ import dev.pthomain.android.glitchy.interceptor.Interceptor
 import dev.pthomain.android.glitchy.interceptor.Interceptor.SimpleInterceptor
 import dev.pthomain.android.glitchy.interceptor.error.ErrorFactory
 import dev.pthomain.android.glitchy.interceptor.error.NetworkErrorPredicate
-import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser.Companion.OutcomeToken
+import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser.Companion.IsOutcome
 import dev.pthomain.android.glitchy.retrofit.type.ParsedType
 import io.reactivex.Observable
 import io.reactivex.functions.Function
@@ -41,7 +41,7 @@ internal class OutcomeInterceptor<E, M> private constructor(
               E : NetworkErrorPredicate {
 
     override fun apply(upstream: Observable<Any>) =
-        if (parsedType.metadata is OutcomeToken) intercept(upstream)
+        if (parsedType.metadata is IsOutcome) intercept(upstream)
         else upstream
 
     private fun intercept(upstream: Observable<Any>) =

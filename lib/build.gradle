@@ -16,6 +16,9 @@ android {
 
         consumerProguardFiles 'proguard-rules-lib.pro'
 
+        defaultPublishConfig 'release'
+        publishNonDefault true
+
         javaCompileOptions {
             annotationProcessorOptions {
                 includeCompileClasspath true
