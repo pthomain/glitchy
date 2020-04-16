@@ -29,6 +29,8 @@ import dev.pthomain.android.glitchy.interceptor.outcome.OutcomeInterceptor
 import dev.pthomain.android.glitchy.retrofit.type.ParsedType
 import io.reactivex.Observable
 import io.reactivex.ObservableSource
+import io.reactivex.Single
+import io.reactivex.SingleSource
 import retrofit2.Call
 
 class CompositeInterceptor<E, M> private constructor(
@@ -37,22 +39,28 @@ class CompositeInterceptor<E, M> private constructor(
     private val outcomeInterceptorFactory: OutcomeInterceptor.Factory<E>,
     private val parsedType: ParsedType<M>,
     private val call: Call<Any>
-) : Interceptor.SimpleInterceptor()
+) : Interceptor
         where  E : Throwable,
                E : NetworkErrorPredicate {
 
     override fun apply(upstream: Observable<Any>): ObservableSource<Any> {
         var intercepted = upstream
+        interceptors().forEach { intercepted = intercepted.compose(it) }
+        return intercepted
+    }
 
+    override fun apply(upstream: Single<Any>): SingleSource<Any> {
+        var intercepted = upstream
+        interceptors().forEach { intercepted = intercepted.compose(it) }
+        return intercepted
+    }
+
+    private fun interceptors() =
         interceptors.before.asSequence()
             .plus(errorInterceptorFactory)
             .plus(outcomeInterceptorFactory)
             .plus(interceptors.after.asSequence())
             .mapNotNull { it.create(parsedType, call) }
-            .forEach { intercepted = intercepted.compose(it) }
-
-        return intercepted
-    }
 
     internal class Factory<E> internal constructor(
         private val interceptors: Interceptors<E>,

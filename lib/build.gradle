@@ -124,7 +124,9 @@ dependencies {
 
     testImplementation "org.koin:koin-test:2.0.1"
     testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+
+    testImplementation "org.mockito:mockito-core:2.1.0"
+    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0"
 }
 
 repositories {
