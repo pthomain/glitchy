@@ -109,8 +109,8 @@ dependencies {
     implementation "com.github.jitpack:gradle-simple:1.0"
     api "com.github.pthomain.boilerplate:core:4.0"
 
-    implementation "org.koin:koin-core:2.0.1"
-    implementation "org.koin:koin-core-ext:2.0.1"
+    implementation "org.koin:koin-core:2.1.5"
+    implementation "org.koin:koin-core-ext:2.1.5"
 
     api "io.reactivex.rxjava2:rxjava:2.2.17"
     api "io.reactivex.rxjava2:rxkotlin:2.4.0"

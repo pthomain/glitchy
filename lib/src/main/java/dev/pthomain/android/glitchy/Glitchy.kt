@@ -31,14 +31,10 @@ import dev.pthomain.android.glitchy.interceptor.error.glitch.Glitch
 import dev.pthomain.android.glitchy.interceptor.error.glitch.GlitchFactory
 import dev.pthomain.android.glitchy.koin.GlitchyModule
 import dev.pthomain.android.glitchy.retrofit.type.ReturnTypeParser
-import org.koin.core.Koin
-import org.koin.core.context.startKoin
-import org.koin.core.context.stopKoin
+import org.koin.dsl.koinApplication
 import retrofit2.CallAdapter
 
 object Glitchy {
-
-    private var koin: Koin? = null
 
     private fun defaultLogger() = object : Logger {
         override fun d(tagOrCaller: Any, message: String) = Unit
@@ -46,16 +42,13 @@ object Glitchy {
         override fun e(tagOrCaller: Any, t: Throwable, message: String?) = Unit
     }
 
-    @Synchronized
     private fun <E, M> getKoin(
         logger: Logger?,
         errorFactory: ErrorFactory<E>,
         returnTypeParser: ReturnTypeParser<M>?,
         interceptors: Interceptors<E>
-    ): Koin where E : Throwable, E : NetworkErrorPredicate {
-        if (koin != null) stopKoin()
-
-        koin = startKoin {
+    ) where E : Throwable, E : NetworkErrorPredicate =
+        koinApplication {
             modules(
                 GlitchyModule(
                     logger ?: defaultLogger(),
@@ -65,9 +58,6 @@ object Glitchy {
                 ).module
             )
         }.koin
-
-        return koin!!
-    }
 
     fun createGlitchCallAdapterFactory(
         interceptors: Interceptors<Glitch>? = null,
