@@ -105,6 +105,7 @@ android {
     useLibrary 'android.test.runner'
     useLibrary 'android.test.base'
     useLibrary 'android.test.mock'
+    publishNonDefault true
 }
 
 sourceSets {
@@ -118,10 +119,9 @@ sourceSets {
     }
 }
 
-
 task sourcesJar(type: Jar) {
     classifier = 'sources'
-    from android.sourceSets.main.java.sourceFiles
+    from android.sourceSets.main.java.srcDirs
 }
 
 task javadoc(type: Javadoc) {
@@ -195,6 +195,8 @@ artifacts {
 dependencies {
     implementation appDependencies.jitPack
     api appDependencies.boilerplate
+
+    implementation appDependencies.multiDex
 
     api appDependencies.rxJava
     api appDependencies.rxKotlin
