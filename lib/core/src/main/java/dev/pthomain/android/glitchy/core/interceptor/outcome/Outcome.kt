@@ -21,33 +21,21 @@
  *
  */
 
-package dev.pthomain.android.glitchy.demo
+package dev.pthomain.android.glitchy.core.interceptor.outcome
 
-import dev.pthomain.android.boilerplate.core.utils.kotlin.ifElse
-import dev.pthomain.android.glitchy.core.interceptor.error.ErrorFactory
 import dev.pthomain.android.glitchy.core.interceptor.error.NetworkErrorPredicate
-import dev.pthomain.android.glitchy.core.interceptor.outcome.Outcome
-import java.io.IOException
 
-class ApiError(override val cause: Throwable) : Throwable(), NetworkErrorPredicate {
+/**
+ * Represents either a successful response (Success) or a handled parsed exception
+ * returned by an ErrorFactory. Handled exceptions are evaluated by ErrorFactory::isResult.
+ *
+ * @see dev.pthomain.android.glitchy.interceptor.error.ErrorFactory
+ */
+sealed class Outcome<R> {
 
-    override fun isNetworkError() = cause is IOException
+    class Success<R>(val response: R) : Outcome<R>()
 
-    override val message = "This is a custom ${ifElse(
-        isNetworkError(),
-        "handled",
-        "unhandled"
-    )} ApiError:\n$cause"
+    class Error<E>(val exception: E) : Outcome<Nothing>()
+            where E : Throwable, E : NetworkErrorPredicate
 
-    class Factory : ErrorFactory<ApiError> {
-
-        override val exceptionClass = ApiError::class.java
-
-        override fun invoke(p1: Throwable) = ApiError(p1)
-
-        override fun asHandledError(throwable: Throwable) =
-            if (throwable is ApiError && throwable.isNetworkError())
-                Outcome.Error(throwable)
-            else null
-    }
 }

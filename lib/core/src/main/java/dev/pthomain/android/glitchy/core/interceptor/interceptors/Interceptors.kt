@@ -21,18 +21,19 @@
  *
  */
 
-package dev.pthomain.android.glitchy.demo
+package dev.pthomain.android.glitchy.core.interceptor.interceptors
 
-import dev.pthomain.android.glitchy.core.interceptor.outcome.Outcome
-import io.reactivex.Single
-import retrofit2.http.GET
+sealed class Interceptors(
+    val before: List<Interceptor>,
+    val after: List<Interceptor>
+) {
 
-interface CatFactClient {
-    @GET(ENDPOINT)
-    fun getFact(): Single<Outcome<CatFactResponse>>
+    class None : Interceptors(emptyList(), emptyList())
 
-    companion object {
-        internal const val BASE_URL = "https://catfact.ninja/"
-        internal const val ENDPOINT = "fact"
-    }
+    class Before(vararg inOrder: Interceptor) : Interceptors(inOrder.asList(), emptyList())
+
+    class After(vararg inOrder: Interceptor) : Interceptors(emptyList(), inOrder.asList())
+
+    class Around(before: List<Interceptor>, after: List<Interceptor>) : Interceptors(before, after)
+
 }

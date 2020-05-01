@@ -21,18 +21,22 @@
  *
  */
 
-package dev.pthomain.android.glitchy.demo
+package dev.pthomain.android.glitchy.core.interceptor.error.glitch
 
-import dev.pthomain.android.glitchy.core.interceptor.outcome.Outcome
-import io.reactivex.Single
-import retrofit2.http.GET
-
-interface CatFactClient {
-    @GET(ENDPOINT)
-    fun getFact(): Single<Outcome<CatFactResponse>>
-
-    companion object {
-        internal const val BASE_URL = "https://catfact.ninja/"
-        internal const val ENDPOINT = "fact"
-    }
+/**
+ * Represents a converted type of Error.
+ *
+ * @param retryable whether or not this exception is transient and whether the call can be silently
+ * retried using an exponential backoff for instance.
+ */
+enum class ErrorCode(val retryable: Boolean) {
+    CONFIG(false),
+    NETWORK(true),
+    UNAUTHORISED(false),
+    NOT_FOUND(false),
+    UNEXPECTED_RESPONSE(true),
+    SERVER_ERROR(true),
+    UNKNOWN(true),
+    UNHANDLED(false)
 }
+

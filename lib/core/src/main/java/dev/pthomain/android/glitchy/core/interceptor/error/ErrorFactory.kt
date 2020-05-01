@@ -21,18 +21,30 @@
  *
  */
 
-package dev.pthomain.android.glitchy.demo
+package dev.pthomain.android.glitchy.core.interceptor.error
 
 import dev.pthomain.android.glitchy.core.interceptor.outcome.Outcome
-import io.reactivex.Single
-import retrofit2.http.GET
 
-interface CatFactClient {
-    @GET(ENDPOINT)
-    fun getFact(): Single<Outcome<CatFactResponse>>
 
-    companion object {
-        internal const val BASE_URL = "https://catfact.ninja/"
-        internal const val ENDPOINT = "fact"
-    }
+/**
+ * Converts a given Throwable into a new type extending from Exception and NetworkErrorPredicate
+ */
+interface ErrorFactory<E> : (Throwable) -> E
+        where E : Throwable,
+              E : NetworkErrorPredicate {
+
+    val exceptionClass: Class<E>
+
+    /**
+     * Returns this Throwable as a Result.Error if its type is handled by the factory
+     * and the cause is recognised as a handled error (i.e. an error that should be
+     * intercepted and returned as a Result via onNext() rather than be emitted via onError()).
+     * The logic above would only apply to types defined as Result in the Retrofit call.
+     * Exceptions that cannot be returned as a result will always be
+     * delivered via onError().
+     *
+     * @see dev.pthomain.android.glitchy.interceptor.outcome.Outcome
+     */
+    fun asHandledError(throwable: Throwable): Outcome.Error<E>?
+
 }

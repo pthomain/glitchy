@@ -21,18 +21,19 @@
  *
  */
 
-package dev.pthomain.android.glitchy.demo
+package dev.pthomain.android.glitchy.retrofit
 
-import dev.pthomain.android.glitchy.core.interceptor.outcome.Outcome
-import io.reactivex.Single
-import retrofit2.http.GET
+import org.junit.Assert.*
+import org.junit.Test
 
-interface CatFactClient {
-    @GET(ENDPOINT)
-    fun getFact(): Single<Outcome<CatFactResponse>>
-
-    companion object {
-        internal const val BASE_URL = "https://catfact.ninja/"
-        internal const val ENDPOINT = "fact"
+/**
+ * Example local unit test, which will execute on the development machine (host).
+ *
+ * See [testing documentation](http://d.android.com/tools/testing).
+ */
+class ExampleUnitTest {
+    @Test
+    fun addition_isCorrect() {
+        assertEquals(4, 2 + 2)
     }
 }

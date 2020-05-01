@@ -32,15 +32,14 @@ import com.google.gson.Gson
 import dev.pthomain.android.boilerplate.core.utils.kotlin.ifElse
 import dev.pthomain.android.boilerplate.core.utils.rx.On
 import dev.pthomain.android.boilerplate.core.utils.rx.schedule
-import dev.pthomain.android.glitchy.Glitchy
+import dev.pthomain.android.glitchy.core.interceptor.error.NetworkErrorPredicate
+import dev.pthomain.android.glitchy.core.interceptor.outcome.Outcome
+import dev.pthomain.android.glitchy.core.interceptor.outcome.Outcome.Error
+import dev.pthomain.android.glitchy.core.interceptor.outcome.Outcome.Success
 import dev.pthomain.android.glitchy.demo.CatFactClient.Companion.BASE_URL
-import dev.pthomain.android.glitchy.interceptor.Interceptor
-import dev.pthomain.android.glitchy.interceptor.Interceptor.SimpleInterceptor
-import dev.pthomain.android.glitchy.interceptor.Interceptors
-import dev.pthomain.android.glitchy.interceptor.error.NetworkErrorPredicate
-import dev.pthomain.android.glitchy.interceptor.outcome.Outcome
-import dev.pthomain.android.glitchy.interceptor.outcome.Outcome.Error
-import dev.pthomain.android.glitchy.interceptor.outcome.Outcome.Success
+import dev.pthomain.android.glitchy.retrofit.GlitchyRetrofit
+import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitInterceptor
+import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitInterceptors
 import dev.pthomain.android.glitchy.retrofit.type.ParsedType
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
@@ -63,7 +62,7 @@ class MainActivity : AppCompatActivity() {
     private val throwHandledException = AtomicBoolean(false)
     private val throwUnhandledException = AtomicBoolean(false)
 
-    private val exceptionInterceptor = object : SimpleInterceptor() {
+    private val exceptionInterceptor = object : RetrofitInterceptor.SimpleInterceptor() {
         override fun apply(upstream: Observable<Any>) = upstream.flatMap {
             when {
                 throwHandledException.getAndSet(false) -> Observable.error<Any>(
@@ -81,8 +80,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun <E> getInterceptors()
             where E : Throwable,
-                  E : NetworkErrorPredicate = Interceptors.Before(
-        object : Interceptor.Factory<E> {
+                  E : NetworkErrorPredicate = RetrofitInterceptors.Before(
+        object : RetrofitInterceptor.Factory<E> {
             override fun <M> create(
                 parsedType: ParsedType<M>,
                 call: Call<Any>
@@ -100,10 +99,11 @@ class MainActivity : AppCompatActivity() {
         val handledExceptionButton = findViewById<Button>(R.id.throw_handled_exception)
         val unhandledExceptionButton = findViewById<Button>(R.id.throw_unhandled_exception)
 
-        val glitchCallAdapterFactory = Glitchy.createGlitchCallAdapterFactory(
+        val glitchCallAdapterFactory = GlitchyRetrofit.createGlitchCallAdapterFactory(
             getInterceptors()
         )
-        val apiErrorCallAdapterFactory = Glitchy.createCallAdapterFactory<ApiError, Any>(
+
+        val apiErrorCallAdapterFactory = GlitchyRetrofit.createCallAdapterFactory<ApiError, Any>(
             ApiError.Factory(),
             interceptors = getInterceptors()
         )

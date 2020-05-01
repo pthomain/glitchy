@@ -21,18 +21,17 @@
  *
  */
 
-package dev.pthomain.android.glitchy.demo
+package dev.pthomain.android.glitchy.core.interceptor.error
 
-import dev.pthomain.android.glitchy.core.interceptor.outcome.Outcome
-import io.reactivex.Single
-import retrofit2.http.GET
+/**
+ * Interface indicating whether a Throwable is a network error for the purpose of
+ * exponential backoff retries on failed calls
+ */
+interface NetworkErrorPredicate {
 
-interface CatFactClient {
-    @GET(ENDPOINT)
-    fun getFact(): Single<Outcome<CatFactResponse>>
+    /**
+     * @return whether or not the class implementing this interface represents a network error
+     */
+    fun isNetworkError(): Boolean
 
-    companion object {
-        internal const val BASE_URL = "https://catfact.ninja/"
-        internal const val ENDPOINT = "fact"
-    }
 }

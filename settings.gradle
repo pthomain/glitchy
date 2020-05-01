@@ -1,1 +1,5 @@
-include ':demo', ':lib'
+include ':retrofit'
+include ':demo'
+include ':lib'
+include ':lib:core'
+include ':lib:retrofit'

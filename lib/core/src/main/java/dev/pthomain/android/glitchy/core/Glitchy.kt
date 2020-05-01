@@ -21,33 +21,25 @@
  *
  */
 
-package dev.pthomain.android.glitchy.demo
+package dev.pthomain.android.glitchy.core
 
-import dev.pthomain.android.boilerplate.core.utils.kotlin.ifElse
 import dev.pthomain.android.glitchy.core.interceptor.error.ErrorFactory
+import dev.pthomain.android.glitchy.core.interceptor.error.ErrorInterceptor
 import dev.pthomain.android.glitchy.core.interceptor.error.NetworkErrorPredicate
-import dev.pthomain.android.glitchy.core.interceptor.outcome.Outcome
-import java.io.IOException
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.CompositeInterceptor
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.Interceptors
+import dev.pthomain.android.glitchy.core.interceptor.outcome.OutcomeInterceptor
 
-class ApiError(override val cause: Throwable) : Throwable(), NetworkErrorPredicate {
+object Glitchy {
 
-    override fun isNetworkError() = cause is IOException
+    fun <E> createCompositeInterceptor(
+        errorFactory: ErrorFactory<E>,
+        interceptors: Interceptors = Interceptors.None()
+    ) where E : Throwable, E : NetworkErrorPredicate =
+        CompositeInterceptor(
+            interceptors,
+            ErrorInterceptor(errorFactory),
+            OutcomeInterceptor(errorFactory)
+        )
 
-    override val message = "This is a custom ${ifElse(
-        isNetworkError(),
-        "handled",
-        "unhandled"
-    )} ApiError:\n$cause"
-
-    class Factory : ErrorFactory<ApiError> {
-
-        override val exceptionClass = ApiError::class.java
-
-        override fun invoke(p1: Throwable) = ApiError(p1)
-
-        override fun asHandledError(throwable: Throwable) =
-            if (throwable is ApiError && throwable.isNetworkError())
-                Outcome.Error(throwable)
-            else null
-    }
 }

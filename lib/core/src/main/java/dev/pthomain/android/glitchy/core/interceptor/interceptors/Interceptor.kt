@@ -21,18 +21,23 @@
  *
  */
 
-package dev.pthomain.android.glitchy.demo
+package dev.pthomain.android.glitchy.core.interceptor.interceptors
 
-import dev.pthomain.android.glitchy.core.interceptor.outcome.Outcome
+import io.reactivex.ObservableTransformer
 import io.reactivex.Single
-import retrofit2.http.GET
+import io.reactivex.SingleTransformer
 
-interface CatFactClient {
-    @GET(ENDPOINT)
-    fun getFact(): Single<Outcome<CatFactResponse>>
+interface Interceptor
+    : ObservableTransformer<Any, Any>, SingleTransformer<Any, Any> {
 
-    companion object {
-        internal const val BASE_URL = "https://catfact.ninja/"
-        internal const val ENDPOINT = "fact"
+    abstract class SimpleInterceptor :
+        Interceptor {
+
+        override fun apply(upstream: Single<Any>) = upstream
+            .toObservable()
+            .compose(this)
+            .firstOrError()!!
+
     }
 }
+

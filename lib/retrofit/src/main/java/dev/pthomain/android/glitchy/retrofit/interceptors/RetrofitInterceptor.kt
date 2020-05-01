@@ -21,33 +21,24 @@
  *
  */
 
-package dev.pthomain.android.glitchy.demo
+package dev.pthomain.android.glitchy.retrofit.interceptors
 
-import dev.pthomain.android.boilerplate.core.utils.kotlin.ifElse
-import dev.pthomain.android.glitchy.core.interceptor.error.ErrorFactory
 import dev.pthomain.android.glitchy.core.interceptor.error.NetworkErrorPredicate
-import dev.pthomain.android.glitchy.core.interceptor.outcome.Outcome
-import java.io.IOException
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.Interceptor
+import dev.pthomain.android.glitchy.retrofit.type.ParsedType
+import retrofit2.Call
 
-class ApiError(override val cause: Throwable) : Throwable(), NetworkErrorPredicate {
+interface RetrofitInterceptor : Interceptor {
 
-    override fun isNetworkError() = cause is IOException
+    abstract class SimpleInterceptor : RetrofitInterceptor, Interceptor.SimpleInterceptor()
 
-    override val message = "This is a custom ${ifElse(
-        isNetworkError(),
-        "handled",
-        "unhandled"
-    )} ApiError:\n$cause"
+    interface Factory<E> where E : Throwable,
+                               E : NetworkErrorPredicate {
 
-    class Factory : ErrorFactory<ApiError> {
+        fun <M> create(
+            parsedType: ParsedType<M>,
+            call: Call<Any>
+        ): RetrofitInterceptor?
 
-        override val exceptionClass = ApiError::class.java
-
-        override fun invoke(p1: Throwable) = ApiError(p1)
-
-        override fun asHandledError(throwable: Throwable) =
-            if (throwable is ApiError && throwable.isNetworkError())
-                Outcome.Error(throwable)
-            else null
     }
 }

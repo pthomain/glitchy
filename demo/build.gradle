@@ -62,7 +62,8 @@ android {
 }
 
 dependencies {
-    implementation project(':lib')
+    implementation project(':lib:core')
+    implementation project(':lib:retrofit')
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
     implementation 'androidx.core:core-ktx:1.2.0'
