@@ -35,13 +35,13 @@ internal class OutcomeInterceptor<E>(
         where E : Throwable,
               E : NetworkErrorPredicate {
 
-    override fun apply(upstream: Observable<Any>) =
+    override fun apply(upstream: Observable<Any>): Observable<Any> =
         upstream
-            .map { Outcome.Success(it) }
+            .map { Outcome.Success(it) as Any }
             .onErrorResumeNext(Function {
                 errorFactory.asHandledError(it)
-                    ?.let { Observable.just(it) }
-                    ?: Observable.error(it)
+                    ?.let { Observable.just<Any>(it) }
+                    ?: Observable.error<Any>(it)
             })!!
 
 }
