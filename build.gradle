@@ -52,7 +52,7 @@ task clean(type: Delete) {
 }
 
 ext {
-    glitchyVersion = 2.6
+    glitchyVersion = 2.7
 
     compileSdkVersion = 29
     minSdkVersion = 16
