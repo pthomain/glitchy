@@ -52,7 +52,7 @@ task clean(type: Delete) {
 }
 
 ext {
-    glitchyVersion = 2.0
+    glitchyVersion = 2.5
 
     compileSdkVersion = 29
     minSdkVersion = 16
@@ -80,9 +80,6 @@ ext {
             rxKotlin             : "io.reactivex.rxjava2:rxkotlin:$rxKotlinVersion",
             rxAndroid            : "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion",
             rxDogTag             : "com.uber.rxdogtag:rxdogtag:$rxDogTagVersion",
-
-            koinCore             : "org.koin:koin-core:$koinVersion",
-            koinCoreExt          : "org.koin:koin-core-ext:$koinVersion",
 
             koinCore             : "org.koin:koin-core:$koinVersion",
             koinCoreExt          : "org.koin:koin-core-ext:$koinVersion",

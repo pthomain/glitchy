@@ -23,6 +23,7 @@
 
 package dev.pthomain.android.glitchy.retrofit.interceptors
 
+import dev.pthomain.android.glitchy.core.interceptor.error.ErrorInterceptor
 import dev.pthomain.android.glitchy.core.interceptor.error.NetworkErrorPredicate
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.BaseCompositeInterceptor
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.Interceptor
@@ -50,7 +51,7 @@ internal class RetrofitCompositeInterceptor<E, M> private constructor(
 
     internal class Factory<E> internal constructor(
         private val interceptors: RetrofitInterceptors<E>,
-        private val errorInterceptor: Interceptor,
+        private val errorInterceptor: ErrorInterceptor<E>,
         private val outcomeInterceptorFactory: RetrofitOutcomeInterceptor.Factory<E>
     ) : RetrofitInterceptor.Factory<E>
             where  E : Throwable,

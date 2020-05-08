@@ -41,7 +41,7 @@ internal class RetrofitOutcomeInterceptor<E, M> private constructor(
         if (parsedType.metadata is IsOutcome) outcomeInterceptor.apply(upstream)
         else upstream
 
-    class Factory<E>(
+    class Factory<E> internal constructor(
         private val outcomeInterceptor: Interceptor
     ) : RetrofitInterceptor.Factory<E>
             where E : Throwable,
