@@ -21,21 +21,15 @@
  *
  */
 
-package dev.pthomain.android.glitchy.core.interceptor.interceptors
+package dev.pthomain.android.glitchy.core.interceptor.builder
 
-import io.reactivex.ObservableTransformer
-import io.reactivex.Single
-import io.reactivex.SingleTransformer
+import org.koin.core.module.Module
 
-interface Interceptor : ObservableTransformer<Any, Any>, SingleTransformer<Any, Any> {
-
-    abstract class SimpleInterceptor : Interceptor {
-
-        override fun apply(upstream: Single<Any>) = upstream
-            .toObservable()
-            .compose(this)
-            .firstOrError()!!
-
-    }
+interface ExtensionBuilder<B : ExtensionBuilder<B, D>, D> {
+    fun accept(modules: List<Module>): B
+    fun build(): D
 }
 
+interface Extendable {
+    fun <B : ExtensionBuilder<B, D>, D> extend(extensionBuilder: B): B
+}

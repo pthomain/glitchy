@@ -23,41 +23,26 @@
 
 package dev.pthomain.android.glitchy.retrofit.interceptors
 
-import dev.pthomain.android.glitchy.core.interceptor.error.ErrorInterceptor
 import dev.pthomain.android.glitchy.core.interceptor.error.NetworkErrorPredicate
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.BaseCompositeInterceptor
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.Interceptor
 import dev.pthomain.android.glitchy.retrofit.type.ParsedType
-import io.reactivex.Observable
-import io.reactivex.ObservableSource
-import io.reactivex.Single
-import io.reactivex.SingleSource
 import retrofit2.Call
 
-class RetrofitCompositeInterceptor<E, M> private constructor(
+internal class RetrofitCompositeInterceptor<E, M> private constructor(
     private val interceptors: RetrofitInterceptors<E>,
-    private val errorInterceptor: ErrorInterceptor<E>,
+    private val errorInterceptor: Interceptor,
     private val outcomeInterceptorFactory: RetrofitOutcomeInterceptor.Factory<E>,
     private val parsedType: ParsedType<M>,
     private val call: Call<Any>
-) : RetrofitInterceptor
+) : BaseCompositeInterceptor(), RetrofitInterceptor
         where  E : Throwable,
                E : NetworkErrorPredicate {
-
-    override fun apply(upstream: Observable<Any>): ObservableSource<Any> {
-        var intercepted = upstream
-        interceptors().forEach { intercepted = intercepted.compose(it) }
-        return intercepted
-    }
-
-    override fun apply(upstream: Single<Any>): SingleSource<Any> {
-        var intercepted = upstream
-        interceptors().forEach { intercepted = intercepted.compose(it) }
-        return intercepted
-    }
 
     private fun List<RetrofitInterceptor.Factory<E>>.create() =
         asSequence().mapNotNull { it.create(parsedType, call) }
 
-    private fun interceptors() =
+    override fun interceptors() =
         interceptors.before.create()
             .plus(errorInterceptor)
             .plus(outcomeInterceptorFactory.create(parsedType, call))
@@ -65,7 +50,7 @@ class RetrofitCompositeInterceptor<E, M> private constructor(
 
     internal class Factory<E> internal constructor(
         private val interceptors: RetrofitInterceptors<E>,
-        private val errorInterceptor: ErrorInterceptor<E>,
+        private val errorInterceptor: Interceptor,
         private val outcomeInterceptorFactory: RetrofitOutcomeInterceptor.Factory<E>
     ) : RetrofitInterceptor.Factory<E>
             where  E : Throwable,

@@ -32,12 +32,15 @@ import com.google.gson.Gson
 import dev.pthomain.android.boilerplate.core.utils.kotlin.ifElse
 import dev.pthomain.android.boilerplate.core.utils.rx.On
 import dev.pthomain.android.boilerplate.core.utils.rx.schedule
+import dev.pthomain.android.glitchy.core.Glitchy
 import dev.pthomain.android.glitchy.core.interceptor.error.NetworkErrorPredicate
+import dev.pthomain.android.glitchy.core.interceptor.error.glitch.Glitch
 import dev.pthomain.android.glitchy.core.interceptor.outcome.Outcome
 import dev.pthomain.android.glitchy.core.interceptor.outcome.Outcome.Error
 import dev.pthomain.android.glitchy.core.interceptor.outcome.Outcome.Success
 import dev.pthomain.android.glitchy.demo.CatFactClient.Companion.BASE_URL
 import dev.pthomain.android.glitchy.retrofit.GlitchyRetrofit
+import dev.pthomain.android.glitchy.retrofit.error.RetrofitGlitchFactory
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitInterceptor
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitInterceptors
 import dev.pthomain.android.glitchy.retrofit.type.ParsedType
@@ -99,14 +102,19 @@ class MainActivity : AppCompatActivity() {
         val handledExceptionButton = findViewById<Button>(R.id.throw_handled_exception)
         val unhandledExceptionButton = findViewById<Button>(R.id.throw_unhandled_exception)
 
-        val glitchCallAdapterFactory = GlitchyRetrofit.createGlitchCallAdapterFactory(
-            getInterceptors()
-        )
+        val glitchCallAdapterFactory =
+            Glitchy.builder(RetrofitGlitchFactory())
+                .extend(GlitchyRetrofit.defaultExtension<Glitch>())
+                .withInterceptors(getInterceptors())
+                .build()
+                .callAdapterFactory
 
-        val apiErrorCallAdapterFactory = GlitchyRetrofit.createCallAdapterFactory<ApiError, Any>(
-            ApiError.Factory(),
-            interceptors = getInterceptors()
-        )
+        val apiErrorCallAdapterFactory =
+            Glitchy.builder(ApiError.Factory())
+                .extend(GlitchyRetrofit.defaultExtension<ApiError>())
+                .withInterceptors(getInterceptors())
+                .build()
+                .callAdapterFactory
 
         glitchRetrofit = getRetrofit(glitchCallAdapterFactory)
         apiErrorRetrofit = getRetrofit(apiErrorCallAdapterFactory)

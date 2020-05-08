@@ -33,6 +33,6 @@ Coming soon... (see app for implementation)
 More
 ----
 
-This library was originally part of __DéjàVu__ (https://github.com/pthomain/dejavu) but is now also available separately for developers interested only in the call composition part. Check it out if you're also interested in adding a cache layer to your API calls 😉
+This library was originally part of __DejaVu__ (https://github.com/pthomain/dejavu) but is now also available separately for developers interested only in the call composition part. Check it out if you're also interested in adding a cache layer to your API calls 😉
 
 

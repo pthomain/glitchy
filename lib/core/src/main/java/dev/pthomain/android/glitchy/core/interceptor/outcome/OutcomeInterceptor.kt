@@ -29,7 +29,7 @@ import dev.pthomain.android.glitchy.core.interceptor.interceptors.Interceptor.Si
 import io.reactivex.Observable
 import io.reactivex.functions.Function
 
-class OutcomeInterceptor<E>(
+internal class OutcomeInterceptor<E>(
     private val errorFactory: ErrorFactory<E>
 ) : SimpleInterceptor()
         where E : Throwable,
@@ -37,7 +37,7 @@ class OutcomeInterceptor<E>(
 
     override fun apply(upstream: Observable<Any>) =
         upstream
-            .map { Outcome.Success(it) as Any }
+            .map { Outcome.Success(it) }
             .onErrorResumeNext(Function {
                 errorFactory.asHandledError(it)
                     ?.let { Observable.just(it) }

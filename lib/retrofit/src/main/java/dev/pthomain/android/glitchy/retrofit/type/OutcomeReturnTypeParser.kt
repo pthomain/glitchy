@@ -31,7 +31,7 @@ import io.reactivex.Single
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 
-class OutcomeReturnTypeParser<M>(
+class OutcomeReturnTypeParser<M : Any>(
     private val metadataResolver: (ParsedType<*>) -> M
 ) : ReturnTypeParser<M> {
 
@@ -42,7 +42,7 @@ class OutcomeReturnTypeParser<M>(
         val parsedRxType = RxReturnTypeParser.INSTANCE.parseReturnType(returnType, annotations)
         val parsedType = parsedRxType.parsedType
 
-        val (parsedResultType, outcomeType) = if (rawType(parsedType) == Outcome::class.java ) {
+        val (parsedResultType, outcomeType) = if (rawType(parsedType) == Outcome::class.java) {
             val outcomeType = getFirstParameterUpperBound(parsedType)!!
             wrapToSingle(outcomeType) to parsedType
         } else parsedRxType.returnType to parsedType

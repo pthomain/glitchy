@@ -35,12 +35,12 @@ import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 
 /**
- * Implements the call adapter factory for Retrofit composing the calls with DejaVuInterceptor.
+ * Implements the call adapter factory for Retrofit composing the calls with CompositeInterceptor.
  *
  * @param rxJava2CallAdapterFactory the default RxJava call adapter factory
  * @param logger the logger
  */
-class RetrofitCallAdapterFactory<E, M> internal constructor(
+class RetrofitCallAdapterFactory<E, M : Any> internal constructor(
     private val rxJava2CallAdapterFactory: RxJava2CallAdapterFactory,
     private val compositeInterceptorFactory: RetrofitCompositeInterceptor.Factory<E>,
     private val returnTypeParser: ReturnTypeParser<M>?,
@@ -49,17 +49,17 @@ class RetrofitCallAdapterFactory<E, M> internal constructor(
         where E : Throwable,
               E : NetworkErrorPredicate {
 
-     companion object {
+    companion object {
 
-         @JvmStatic
-         fun rawType(type: Type): Class<*> = getRawType(type)
+        @JvmStatic
+        fun rawType(type: Type): Class<*> = getRawType(type)
 
-         @JvmStatic
-         fun getFirstParameterUpperBound(returnType: Type) =
-             (returnType as? ParameterizedType)?.let {
-                 getParameterUpperBound(0, it)
-             }
-     }
+        @JvmStatic
+        fun getFirstParameterUpperBound(returnType: Type) =
+            (returnType as? ParameterizedType)?.let {
+                getParameterUpperBound(0, it)
+            }
+    }
 
     /**
      * Returns a call adapter for interface methods that return {@code returnType}, or null if it

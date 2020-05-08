@@ -21,21 +21,10 @@
  *
  */
 
-package dev.pthomain.android.glitchy.core.interceptor.interceptors
+package dev.pthomain.android.glitchy.core.interceptor.builder
 
-import io.reactivex.ObservableTransformer
-import io.reactivex.Single
-import io.reactivex.SingleTransformer
-
-interface Interceptor : ObservableTransformer<Any, Any>, SingleTransformer<Any, Any> {
-
-    abstract class SimpleInterceptor : Interceptor {
-
-        override fun apply(upstream: Single<Any>) = upstream
-            .toObservable()
-            .compose(this)
-            .firstOrError()!!
-
-    }
+enum class GlitchyInterceptor {
+    ERROR,
+    OUTCOME,
+    COMPOSITE
 }
-

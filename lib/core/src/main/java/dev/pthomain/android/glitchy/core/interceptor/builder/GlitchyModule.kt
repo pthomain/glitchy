@@ -21,53 +21,49 @@
  *
  */
 
-package dev.pthomain.android.glitchy.retrofit
-
+package dev.pthomain.android.glitchy.core.interceptor.builder
 
 import dev.pthomain.android.boilerplate.core.utils.log.Logger
+import dev.pthomain.android.glitchy.core.interceptor.builder.GlitchyInterceptor.*
 import dev.pthomain.android.glitchy.core.interceptor.error.ErrorFactory
 import dev.pthomain.android.glitchy.core.interceptor.error.ErrorInterceptor
 import dev.pthomain.android.glitchy.core.interceptor.error.NetworkErrorPredicate
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.CompositeInterceptor
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.Interceptor
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.Interceptors
 import dev.pthomain.android.glitchy.core.interceptor.outcome.OutcomeInterceptor
-import dev.pthomain.android.glitchy.retrofit.adapter.RetrofitCallAdapterFactory
-import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitCompositeInterceptor
-import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitInterceptors
-import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitOutcomeInterceptor
-import dev.pthomain.android.glitchy.retrofit.type.ReturnTypeParser
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
-import retrofit2.CallAdapter
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 
-internal class GlitchyRetrofitModule<E, M>(
-    logger: Logger,
-    errorFactory: ErrorFactory<E>,
-    returnTypeParser: ReturnTypeParser<M>?,
-    interceptors: RetrofitInterceptors<E>
+internal class GlitchyModule<E>(
+    private val interceptors: Interceptors,
+    private val errorFactory: ErrorFactory<E>,
+    private val interceptError: Boolean,
+    private val interceptOutcome: Boolean,
+    private val logger: Logger
 ) where E : Throwable,
         E : NetworkErrorPredicate {
 
     val module = module {
+        single { logger }
 
         single { errorFactory }
 
-        single {
-            RetrofitCompositeInterceptor.Factory(
+        single { ErrorInterceptor(get<ErrorFactory<E>>()) }
+
+        single { OutcomeInterceptor(get<ErrorFactory<E>>()) }
+
+        single<Interceptor>(named(ERROR)) { get<ErrorInterceptor<E>>() }
+
+        single<Interceptor>(named(OUTCOME)) { get<OutcomeInterceptor<E>>() }
+
+        single<Interceptor>(named(COMPOSITE)) {
+            CompositeInterceptor<E>(
                 interceptors,
-                ErrorInterceptor(errorFactory),
-                RetrofitOutcomeInterceptor.Factory(OutcomeInterceptor(errorFactory))
+                if (interceptError) get<ErrorInterceptor<E>>() else null,
+                if (interceptOutcome) get<OutcomeInterceptor<E>>() else null
             )
         }
-
-        single { RxJava2CallAdapterFactory.create() }
-
-        single<CallAdapter.Factory> {
-            RetrofitCallAdapterFactory<E, M>(
-                get(),
-                get(),
-                returnTypeParser,
-                logger
-            )
-        }
-
     }
+
 }

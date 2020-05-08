@@ -24,25 +24,25 @@
 package dev.pthomain.android.glitchy.retrofit.interceptors
 
 import dev.pthomain.android.glitchy.core.interceptor.error.NetworkErrorPredicate
-import dev.pthomain.android.glitchy.core.interceptor.outcome.OutcomeInterceptor
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.Interceptor
 import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser.Companion.IsOutcome
 import dev.pthomain.android.glitchy.retrofit.type.ParsedType
 import io.reactivex.Observable
 import retrofit2.Call
 
-class RetrofitOutcomeInterceptor<E, M> private constructor(
-    private val delegate: OutcomeInterceptor<E>,
+internal class RetrofitOutcomeInterceptor<E, M> private constructor(
+    private val outcomeInterceptor: Interceptor,
     private val parsedType: ParsedType<M>
 ) : RetrofitInterceptor.SimpleInterceptor()
         where E : Throwable,
               E : NetworkErrorPredicate {
 
     override fun apply(upstream: Observable<Any>) =
-        if (parsedType.metadata is IsOutcome) delegate.apply(upstream)
+        if (parsedType.metadata is IsOutcome) outcomeInterceptor.apply(upstream)
         else upstream
 
     class Factory<E>(
-        private val delegate: OutcomeInterceptor<E>
+        private val outcomeInterceptor: Interceptor
     ) : RetrofitInterceptor.Factory<E>
             where E : Throwable,
                   E : NetworkErrorPredicate {
@@ -50,12 +50,10 @@ class RetrofitOutcomeInterceptor<E, M> private constructor(
         override fun <M> create(
             parsedType: ParsedType<M>,
             call: Call<Any>
-        ) =
-            RetrofitOutcomeInterceptor(
-                delegate,
-                parsedType
-            )
+        ) = RetrofitOutcomeInterceptor<E, M>(
+            outcomeInterceptor,
+            parsedType
+        )
     }
-
 
 }

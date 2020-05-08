@@ -23,19 +23,25 @@
 
 package dev.pthomain.android.glitchy.core.interceptor.interceptors
 
-import io.reactivex.ObservableTransformer
+import io.reactivex.Observable
+import io.reactivex.ObservableSource
 import io.reactivex.Single
-import io.reactivex.SingleTransformer
+import io.reactivex.SingleSource
 
-interface Interceptor : ObservableTransformer<Any, Any>, SingleTransformer<Any, Any> {
+abstract class BaseCompositeInterceptor : Interceptor {
 
-    abstract class SimpleInterceptor : Interceptor {
+    protected abstract fun interceptors(): Sequence<Interceptor>
 
-        override fun apply(upstream: Single<Any>) = upstream
-            .toObservable()
-            .compose(this)
-            .firstOrError()!!
-
+    override fun apply(upstream: Observable<Any>): ObservableSource<Any> {
+        var intercepted = upstream
+        interceptors().forEach { intercepted = intercepted.compose(it) }
+        return intercepted
     }
-}
 
+    override fun apply(upstream: Single<Any>): SingleSource<Any> {
+        var intercepted = upstream
+        interceptors().forEach { intercepted = intercepted.compose(it) }
+        return intercepted
+    }
+
+}

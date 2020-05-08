@@ -33,7 +33,7 @@ import retrofit2.CallAdapter
 import java.lang.reflect.Type
 
 /**
- * Retrofit call adapter composing with DejaVuInterceptor. It takes a type {@code E} for the exception
+ * Retrofit call adapter composing with a CompositeInterceptor. It takes a type {@code E} for the exception
  * used in generic error handling.
  *
  * @see dev.pthomain.android.glitchy.interceptor.error.ErrorFactory
@@ -47,7 +47,7 @@ internal class RetrofitCallAdapter<E, M>(
               E : NetworkErrorPredicate {
 
     /**
-     * Adapts the call by composing it with a DejaVuInterceptor if a cache operation is provided
+     * Adapts the call by composing it with a CompositeInterceptor if a cache operation is provided
      * via any of the supported methods (cache predicate, header or annotation)
      * or via the default RxJava call adapter otherwise.
      *

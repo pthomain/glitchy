@@ -34,7 +34,7 @@ import io.reactivex.functions.Function
  * @see ErrorFactory
  * @param errorFactory the factory converting throwables to custom exceptions
  */
-class ErrorInterceptor<E>(
+internal class ErrorInterceptor<E>(
     private val errorFactory: ErrorFactory<E>
 ) : SimpleInterceptor()
         where E : Throwable,

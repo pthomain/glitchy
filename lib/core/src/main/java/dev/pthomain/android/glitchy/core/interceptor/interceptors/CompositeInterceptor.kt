@@ -26,35 +26,20 @@ package dev.pthomain.android.glitchy.core.interceptor.interceptors
 import dev.pthomain.android.glitchy.core.interceptor.error.ErrorInterceptor
 import dev.pthomain.android.glitchy.core.interceptor.error.NetworkErrorPredicate
 import dev.pthomain.android.glitchy.core.interceptor.outcome.OutcomeInterceptor
-import io.reactivex.Observable
-import io.reactivex.ObservableSource
-import io.reactivex.Single
-import io.reactivex.SingleSource
 
-class CompositeInterceptor<E>(
+internal class CompositeInterceptor<E>(
     private val interceptors: Interceptors,
-    private val errorInterceptorFactory: ErrorInterceptor<E>,
-    private val outcomeInterceptorFactory: OutcomeInterceptor<E>
-) : Interceptor
+    private val errorInterceptor: ErrorInterceptor<E>?,
+    private val outcomeInterceptor: OutcomeInterceptor<E>?
+) : BaseCompositeInterceptor()
         where  E : Throwable,
                E : NetworkErrorPredicate {
 
-    override fun apply(upstream: Observable<Any>): ObservableSource<Any> {
-        var intercepted = upstream
-        interceptors().forEach { intercepted = intercepted.compose(it) }
-        return intercepted
-    }
-
-    override fun apply(upstream: Single<Any>): SingleSource<Any> {
-        var intercepted = upstream
-        interceptors().forEach { intercepted = intercepted.compose(it) }
-        return intercepted
-    }
-
-    private fun interceptors() =
+    override fun interceptors() =
         interceptors.before.asSequence()
-            .plus(errorInterceptorFactory)
-            .plus(outcomeInterceptorFactory)
+            .plus(errorInterceptor)
+            .plus(outcomeInterceptor)
             .plus(interceptors.after.asSequence())
+            .filterNotNull()
 
 }

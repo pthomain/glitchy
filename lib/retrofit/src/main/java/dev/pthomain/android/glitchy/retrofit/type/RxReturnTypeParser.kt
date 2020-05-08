@@ -29,7 +29,7 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import java.lang.reflect.Type
 
-class RxReturnTypeParser<M>(
+class RxReturnTypeParser<M : Any>(
     private val metadataResolver: (Type) -> M
 ) : ReturnTypeParser<M> {
 

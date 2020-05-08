@@ -23,63 +23,50 @@
 
 package dev.pthomain.android.glitchy.retrofit
 
-import dev.pthomain.android.boilerplate.core.utils.log.Logger
+import dev.pthomain.android.glitchy.core.Glitchy
+import dev.pthomain.android.glitchy.core.interceptor.builder.GlitchyBuilder
 import dev.pthomain.android.glitchy.core.interceptor.error.ErrorFactory
 import dev.pthomain.android.glitchy.core.interceptor.error.NetworkErrorPredicate
-import dev.pthomain.android.glitchy.core.interceptor.error.glitch.Glitch
-import dev.pthomain.android.glitchy.core.interceptor.error.glitch.GlitchFactory
-import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitInterceptors
-import dev.pthomain.android.glitchy.retrofit.type.ReturnTypeParser
-import org.koin.dsl.koinApplication
+import dev.pthomain.android.glitchy.retrofit.builder.GlitchyRetrofitBuilder
 import retrofit2.CallAdapter
 
-object GlitchyRetrofit {
+class GlitchyRetrofit<E>(
+    val callAdapterFactory: CallAdapter.Factory
+) where E : Throwable,
+        E : NetworkErrorPredicate {
 
-    private fun defaultLogger() = object : Logger {
-        override fun d(tagOrCaller: Any, message: String) = Unit
-        override fun e(tagOrCaller: Any, message: String) = Unit
-        override fun e(tagOrCaller: Any, t: Throwable, message: String?) = Unit
+    companion object {
+
+        fun <E, M : Any> extension(): GlitchyRetrofitBuilder<E, M>
+                where E : Throwable,
+                      E : NetworkErrorPredicate =
+            GlitchyRetrofitBuilder()
+
+        fun <E, M : Any> builder(glitchyBuilder: GlitchyBuilder<E>): GlitchyRetrofitBuilder<E, M>
+                where E : Throwable,
+                      E : NetworkErrorPredicate =
+            glitchyBuilder.extend(extension<E, M>())
+
+        fun <E, M : Any> builder(errorFactory: ErrorFactory<E>): GlitchyRetrofitBuilder<E, M>
+                where E : Throwable,
+                      E : NetworkErrorPredicate =
+            builder(Glitchy.builder(errorFactory))
+
+        fun <E> defaultExtension(): GlitchyRetrofitBuilder<E, Any>
+                where E : Throwable,
+                      E : NetworkErrorPredicate =
+            GlitchyRetrofitBuilder.defaultBuilder()
+
+        fun <E> defaultBuilder(glitchyBuilder: GlitchyBuilder<E>): GlitchyRetrofitBuilder<E, Any>
+                where E : Throwable,
+                      E : NetworkErrorPredicate =
+            glitchyBuilder.extend(defaultExtension<E>())
+
+        fun <E> defaultBuilder(errorFactory: ErrorFactory<E>): GlitchyRetrofitBuilder<E, Any>
+                where E : Throwable,
+                      E : NetworkErrorPredicate =
+            defaultBuilder(Glitchy.builder(errorFactory))
+
     }
-
-    private fun <E, M> getKoin(
-        logger: Logger?,
-        errorFactory: ErrorFactory<E>,
-        returnTypeParser: ReturnTypeParser<M>?,
-        interceptors: RetrofitInterceptors<E>
-    ) where E : Throwable, E : NetworkErrorPredicate =
-        koinApplication {
-            modules(
-                GlitchyRetrofitModule(
-                    logger ?: defaultLogger(),
-                    errorFactory,
-                    returnTypeParser,
-                    interceptors
-                ).module
-            )
-        }.koin
-
-    fun createGlitchCallAdapterFactory(
-        interceptors: RetrofitInterceptors<Glitch>? = null,
-        logger: Logger? = null
-    ) =
-        createCallAdapterFactory<Glitch, Unit>(
-            RetrofitGlitchFactory(GlitchFactory()),
-            null,
-            interceptors,
-            logger
-        )
-
-    fun <E, M> createCallAdapterFactory(
-        errorFactory: ErrorFactory<E>,
-        returnTypeParser: ReturnTypeParser<M>? = null,
-        interceptors: RetrofitInterceptors<E>? = null,
-        logger: Logger? = null
-    ) where E : Throwable, E : NetworkErrorPredicate =
-        getKoin(
-            logger,
-            errorFactory,
-            returnTypeParser,
-            interceptors ?: RetrofitInterceptors.None()
-        ).get<CallAdapter.Factory>()
 
 }

@@ -21,7 +21,7 @@
  *
  */
 
-package dev.pthomain.android.glitchy.retrofit
+package dev.pthomain.android.glitchy.retrofit.error
 
 import dev.pthomain.android.glitchy.core.interceptor.error.ErrorFactory
 import dev.pthomain.android.glitchy.core.interceptor.error.glitch.ErrorCode.*
@@ -34,7 +34,7 @@ import retrofit2.HttpException
  *
  * @see Glitch
  */
-class RetrofitGlitchFactory(private val glitchFactory: GlitchFactory) :
+class RetrofitGlitchFactory(private val glitchFactory: GlitchFactory = GlitchFactory()) :
     ErrorFactory<Glitch> by glitchFactory {
 
     /**
