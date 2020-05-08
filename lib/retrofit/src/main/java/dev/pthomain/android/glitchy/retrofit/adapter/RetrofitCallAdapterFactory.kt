@@ -40,7 +40,7 @@ import java.lang.reflect.Type
  * @param rxJava2CallAdapterFactory the default RxJava call adapter factory
  * @param logger the logger
  */
-class RetrofitCallAdapterFactory<E, M : Any> internal constructor(
+internal class RetrofitCallAdapterFactory<E, M : Any>(
     private val rxJava2CallAdapterFactory: RxJava2CallAdapterFactory,
     private val compositeInterceptorFactory: RetrofitCompositeInterceptor.Factory<E>,
     private val returnTypeParser: ReturnTypeParser<M>?,

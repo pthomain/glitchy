@@ -30,7 +30,7 @@ import dev.pthomain.android.glitchy.core.interceptor.interceptors.Interceptor
 import dev.pthomain.android.glitchy.retrofit.type.ParsedType
 import retrofit2.Call
 
-internal class RetrofitCompositeInterceptor<E, M> private constructor(
+class RetrofitCompositeInterceptor<E, M> private constructor(
     private val interceptors: RetrofitInterceptors<E>,
     private val errorInterceptor: Interceptor,
     private val outcomeInterceptorFactory: RetrofitOutcomeInterceptor.Factory<E>,
@@ -49,7 +49,7 @@ internal class RetrofitCompositeInterceptor<E, M> private constructor(
             .plus(outcomeInterceptorFactory.create(parsedType, call))
             .plus(interceptors.after.create())
 
-    internal class Factory<E> internal constructor(
+    class Factory<E> internal constructor(
         private val interceptors: RetrofitInterceptors<E>,
         private val errorInterceptor: ErrorInterceptor<E>,
         private val outcomeInterceptorFactory: RetrofitOutcomeInterceptor.Factory<E>
