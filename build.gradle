@@ -52,7 +52,7 @@ task clean(type: Delete) {
 }
 
 ext {
-    glitchyVersion = 2.7
+    glitchyVersion = 2.8
 
     compileSdkVersion = 29
     minSdkVersion = 16
@@ -67,7 +67,7 @@ ext {
     rxAndroidVersion = '2.1.1'
     rxDogTagVersion = '1.0.0'
 
-    boilerplateVersion = '4.0'
+    boilerplateVersion = '4.2'
     retrofitVersion = '2.8.1'
 
     appDependencies = [
@@ -84,7 +84,7 @@ ext {
             koinCore             : "org.koin:koin-core:$koinVersion",
             koinCoreExt          : "org.koin:koin-core-ext:$koinVersion",
 
-            boilerplate          : "com.github.pthomain.boilerplate:core:$boilerplateVersion",
+            boilerplate          : "dev.pthomain.boilerplate:core:$boilerplateVersion",
 
             retrofit             : "com.squareup.retrofit2:retrofit:$retrofitVersion",
             retrofitAdapterRxJava: "com.squareup.retrofit2:adapter-rxjava2:$retrofitVersion",

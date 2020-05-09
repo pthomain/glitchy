@@ -23,7 +23,7 @@
 
 package dev.pthomain.android.glitchy.retrofit.builder
 
-import dev.pthomain.android.glitchy.core.interceptor.builder.ExtensionBuilder
+import dev.pthomain.android.boilerplate.core.builder.BaseExtensionBuilder
 import dev.pthomain.android.glitchy.core.interceptor.error.NetworkErrorPredicate
 import dev.pthomain.android.glitchy.retrofit.GlitchyRetrofit
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitInterceptors
@@ -33,18 +33,12 @@ import org.koin.core.module.Module
 import org.koin.dsl.koinApplication
 
 class GlitchyRetrofitBuilder<E, M : Any> internal constructor() :
-    ExtensionBuilder<GlitchyRetrofitBuilder<E, M>, GlitchyRetrofit<E>>
+    BaseExtensionBuilder<GlitchyRetrofit<E>, Module, GlitchyRetrofitBuilder<E, M>>()
         where E : Throwable,
               E : NetworkErrorPredicate {
 
     private var returnTypeParser: ReturnTypeParser<M>? = null
     private var interceptors: RetrofitInterceptors<E> = RetrofitInterceptors.None()
-
-    private var parentModules: List<Module>? = null
-
-    override fun accept(modules: List<Module>) = apply {
-        parentModules = modules
-    }
 
     fun withReturnTypeParser(returnTypeParser: ReturnTypeParser<M>) = apply {
         this.returnTypeParser = returnTypeParser
@@ -54,11 +48,8 @@ class GlitchyRetrofitBuilder<E, M : Any> internal constructor() :
         this.interceptors = interceptors
     }
 
-    override fun build(): GlitchyRetrofit<E> {
-        val parentModules = this.parentModules
-            ?: throw IllegalStateException("This builder needs to call GlitchyBuilder::extend")
-
-        return koinApplication {
+    override fun buildInternal(parentModules: List<Module>) =
+        koinApplication {
             modules(
                 parentModules + GlitchyRetrofitModule(
                     returnTypeParser,
@@ -66,9 +57,8 @@ class GlitchyRetrofitBuilder<E, M : Any> internal constructor() :
                 ).module
             )
         }.koin.run {
-            GlitchyRetrofit(get())
+            GlitchyRetrofit<E>(get())
         }
-    }
 
     companion object {
         fun <E> defaultBuilder()
