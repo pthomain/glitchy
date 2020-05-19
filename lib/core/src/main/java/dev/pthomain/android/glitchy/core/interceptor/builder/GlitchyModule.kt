@@ -35,8 +35,7 @@ import org.koin.dsl.module
 internal class GlitchyModule<E>(
     private val interceptors: Interceptors,
     private val errorFactory: ErrorFactory<E>,
-    private val interceptError: Boolean,
-    private val interceptOutcome: Boolean,
+    private val asOutcome: Boolean,
     private val logger: Logger
 ) where E : Throwable,
         E : NetworkErrorPredicate {
@@ -53,8 +52,8 @@ internal class GlitchyModule<E>(
         single {
             CompositeInterceptor(
                 interceptors,
-                if (interceptError) get<ErrorInterceptor<E>>() else null,
-                if (interceptOutcome) get<OutcomeInterceptor<E>>() else null
+                get<ErrorInterceptor<E>>(),
+                if (asOutcome) get<OutcomeInterceptor<E>>() else null
             )
         }
     }

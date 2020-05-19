@@ -44,20 +44,15 @@ class GlitchyBuilder<E> internal constructor(
         override fun e(tagOrCaller: Any, t: Throwable, message: String?) = Unit
     }
 
-    private var interceptError: Boolean = true
-    private var interceptOutcome: Boolean = false
+    private var asOutcome: Boolean = false
     private var interceptors: Interceptors = Interceptors.None()
 
     fun withLogger(logger: Logger) = apply {
         this.logger = logger
     }
 
-    fun withInterceptError(interceptError: Boolean) = apply {
-        this.interceptError = interceptError
-    }
-
-    fun withInterceptOutcome(interceptOutcome: Boolean) = apply {
-        this.interceptOutcome = interceptOutcome
+    fun emitOutcome(asOutcome: Boolean) = apply {
+        this.asOutcome = asOutcome
     }
 
     fun withInterceptors(interceptors: Interceptors) = apply {
@@ -68,8 +63,7 @@ class GlitchyBuilder<E> internal constructor(
         GlitchyModule(
             interceptors,
             errorFactory,
-            interceptError,
-            interceptOutcome,
+            asOutcome,
             logger
         ).module
     )
