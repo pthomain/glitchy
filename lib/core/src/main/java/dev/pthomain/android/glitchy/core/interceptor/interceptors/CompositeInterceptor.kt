@@ -27,17 +27,17 @@ import dev.pthomain.android.glitchy.core.interceptor.error.ErrorInterceptor
 import dev.pthomain.android.glitchy.core.interceptor.error.NetworkErrorPredicate
 import dev.pthomain.android.glitchy.core.interceptor.outcome.OutcomeInterceptor
 
- class CompositeInterceptor<E> internal constructor(
-     private val interceptors: Interceptors,
-     private val errorInterceptor: ErrorInterceptor<E>?,
-     private val outcomeInterceptor: OutcomeInterceptor<E>?
- ) : BaseCompositeInterceptor()
-         where  E : Throwable,
-                E : NetworkErrorPredicate {
+class CompositeInterceptor<E> internal constructor(
+    private val interceptors: Interceptors,
+    private val errorInterceptor: ErrorInterceptor<E>?,
+    private val outcomeInterceptor: OutcomeInterceptor<E>?
+) : BaseCompositeInterceptor()
+        where  E : Throwable,
+               E : NetworkErrorPredicate {
 
-     override fun interceptors() =
-         interceptors.before.asSequence()
-             .plus(errorInterceptor)
+    override fun interceptors() =
+        interceptors.before.asSequence()
+            .plus(errorInterceptor)
             .plus(outcomeInterceptor)
             .plus(interceptors.after.asSequence())
             .filterNotNull()
