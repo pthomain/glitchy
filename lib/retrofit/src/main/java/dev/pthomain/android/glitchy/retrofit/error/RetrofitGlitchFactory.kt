@@ -23,10 +23,10 @@
 
 package dev.pthomain.android.glitchy.retrofit.error
 
-import dev.pthomain.android.glitchy.core.interceptor.error.ErrorFactory
-import dev.pthomain.android.glitchy.core.interceptor.error.glitch.ErrorCode.*
-import dev.pthomain.android.glitchy.core.interceptor.error.glitch.Glitch
-import dev.pthomain.android.glitchy.core.interceptor.error.glitch.GlitchFactory
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.ErrorFactory
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.glitch.ErrorCode.*
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.glitch.Glitch
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.glitch.GlitchFactory
 import retrofit2.HttpException
 
 /**

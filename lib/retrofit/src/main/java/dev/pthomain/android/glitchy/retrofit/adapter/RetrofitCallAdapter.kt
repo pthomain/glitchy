@@ -23,7 +23,7 @@
 
 package dev.pthomain.android.glitchy.retrofit.adapter
 
-import dev.pthomain.android.glitchy.core.interceptor.error.NetworkErrorPredicate
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitCompositeInterceptor
 import dev.pthomain.android.glitchy.retrofit.type.ParsedType
 import io.reactivex.Observable

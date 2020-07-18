@@ -24,17 +24,17 @@
 package dev.pthomain.android.glitchy.core
 
 import dev.pthomain.android.glitchy.core.interceptor.builder.GlitchyBuilder
-import dev.pthomain.android.glitchy.core.interceptor.error.ErrorFactory
-import dev.pthomain.android.glitchy.core.interceptor.error.NetworkErrorPredicate
-import dev.pthomain.android.glitchy.core.interceptor.interceptors.CompositeInterceptor
-import dev.pthomain.android.glitchy.core.interceptor.interceptors.Interceptor
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.ErrorFactory
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
+import dev.pthomain.android.glitchy.rxjava.CompositeRxInterceptor
+import dev.pthomain.android.glitchy.rxjava.RxInterceptor
 
 class Glitchy<E> internal constructor(
-    compositeInterceptor: CompositeInterceptor<E>
+    compositeInterceptor: dev.pthomain.android.glitchy.rxjava.CompositeRxInterceptor<E>
 ) where E : Throwable,
         E : NetworkErrorPredicate {
 
-    val interceptor: Interceptor = compositeInterceptor
+    val interceptor: dev.pthomain.android.glitchy.rxjava.RxInterceptor = compositeInterceptor
 
     companion object {
         fun <E> builder(errorFactory: ErrorFactory<E>)

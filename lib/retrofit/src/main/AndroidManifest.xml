@@ -21,6 +21,4 @@
   ~
   -->
 
-<manifest package="dev.pthomain.android.glitchy.retrofit">
-
-</manifest>
+<manifest package="dev.pthomain.android.glitchy.retrofit" />

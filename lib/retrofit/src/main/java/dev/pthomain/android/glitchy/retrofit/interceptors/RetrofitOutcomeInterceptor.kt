@@ -23,16 +23,16 @@
 
 package dev.pthomain.android.glitchy.retrofit.interceptors
 
-import dev.pthomain.android.glitchy.core.interceptor.error.NetworkErrorPredicate
-import dev.pthomain.android.glitchy.core.interceptor.interceptors.Interceptor
-import dev.pthomain.android.glitchy.core.interceptor.outcome.OutcomeInterceptor
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
 import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser.Companion.IsOutcome
 import dev.pthomain.android.glitchy.retrofit.type.ParsedType
+import dev.pthomain.android.glitchy.rxjava.RxInterceptor
+import dev.pthomain.android.glitchy.rxjava.interceptors.OutcomeRxInterceptor
 import io.reactivex.Observable
 import retrofit2.Call
 
 class RetrofitOutcomeInterceptor<E, M> private constructor(
-    private val outcomeInterceptor: Interceptor,
+    private val outcomeInterceptor: dev.pthomain.android.glitchy.rxjava.RxInterceptor,
     private val parsedType: ParsedType<M>
 ) : RetrofitInterceptor.SimpleInterceptor()
         where E : Throwable,
@@ -43,7 +43,7 @@ class RetrofitOutcomeInterceptor<E, M> private constructor(
         else upstream
 
     class Factory<E> internal constructor(
-        private val outcomeInterceptor: OutcomeInterceptor<E>
+        private val outcomeInterceptor: dev.pthomain.android.glitchy.rxjava.interceptors.OutcomeRxInterceptor<E>
     ) : RetrofitInterceptor.Factory<E>
             where E : Throwable,
                   E : NetworkErrorPredicate {

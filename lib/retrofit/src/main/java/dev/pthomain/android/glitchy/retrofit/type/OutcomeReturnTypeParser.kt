@@ -24,7 +24,7 @@
 package dev.pthomain.android.glitchy.retrofit.type
 
 import dev.pthomain.android.boilerplate.core.utils.kotlin.ifElse
-import dev.pthomain.android.glitchy.core.interceptor.outcome.Outcome
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.outcome.Outcome
 import dev.pthomain.android.glitchy.retrofit.adapter.RetrofitCallAdapterFactory.Companion.getFirstParameterUpperBound
 import dev.pthomain.android.glitchy.retrofit.adapter.RetrofitCallAdapterFactory.Companion.rawType
 import io.reactivex.Single

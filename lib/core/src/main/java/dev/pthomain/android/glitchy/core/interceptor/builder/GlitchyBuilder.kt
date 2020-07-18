@@ -26,9 +26,9 @@ package dev.pthomain.android.glitchy.core.interceptor.builder
 import dev.pthomain.android.boilerplate.core.builder.BaseExtendable
 import dev.pthomain.android.boilerplate.core.utils.log.Logger
 import dev.pthomain.android.glitchy.core.Glitchy
-import dev.pthomain.android.glitchy.core.interceptor.error.ErrorFactory
-import dev.pthomain.android.glitchy.core.interceptor.error.NetworkErrorPredicate
-import dev.pthomain.android.glitchy.core.interceptor.interceptors.Interceptors
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Interceptors
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.ErrorFactory
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
 import org.koin.core.module.Module
 import org.koin.dsl.koinApplication
 
@@ -45,7 +45,7 @@ class GlitchyBuilder<E> internal constructor(
     }
 
     private var asOutcome: Boolean = false
-    private var interceptors: Interceptors = Interceptors.None()
+    private lateinit var interceptors: Interceptors
 
     fun withLogger(logger: Logger) = apply {
         this.logger = logger

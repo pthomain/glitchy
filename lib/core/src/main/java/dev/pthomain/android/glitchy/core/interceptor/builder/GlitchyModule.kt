@@ -24,16 +24,16 @@
 package dev.pthomain.android.glitchy.core.interceptor.builder
 
 import dev.pthomain.android.boilerplate.core.utils.log.Logger
-import dev.pthomain.android.glitchy.core.interceptor.error.ErrorFactory
-import dev.pthomain.android.glitchy.core.interceptor.error.ErrorInterceptor
-import dev.pthomain.android.glitchy.core.interceptor.error.NetworkErrorPredicate
-import dev.pthomain.android.glitchy.core.interceptor.interceptors.CompositeInterceptor
-import dev.pthomain.android.glitchy.core.interceptor.interceptors.Interceptors
-import dev.pthomain.android.glitchy.core.interceptor.outcome.OutcomeInterceptor
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.ErrorFactory
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
+import dev.pthomain.android.glitchy.rxjava.CompositeRxInterceptor
+import dev.pthomain.android.glitchy.rxjava.RxInterceptors
+import dev.pthomain.android.glitchy.rxjava.interceptors.ErrorRxInterceptor
+import dev.pthomain.android.glitchy.rxjava.interceptors.OutcomeRxInterceptor
 import org.koin.dsl.module
 
 internal class GlitchyModule<E>(
-    private val interceptors: Interceptors,
+    private val interceptors: dev.pthomain.android.glitchy.rxjava.RxInterceptors,
     private val errorFactory: ErrorFactory<E>,
     private val asOutcome: Boolean,
     private val logger: Logger
@@ -45,15 +45,15 @@ internal class GlitchyModule<E>(
 
         single { errorFactory }
 
-        single { ErrorInterceptor(get<ErrorFactory<E>>()) }
+        single { dev.pthomain.android.glitchy.rxjava.interceptors.ErrorRxInterceptor(get<ErrorFactory<E>>()) }
 
-        single { OutcomeInterceptor(get<ErrorFactory<E>>()) }
+        single { dev.pthomain.android.glitchy.rxjava.interceptors.OutcomeRxInterceptor(get<ErrorFactory<E>>()) }
 
         single {
-            CompositeInterceptor(
+            dev.pthomain.android.glitchy.rxjava.CompositeRxInterceptor(
                 interceptors,
-                get<ErrorInterceptor<E>>(),
-                if (asOutcome) get<OutcomeInterceptor<E>>() else null
+                get<dev.pthomain.android.glitchy.rxjava.interceptors.ErrorRxInterceptor<E>>(),
+                if (asOutcome) get<dev.pthomain.android.glitchy.rxjava.interceptors.OutcomeRxInterceptor<E>>() else null
             )
         }
     }

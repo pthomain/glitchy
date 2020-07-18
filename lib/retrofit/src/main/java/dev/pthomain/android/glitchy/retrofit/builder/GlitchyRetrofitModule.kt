@@ -23,7 +23,7 @@
 
 package dev.pthomain.android.glitchy.retrofit.builder
 
-import dev.pthomain.android.glitchy.core.interceptor.error.NetworkErrorPredicate
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
 import dev.pthomain.android.glitchy.retrofit.adapter.RetrofitCallAdapterFactory
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitCompositeInterceptor
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitInterceptors
