@@ -23,14 +23,14 @@
 
 package dev.pthomain.android.glitchy.retrofit.interceptors
 
-import dev.pthomain.android.glitchy.core.interceptor.error.NetworkErrorPredicate
-import dev.pthomain.android.glitchy.core.interceptor.interceptors.Interceptor
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
 import dev.pthomain.android.glitchy.retrofit.type.ParsedType
+import dev.pthomain.android.glitchy.rxjava.RxInterceptor
 import retrofit2.Call
 
-interface RetrofitInterceptor : Interceptor {
+interface RetrofitInterceptor : dev.pthomain.android.glitchy.rxjava.RxInterceptor {
 
-    abstract class SimpleInterceptor : RetrofitInterceptor, Interceptor.SimpleInterceptor()
+    abstract class SimpleInterceptor : RetrofitInterceptor, dev.pthomain.android.glitchy.rxjava.RxInterceptor.SimpleRxInterceptor()
 
     interface Factory<E> where E : Throwable,
                                E : NetworkErrorPredicate {

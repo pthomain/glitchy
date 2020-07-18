@@ -23,7 +23,7 @@
 
 package dev.pthomain.android.glitchy.demo
 
-import dev.pthomain.android.glitchy.core.interceptor.outcome.Outcome
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.outcome.Outcome
 import io.reactivex.Single
 import retrofit2.http.GET
 

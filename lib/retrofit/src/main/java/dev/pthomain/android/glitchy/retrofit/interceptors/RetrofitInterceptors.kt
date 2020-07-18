@@ -23,7 +23,7 @@
 
 package dev.pthomain.android.glitchy.retrofit.interceptors
 
-import dev.pthomain.android.glitchy.core.interceptor.error.NetworkErrorPredicate
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
 
 sealed class RetrofitInterceptors<E>(
     val before: List<RetrofitInterceptor.Factory<E>>,

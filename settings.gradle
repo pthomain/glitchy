@@ -1,3 +1,5 @@
 include ':demo'
 include ':lib:core'
 include ':lib:retrofit'
+include ':lib:rxjava'
+include ':lib:flow'

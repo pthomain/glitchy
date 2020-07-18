@@ -24,9 +24,9 @@
 package dev.pthomain.android.glitchy.demo
 
 import dev.pthomain.android.boilerplate.core.utils.kotlin.ifElse
-import dev.pthomain.android.glitchy.core.interceptor.error.ErrorFactory
-import dev.pthomain.android.glitchy.core.interceptor.error.NetworkErrorPredicate
-import dev.pthomain.android.glitchy.core.interceptor.outcome.Outcome
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.ErrorFactory
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.outcome.Outcome
 import java.io.IOException
 
 class ApiError(override val cause: Throwable) : Throwable(), NetworkErrorPredicate {
