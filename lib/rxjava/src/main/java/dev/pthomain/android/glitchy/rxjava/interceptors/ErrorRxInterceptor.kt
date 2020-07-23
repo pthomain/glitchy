@@ -36,7 +36,7 @@ import io.reactivex.Observable
  */
 class ErrorRxInterceptor<E> internal constructor(
     private val errorFactory: ErrorFactory<E>
-) : RxInterceptor.SimpleRxInterceptor()
+) : RxInterceptor.CombinedRxInterceptor()
         where E : Throwable,
               E : NetworkErrorPredicate {
 

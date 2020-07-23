@@ -32,7 +32,7 @@ buildscript {
 
     dependencies {
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
-        classpath 'com.android.tools.build:gradle:4.2.0-alpha04'
+        classpath 'com.android.tools.build:gradle:4.2.0-alpha05'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     }
@@ -69,29 +69,29 @@ ext {
     rxDogTagVersion = '1.0.0'
 
     boilerplateVersion = '4.2'
-    retrofitVersion = '2.8.1'
+    retrofitVersion = '2.9.0'
 
     appDependencies = [
-            multiDex             : "androidx.multidex:multidex:$multidexVersion",
+            multiDex               : "androidx.multidex:multidex:$multidexVersion",
 
-            kotlinJdk8           : "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion",
-            kotlinReflect        : "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion",
+            kotlinJdk8             : "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion",
+            kotlinReflect          : "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion",
 
             kotlinCoroutines       : "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion",
             kotlinCoroutinesAndroid: "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion",
 
-            rxJava               : "io.reactivex.rxjava2:rxjava:$rxJavaVersion",
-            rxKotlin             : "io.reactivex.rxjava2:rxkotlin:$rxKotlinVersion",
-            rxAndroid            : "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion",
-            rxDogTag             : "com.uber.rxdogtag:rxdogtag:$rxDogTagVersion",
+            rxJava                 : "io.reactivex.rxjava2:rxjava:$rxJavaVersion",
+            rxKotlin               : "io.reactivex.rxjava2:rxkotlin:$rxKotlinVersion",
+            rxAndroid              : "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion",
+            rxDogTag               : "com.uber.rxdogtag:rxdogtag:$rxDogTagVersion",
 
-            koinCore             : "org.koin:koin-core:$koinVersion",
-            koinCoreExt          : "org.koin:koin-core-ext:$koinVersion",
+            koinCore               : "org.koin:koin-core:$koinVersion",
+            koinCoreExt            : "org.koin:koin-core-ext:$koinVersion",
 
-            boilerplate          : "dev.pthomain.boilerplate:core:$boilerplateVersion",
+            boilerplate            : "dev.pthomain.boilerplate:core:$boilerplateVersion",
 
-            retrofit             : "com.squareup.retrofit2:retrofit:$retrofitVersion",
-            retrofitAdapterRxJava: "com.squareup.retrofit2:adapter-rxjava2:$retrofitVersion",
+            retrofit               : "com.squareup.retrofit2:retrofit:$retrofitVersion",
+            retrofitAdapterRxJava  : "com.squareup.retrofit2:adapter-rxjava2:$retrofitVersion",
     ]
 }
 

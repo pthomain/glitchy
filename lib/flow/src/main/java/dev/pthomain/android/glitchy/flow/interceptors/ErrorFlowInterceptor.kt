@@ -37,7 +37,7 @@ import kotlinx.coroutines.flow.catch
  */
 class ErrorFlowInterceptor<E> internal constructor(
     private val errorFactory: ErrorFactory<E>
-) : FlowInterceptor
+) : FlowInterceptor()
         where E : Throwable,
               E : NetworkErrorPredicate {
 
@@ -48,6 +48,6 @@ class ErrorFlowInterceptor<E> internal constructor(
      * @param upstream the upstream Flow, typically as emitted by a Retrofit client.
      * @return the composed Flow emitting the converted exception
      */
-    override fun <T> interceptFlow(upstream: Flow<T>): Flow<T> =
+    override fun interceptFlow(upstream: Flow<*>) =
         upstream.catch { throw errorFactory.invoke(it) }
 }

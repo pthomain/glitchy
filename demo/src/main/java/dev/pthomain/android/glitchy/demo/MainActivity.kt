@@ -33,25 +33,18 @@ import dev.pthomain.android.boilerplate.core.utils.kotlin.ifElse
 import dev.pthomain.android.boilerplate.core.utils.rx.On
 import dev.pthomain.android.boilerplate.core.utils.rx.schedule
 import dev.pthomain.android.glitchy.core.Glitchy
-import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.glitch.Glitch
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.outcome.Outcome
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.outcome.Outcome.Error
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.outcome.Outcome.Success
 import dev.pthomain.android.glitchy.demo.CatFactClient.Companion.BASE_URL
-import dev.pthomain.android.glitchy.retrofit.GlitchyRetrofit
 import dev.pthomain.android.glitchy.retrofit.error.RetrofitGlitchFactory
-import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitInterceptor
-import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitInterceptors
-import dev.pthomain.android.glitchy.retrofit.type.ParsedType
-import io.reactivex.Observable
+import dev.pthomain.android.glitchy.retrofit.flow.GlitchyRetrofitFlow
+import dev.pthomain.android.glitchy.rxjava.GlitchyRxJava
 import io.reactivex.disposables.Disposable
-import retrofit2.Call
 import retrofit2.CallAdapter
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.io.IOException
-import java.util.concurrent.atomic.AtomicBoolean
 
 class MainActivity : AppCompatActivity() {
 
@@ -61,36 +54,6 @@ class MainActivity : AppCompatActivity() {
 
     private var disposable: Disposable? = null
     private var useGlitch = true
-
-    private val throwHandledException = AtomicBoolean(false)
-    private val throwUnhandledException = AtomicBoolean(false)
-
-    private val exceptionInterceptor = object : RetrofitInterceptor.SimpleInterceptor() {
-        override fun apply(upstream: Observable<Any>) = upstream.flatMap {
-            when {
-                throwHandledException.getAndSet(false) -> Observable.error<Any>(
-                    IOException("Some IO exception occurred")
-                )
-
-                throwUnhandledException.getAndSet(false) -> Observable.error<Any>(
-                    NullPointerException("Something was null")
-                )
-
-                else -> upstream
-            }
-        }
-    }
-
-    private fun <E> getInterceptors()
-            where E : Throwable,
-                  E : NetworkErrorPredicate = RetrofitInterceptors.Before(
-        object : RetrofitInterceptor.Factory<E> {
-            override fun <M> create(
-                parsedType: ParsedType<M>,
-                call: Call<Any>
-            ) = exceptionInterceptor
-        }
-    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -102,19 +65,29 @@ class MainActivity : AppCompatActivity() {
         val handledExceptionButton = findViewById<Button>(R.id.throw_handled_exception)
         val unhandledExceptionButton = findViewById<Button>(R.id.throw_unhandled_exception)
 
-        val glitchCallAdapterFactory =
-            Glitchy.builder(RetrofitGlitchFactory())
-                .extend(GlitchyRetrofit.defaultExtension<Glitch>())
-                .withInterceptors(getInterceptors())
-                .build()
-                .callAdapterFactory
+        val glitchCallAdapterFactory = with(RetrofitGlitchFactory()) {
+            GlitchyRetrofitFlow.defaultBuilder(
+                Glitchy.builder(
+                    this,
+                    GlitchyRxJava.getInterceptorProvider(
+                        this,
+                        GlitchyFactory.getRxInterceptors<Glitch>() //FIXME simplify this
+                    )
+                )
+            )
+        }.build().callAdapterFactory
 
-        val apiErrorCallAdapterFactory =
-            Glitchy.builder(ApiError.Factory())
-                .extend(GlitchyRetrofit.defaultExtension<ApiError>())
-                .withInterceptors(getInterceptors())
-                .build()
-                .callAdapterFactory
+        val apiErrorCallAdapterFactory = with(ApiError.Factory()) {
+            GlitchyRetrofitFlow.defaultBuilder(
+                Glitchy.builder(
+                    this,
+                    GlitchyRxJava.getInterceptorProvider(
+                        this,
+                        GlitchyFactory.getRxInterceptors<Glitch>() //FIXME simplify this
+                    )
+                )
+            )
+        }.build().callAdapterFactory
 
         glitchRetrofit = getRetrofit(glitchCallAdapterFactory)
         apiErrorRetrofit = getRetrofit(apiErrorCallAdapterFactory)
@@ -124,11 +97,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         handledExceptionButton.setOnClickListener {
-            throwHandledException.set(true)
+            GlitchyFactory.throwHandledException.set(true)
             loadFact()
         }
         unhandledExceptionButton.setOnClickListener {
-            throwUnhandledException.set(true)
+            GlitchyFactory.throwUnhandledException.set(true)
             loadFact()
         }
 
@@ -168,8 +141,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun resetState() {
         textView.post { textView.text = "" }
-        throwHandledException.set(false)
-        throwUnhandledException.set(false)
+        GlitchyFactory.throwHandledException.set(false)
+        GlitchyFactory.throwUnhandledException.set(false)
     }
 
     override fun onDestroy() {

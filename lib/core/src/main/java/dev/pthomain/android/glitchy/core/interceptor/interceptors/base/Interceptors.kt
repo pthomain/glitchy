@@ -23,7 +23,11 @@
 
 package dev.pthomain.android.glitchy.core.interceptor.interceptors.base
 
-interface Interceptors<I : Interceptor> {
-    val before: List<I>
-    val after: List<I>
+interface Interceptors<M, F : InterceptorFactory<M>> {
+    val before: List<F>
+    val after: List<F>
+}
+
+interface InterceptorFactory<M> {
+    fun create(metadata: M): Interceptor?
 }

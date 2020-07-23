@@ -23,37 +23,30 @@
 
 package dev.pthomain.android.glitchy.retrofit.interceptors
 
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Interceptor
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
 import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser.Companion.IsOutcome
-import dev.pthomain.android.glitchy.retrofit.type.ParsedType
-import dev.pthomain.android.glitchy.rxjava.RxInterceptor
-import dev.pthomain.android.glitchy.rxjava.interceptors.OutcomeRxInterceptor
-import io.reactivex.Observable
-import retrofit2.Call
 
-class RetrofitOutcomeInterceptor<E, M> private constructor(
-    private val outcomeInterceptor: dev.pthomain.android.glitchy.rxjava.RxInterceptor,
-    private val parsedType: ParsedType<M>
-) : RetrofitInterceptor.SimpleInterceptor()
+class RetrofitOutcomeInterceptor<E> private constructor(
+    private val outcomeInterceptor: Interceptor,
+    private val metadata: RetrofitMetadata<*>
+) : RetrofitInterceptor()
         where E : Throwable,
               E : NetworkErrorPredicate {
 
-    override fun apply(upstream: Observable<Any>) =
-        if (parsedType.metadata is IsOutcome) outcomeInterceptor.apply(upstream)
+    override fun <T : Any> intercept(upstream: T) =
+        if (metadata.parsedType.metadata is IsOutcome) outcomeInterceptor.intercept(upstream)
         else upstream
 
     class Factory<E> internal constructor(
-        private val outcomeInterceptor: dev.pthomain.android.glitchy.rxjava.interceptors.OutcomeRxInterceptor<E>
+        private val outcomeInterceptor: Interceptor
     ) : RetrofitInterceptor.Factory<E>
             where E : Throwable,
                   E : NetworkErrorPredicate {
 
-        override fun <M> create(
-            parsedType: ParsedType<M>,
-            call: Call<Any>
-        ): RetrofitInterceptor = RetrofitOutcomeInterceptor<E, M>(
+        override fun create(metadata: RetrofitMetadata<*>) = RetrofitOutcomeInterceptor<E>(
             outcomeInterceptor,
-            parsedType
+            metadata
         )
     }
 

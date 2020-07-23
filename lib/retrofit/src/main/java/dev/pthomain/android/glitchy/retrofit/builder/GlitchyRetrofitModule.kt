@@ -31,10 +31,10 @@ import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitOutcomeInterce
 import dev.pthomain.android.glitchy.retrofit.type.ReturnTypeParser
 import org.koin.dsl.module
 import retrofit2.CallAdapter
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 
 internal class GlitchyRetrofitModule<E, M : Any>(
-    returnTypeParser: ReturnTypeParser<M>?,
+    returnTypeParser: ReturnTypeParser<M>,
+    defaultCallAdapterFactory:CallAdapter.Factory,
     interceptors: RetrofitInterceptors<E>
 ) where E : Throwable,
         E : NetworkErrorPredicate {
@@ -49,11 +49,9 @@ internal class GlitchyRetrofitModule<E, M : Any>(
             )
         }
 
-        single { RxJava2CallAdapterFactory.create() }
-
         single<CallAdapter.Factory> {
             RetrofitCallAdapterFactory<E, M>(
-                get(),
+                defaultCallAdapterFactory,
                 get(),
                 returnTypeParser,
                 get()

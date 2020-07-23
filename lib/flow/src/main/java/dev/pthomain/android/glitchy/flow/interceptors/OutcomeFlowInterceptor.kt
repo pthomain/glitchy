@@ -33,7 +33,7 @@ import kotlinx.coroutines.flow.map
 
 class OutcomeFlowInterceptor<E> internal constructor(
     private val errorFactory: ErrorFactory<E>
-) : FlowInterceptor
+) : FlowInterceptor()
         where E : Throwable,
               E : NetworkErrorPredicate {
 

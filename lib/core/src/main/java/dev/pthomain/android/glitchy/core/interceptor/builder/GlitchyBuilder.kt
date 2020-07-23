@@ -26,14 +26,14 @@ package dev.pthomain.android.glitchy.core.interceptor.builder
 import dev.pthomain.android.boilerplate.core.builder.BaseExtendable
 import dev.pthomain.android.boilerplate.core.utils.log.Logger
 import dev.pthomain.android.glitchy.core.Glitchy
-import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Interceptors
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.ErrorFactory
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
 import org.koin.core.module.Module
 import org.koin.dsl.koinApplication
 
 class GlitchyBuilder<E> internal constructor(
-    private val errorFactory: ErrorFactory<E>
+    private val errorFactory: ErrorFactory<E>,
+    private val interceptorProvider: InterceptorProvider
 ) : BaseExtendable<Module>()
         where E : Throwable,
               E : NetworkErrorPredicate {
@@ -45,7 +45,6 @@ class GlitchyBuilder<E> internal constructor(
     }
 
     private var asOutcome: Boolean = false
-    private lateinit var interceptors: Interceptors
 
     fun withLogger(logger: Logger) = apply {
         this.logger = logger
@@ -55,13 +54,9 @@ class GlitchyBuilder<E> internal constructor(
         this.asOutcome = asOutcome
     }
 
-    fun withInterceptors(interceptors: Interceptors) = apply {
-        this.interceptors = interceptors
-    }
-
     override fun modules() = listOf(
         GlitchyModule(
-            interceptors,
+            interceptorProvider,
             errorFactory,
             asOutcome,
             logger

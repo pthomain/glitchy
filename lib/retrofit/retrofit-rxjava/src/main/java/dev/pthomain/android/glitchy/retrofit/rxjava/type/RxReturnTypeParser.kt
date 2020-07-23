@@ -21,10 +21,12 @@
  *
  */
 
-package dev.pthomain.android.glitchy.retrofit.type
+package dev.pthomain.android.glitchy.retrofit.rxjava.type
 
 import dev.pthomain.android.glitchy.retrofit.adapter.RetrofitCallAdapterFactory.Companion.getFirstParameterUpperBound
 import dev.pthomain.android.glitchy.retrofit.adapter.RetrofitCallAdapterFactory.Companion.rawType
+import dev.pthomain.android.glitchy.retrofit.type.ParsedType
+import dev.pthomain.android.glitchy.retrofit.type.ReturnTypeParser
 import io.reactivex.Observable
 import io.reactivex.Single
 import java.lang.reflect.Type
@@ -53,6 +55,6 @@ class RxReturnTypeParser<M : Any>(
 
     companion object {
         @JvmStatic
-        val INSTANCE = RxReturnTypeParser { Unit }
+        fun getDefaultInstance() = RxReturnTypeParser { Unit }
     }
 }

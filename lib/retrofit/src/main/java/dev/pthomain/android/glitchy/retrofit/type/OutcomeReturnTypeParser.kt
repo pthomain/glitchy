@@ -32,14 +32,15 @@ import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 
 class OutcomeReturnTypeParser<M : Any>(
-    private val metadataResolver: (ParsedType<*>) -> M
+    private val metadataResolver: (ParsedType<*>) -> M,
+    private val returnSuperTypeParser: ReturnTypeParser<M>
 ) : ReturnTypeParser<M> {
 
     override fun parseReturnType(
         returnType: Type,
         annotations: Array<Annotation>
     ): ParsedType<M> {
-        val parsedRxType = RxReturnTypeParser.INSTANCE.parseReturnType(returnType, annotations)
+        val parsedRxType = returnSuperTypeParser.parseReturnType(returnType, annotations)
         val parsedType = parsedRxType.parsedType
 
         val (parsedResultType, outcomeType) = if (rawType(parsedType) == Outcome::class.java) {
@@ -62,13 +63,17 @@ class OutcomeReturnTypeParser<M : Any>(
 
     companion object {
         @JvmStatic
-        val INSTANCE = OutcomeReturnTypeParser {
-            ifElse(
-                rawType(it.parsedType) == Outcome::class.java,
-                OutcomeToken,
-                Unit
+        fun getDefaultInstance(returnSuperTypeParser: ReturnTypeParser<Unit>) =
+            OutcomeReturnTypeParser(
+                {
+                    ifElse(
+                        rawType(it.parsedType) == Outcome::class.java,
+                        OutcomeToken,
+                        Unit
+                    )
+                },
+                returnSuperTypeParser
             )
-        }
 
         interface IsOutcome
         object OutcomeToken : IsOutcome

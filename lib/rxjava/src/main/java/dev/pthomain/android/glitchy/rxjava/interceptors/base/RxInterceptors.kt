@@ -23,22 +23,24 @@
 
 package dev.pthomain.android.glitchy.rxjava.interceptors.base
 
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Interceptor
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Interceptors
 
 sealed class RxInterceptors(
-    override val before: List<RxInterceptor>,
-    override val after: List<RxInterceptor>
-) : Interceptors<RxInterceptor> {
+    override val before: List<Interceptor>,
+    override val after: List<Interceptor>
+) : Interceptors {
 
     class None : RxInterceptors(emptyList(), emptyList())
 
-    class Before(vararg inOrder: RxInterceptor) : RxInterceptors(inOrder.asList(), emptyList())
+    class Before(vararg inOrder: RxInterceptor<*, *>) :
+        RxInterceptors(inOrder.asList(), emptyList())
 
-    class After(vararg inOrder: RxInterceptor) : RxInterceptors(emptyList(), inOrder.asList())
+    class After(vararg inOrder: RxInterceptor<*, *>) : RxInterceptors(emptyList(), inOrder.asList())
 
     class Around(
-        before: List<RxInterceptor>,
-        after: List<RxInterceptor>
+        before: List<RxInterceptor<*, *>>,
+        after: List<RxInterceptor<*, *>>
     ) : RxInterceptors(before, after)
 
 }

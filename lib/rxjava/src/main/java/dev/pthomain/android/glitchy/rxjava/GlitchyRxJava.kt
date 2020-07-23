@@ -21,23 +21,25 @@
  *
  */
 
-package dev.pthomain.android.glitchy.core.interceptor.interceptors.base
+package dev.pthomain.android.glitchy.rxjava
 
+import dev.pthomain.android.glitchy.core.interceptor.builder.InterceptorProvider
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Interceptors
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.ErrorFactory
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
+import dev.pthomain.android.glitchy.rxjava.interceptors.ErrorRxInterceptor
+import dev.pthomain.android.glitchy.rxjava.interceptors.OutcomeRxInterceptor
 
-class CompositeRxInterceptor<E> internal constructor(
-    private val interceptors: Interceptors<*>,
-    private val errorInterceptor: Interceptor,
-    private val outcomeInterceptor: Interceptor?
-) : BaseCompositeInterceptor()
-        where  E : Throwable,
-               E : NetworkErrorPredicate {
+object GlitchyRxJava {
 
-    override fun interceptors() =
-        interceptors.before.asSequence()
-            .plus(errorInterceptor)
-            .plus(outcomeInterceptor)
-            .plus(interceptors.after.asSequence())
-            .filterNotNull()
+    fun <E> getInterceptorProvider(
+        errorFactory: ErrorFactory<E>,
+        interceptors: Interceptors
+    ) where E : Throwable,
+            E : NetworkErrorPredicate = object : InterceptorProvider {
+        override val errorInterceptor = ErrorRxInterceptor(errorFactory)
+        override val outcomeInterceptor = OutcomeRxInterceptor(errorFactory)
+        override val interceptors = interceptors
+    }
 
 }

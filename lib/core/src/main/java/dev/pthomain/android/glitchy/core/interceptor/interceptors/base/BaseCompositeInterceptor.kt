@@ -23,13 +23,12 @@
 
 package dev.pthomain.android.glitchy.core.interceptor.interceptors.base
 
-abstract class BaseCompositeInterceptor : Interceptor {
+abstract class BaseCompositeInterceptor<M> : Interceptor {
 
-    protected abstract fun interceptors(): Sequence<Interceptor>
+    protected abstract fun interceptors(metadata: M): Sequence<Interceptor>
 
-    override fun <T : Any> intercept(upstream: T)=
+    override fun <T : Any> intercept(upstream: T) =
         interceptors().fold(upstream) { intercepted, interceptor ->
             interceptor.intercept(intercepted)
         }
-
 }
