@@ -23,13 +23,14 @@
 
 package dev.pthomain.android.glitchy.retrofit.interceptors
 
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Interceptors
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
 
 sealed class RetrofitInterceptors<E>(
-    val before: List<RetrofitInterceptor.Factory<E>>,
-    val after: List<RetrofitInterceptor.Factory<E>>
-) where E : Throwable,
-        E : NetworkErrorPredicate {
+    override val before: List<RetrofitInterceptor.Factory<E>>,
+    override val after: List<RetrofitInterceptor.Factory<E>>
+) : Interceptors<RetrofitMetadata<*>, RetrofitInterceptor.Factory<E>> where E : Throwable,
+                       E : NetworkErrorPredicate {
 
     class None<E> : RetrofitInterceptors<E>(emptyList(), emptyList())
             where E : Throwable,

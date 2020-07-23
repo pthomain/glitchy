@@ -32,7 +32,7 @@ import io.reactivex.functions.Function
 
  class OutcomeRxInterceptor<E> internal constructor(
      private val errorFactory: ErrorFactory<E>
- ) : RxInterceptor.SimpleRxInterceptor()
+ ) : RxInterceptor.CombinedRxInterceptor()
          where E : Throwable,
                E : NetworkErrorPredicate {
 

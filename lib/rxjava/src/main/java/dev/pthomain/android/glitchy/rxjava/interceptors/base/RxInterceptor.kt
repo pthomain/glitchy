@@ -25,28 +25,50 @@ package dev.pthomain.android.glitchy.rxjava.interceptors.base
 
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Interceptor
 import io.reactivex.Observable
-import io.reactivex.ObservableTransformer
 import io.reactivex.Single
-import io.reactivex.SingleTransformer
 
-interface RxInterceptor
-    : Interceptor,
-    ObservableTransformer<Any, Any>,
-    SingleTransformer<Any, Any> {
+sealed class RxInterceptor<I, O> : Interceptor {
 
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> intercept(upstream: T) = when (upstream) {
-        is Observable<*> -> apply(upstream as Observable<Any>) as T
-        is Single<*> -> apply(upstream as Single<Any>) as T
-        else -> throw IllegalArgumentException("Invalid argument: $upstream")
+    abstract class ObservableInterceptor
+        : RxInterceptor<Observable<Any>, Observable<Any>>(),
+        ObservableComposer {
+
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : Any> intercept(upstream: T) = when (upstream) {
+            is Observable<*> -> apply(upstream as Observable<Any>)
+            else -> throw IllegalArgumentException("Expected an Observable, was: $upstream")
+        } as T
+
     }
 
-    abstract class SimpleRxInterceptor : RxInterceptor {
+    abstract class SingleInterceptor
+        : RxInterceptor<Single<Any>, Single<Any>>(),
+        SingleComposer {
+
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : Any> intercept(upstream: T) = when (upstream) {
+            is Single<*> -> apply(upstream as Single<Any>)
+            else -> throw IllegalArgumentException("Expected a Single, was: $upstream")
+        } as T
+
+    }
+
+    abstract class CombinedRxInterceptor
+        : RxInterceptor.ObservableInterceptor(),
+        SingleComposer {
 
         override fun apply(upstream: Single<Any>) = upstream
             .toObservable()
-            .compose(this)
+            .compose { apply(it) }
             .firstOrError()!!
 
     }
+}
+
+interface ObservableComposer {
+    fun apply(upstream: Observable<Any>): Observable<Any>
+}
+
+interface SingleComposer {
+    fun apply(upstream: Single<Any>): Single<Any>
 }

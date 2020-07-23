@@ -24,16 +24,14 @@
 package dev.pthomain.android.glitchy.core.interceptor.builder
 
 import dev.pthomain.android.boilerplate.core.utils.log.Logger
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.CompositeInterceptor
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.ErrorFactory
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
-import dev.pthomain.android.glitchy.rxjava.CompositeRxInterceptor
-import dev.pthomain.android.glitchy.rxjava.RxInterceptors
-import dev.pthomain.android.glitchy.rxjava.interceptors.ErrorRxInterceptor
-import dev.pthomain.android.glitchy.rxjava.interceptors.OutcomeRxInterceptor
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 internal class GlitchyModule<E>(
-    private val interceptors: dev.pthomain.android.glitchy.rxjava.RxInterceptors,
+    private val interceptorProvider: InterceptorProvider,
     private val errorFactory: ErrorFactory<E>,
     private val asOutcome: Boolean,
     private val logger: Logger
@@ -45,17 +43,19 @@ internal class GlitchyModule<E>(
 
         single { errorFactory }
 
-        single { dev.pthomain.android.glitchy.rxjava.interceptors.ErrorRxInterceptor(get<ErrorFactory<E>>()) }
+        single(named(ERROR)) { interceptorProvider.errorInterceptor }
 
-        single { dev.pthomain.android.glitchy.rxjava.interceptors.OutcomeRxInterceptor(get<ErrorFactory<E>>()) }
+        single(named(OUTCOME)) { interceptorProvider.outcomeInterceptor }
 
         single {
-            dev.pthomain.android.glitchy.rxjava.CompositeRxInterceptor(
-                interceptors,
-                get<dev.pthomain.android.glitchy.rxjava.interceptors.ErrorRxInterceptor<E>>(),
-                if (asOutcome) get<dev.pthomain.android.glitchy.rxjava.interceptors.OutcomeRxInterceptor<E>>() else null
+            CompositeInterceptor<E>(
+                interceptorProvider.interceptors,
+                get(named(ERROR)),
+                if (asOutcome) get(named(OUTCOME)) else null
             )
         }
     }
-
 }
+
+internal const val ERROR = "ERROR"
+internal const val OUTCOME = "OUTCOME"

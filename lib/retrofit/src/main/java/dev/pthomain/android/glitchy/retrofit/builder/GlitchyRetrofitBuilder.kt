@@ -24,48 +24,46 @@
 package dev.pthomain.android.glitchy.retrofit.builder
 
 import dev.pthomain.android.boilerplate.core.builder.BaseExtensionBuilder
+import dev.pthomain.android.boilerplate.core.builder.Extendable
+import dev.pthomain.android.boilerplate.core.builder.ExtensionBuilder
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
-import dev.pthomain.android.glitchy.retrofit.GlitchyRetrofit
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitInterceptors
-import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser
 import dev.pthomain.android.glitchy.retrofit.type.ReturnTypeParser
 import org.koin.core.module.Module
 import org.koin.dsl.koinApplication
+import retrofit2.CallAdapter
 
-class GlitchyRetrofitBuilder<E, M : Any> internal constructor() :
-    BaseExtensionBuilder<GlitchyRetrofit<E>, Module, GlitchyRetrofitBuilder<E, M>>()
+abstract class BaseGlitchyRetrofitBuilder<E, M : Any, B : BaseGlitchyRetrofitBuilder<E, M, B, R>, R>(
+    private var returnTypeParser: ReturnTypeParser<M>,
+    private val defaultCallAdapterFactory: CallAdapter.Factory
+) : BaseExtensionBuilder<R, Module, B>(),
+    Extendable<Module>
         where E : Throwable,
               E : NetworkErrorPredicate {
 
-    private var returnTypeParser: ReturnTypeParser<M>? = null
     private var interceptors: RetrofitInterceptors<E> = RetrofitInterceptors.None()
-
-    fun withReturnTypeParser(returnTypeParser: ReturnTypeParser<M>) = apply {
-        this.returnTypeParser = returnTypeParser
-    }
 
     fun withInterceptors(interceptors: RetrofitInterceptors<E>) = apply {
         this.interceptors = interceptors
     }
 
-    override fun buildInternal(parentModules: List<Module>) =
+    override fun buildInternal(parentModules: List<Module>): R =
         koinApplication {
-            modules(
-                parentModules + GlitchyRetrofitModule(
-                    returnTypeParser,
-                    interceptors
-                ).module
-            )
-        }.koin.run {
-            GlitchyRetrofit<E>(get())
-        }
+            modules(parentModules + this@BaseGlitchyRetrofitBuilder.modules())
+        }.koin.get<CallAdapter.Factory>()
+            .run(::getInstance)
 
-    companion object {
-        fun <E> defaultBuilder()
-                where E : Throwable,
-                      E : NetworkErrorPredicate =
-            GlitchyRetrofitBuilder<E, Any>().apply {
-                withReturnTypeParser(OutcomeReturnTypeParser.INSTANCE)
-            }
-    }
+    abstract fun getInstance(callAdapterFactory: CallAdapter.Factory): R
+
+    private fun modules() = listOf(
+        GlitchyRetrofitModule(
+            returnTypeParser,
+            defaultCallAdapterFactory,
+            interceptors
+        ).module
+    )
+
+    override fun <B, EB : ExtensionBuilder<B, Module, EB>> extend(extensionBuilder: EB) =
+        extensionBuilder.accept(modules())
+
 }

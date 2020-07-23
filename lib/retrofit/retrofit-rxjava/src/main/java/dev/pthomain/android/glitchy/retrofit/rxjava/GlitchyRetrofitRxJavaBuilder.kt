@@ -21,27 +21,24 @@
  *
  */
 
-package dev.pthomain.android.glitchy.demo
+package dev.pthomain.android.glitchy.retrofit.rxjava
 
-import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.ext.junit.runners.AndroidJUnit4
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
+import dev.pthomain.android.glitchy.retrofit.builder.BaseGlitchyRetrofitBuilder
+import dev.pthomain.android.glitchy.retrofit.rxjava.type.RxReturnTypeParser
+import retrofit2.CallAdapter
+import java.lang.reflect.Type
 
-import org.junit.Test
-import org.junit.runner.RunWith
+class GlitchyRetrofitRxJavaBuilder<E, M : Any> internal constructor(
+    metadataResolver: (Type) -> M,
+    defaultCallAdapterFactory: CallAdapter.Factory
+) : BaseGlitchyRetrofitBuilder<E, M, GlitchyRetrofitRxJavaBuilder<E, M>, GlitchyRetrofitRxJava>(
+    RxReturnTypeParser(metadataResolver),
+    defaultCallAdapterFactory
+) where E : Throwable,
+        E : NetworkErrorPredicate {
 
-import org.junit.Assert.*
+    override fun getInstance(callAdapterFactory: CallAdapter.Factory) =
+        GlitchyRetrofitRxJava(callAdapterFactory)
 
-/**
- * Instrumented test, which will execute on an Android device.
- *
- * See [testing documentation](http://d.android.com/tools/testing).
- */
-@RunWith(AndroidJUnit4::class)
-class ExampleInstrumentedTest {
-    @Test
-    fun useAppContext() {
-        // Context of the app under test.
-        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("dev.pthomain.android.glitchy.demo", appContext.packageName)
-    }
 }

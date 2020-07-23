@@ -26,8 +26,6 @@ package dev.pthomain.android.glitchy.retrofit.adapter
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitCompositeInterceptor
 import dev.pthomain.android.glitchy.retrofit.type.ParsedType
-import io.reactivex.Observable
-import io.reactivex.Single
 import retrofit2.Call
 import retrofit2.CallAdapter
 import java.lang.reflect.Type
@@ -41,7 +39,7 @@ import java.lang.reflect.Type
 internal class RetrofitCallAdapter<E, M>(
     private val compositeInterceptorFactory: RetrofitCompositeInterceptor.Factory<E>,
     private val parsedType: ParsedType<M>,
-    private val glitchyCallAdapter: CallAdapter<Any, Any>
+    private val defaultCallAdapter: CallAdapter<Any, Any>
 ) : CallAdapter<Any, Any>
         where E : Throwable,
               E : NetworkErrorPredicate {
@@ -55,19 +53,11 @@ internal class RetrofitCallAdapter<E, M>(
      * @return the call adapted to RxJava type
      */
     override fun adapt(call: Call<Any>) =
-        with(glitchyCallAdapter.adapt(call)) {
-            val interceptor = compositeInterceptorFactory.create(parsedType, call)
-
-            when (this) {
-                is Single<*> -> compose(interceptor)
-                is Observable<*> -> compose(interceptor)
-                else -> this
-            }
-        }!!
+        compositeInterceptorFactory.create(parsedType, call).intercept(call)
 
     /**
      * @return the value type as defined by the default RxJava adapter.
      */
-    override fun responseType(): Type = glitchyCallAdapter.responseType()
+    override fun responseType(): Type = defaultCallAdapter.responseType()
 
 }
