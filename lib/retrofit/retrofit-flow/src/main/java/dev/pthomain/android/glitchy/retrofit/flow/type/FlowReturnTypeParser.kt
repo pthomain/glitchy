@@ -30,7 +30,7 @@ import dev.pthomain.android.glitchy.retrofit.type.ReturnTypeParser
 import kotlinx.coroutines.flow.Flow
 import java.lang.reflect.Type
 
-class FlowReturnTypeParser<M : Any>(
+class FlowReturnTypeParser<M>(
     private val metadataResolver: (Type) -> M
 ) : ReturnTypeParser<M> {
 
@@ -46,7 +46,7 @@ class FlowReturnTypeParser<M : Any>(
     private fun extractParam(returnType: Type) =
         with(rawType(returnType)) {
             when (this) {
-                Flow::class.java -> getFirstParameterUpperBound(returnType)!!
+                Flow::class.java -> getFirstParameterUpperBound(returnType)
                 else -> this
             }
         }

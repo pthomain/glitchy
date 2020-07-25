@@ -32,7 +32,7 @@ import dev.pthomain.android.glitchy.retrofit.type.ReturnTypeParser
 import org.koin.dsl.module
 import retrofit2.CallAdapter
 
-internal class GlitchyRetrofitModule<E, M : Any>(
+internal class GlitchyRetrofitModule<E, M >(
     returnTypeParser: ReturnTypeParser<M>,
     defaultCallAdapterFactory:CallAdapter.Factory,
     interceptors: RetrofitInterceptors<E>

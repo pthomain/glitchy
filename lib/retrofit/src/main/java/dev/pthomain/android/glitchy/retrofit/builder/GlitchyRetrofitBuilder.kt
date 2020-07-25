@@ -33,7 +33,7 @@ import org.koin.core.module.Module
 import org.koin.dsl.koinApplication
 import retrofit2.CallAdapter
 
-abstract class BaseGlitchyRetrofitBuilder<E, M : Any, B : BaseGlitchyRetrofitBuilder<E, M, B, R>, R>(
+abstract class BaseGlitchyRetrofitBuilder<E, M, B : BaseGlitchyRetrofitBuilder<E, M, B, R>, R>(
     private var returnTypeParser: ReturnTypeParser<M>,
     private val defaultCallAdapterFactory: CallAdapter.Factory
 ) : BaseExtensionBuilder<R, Module, B>(),

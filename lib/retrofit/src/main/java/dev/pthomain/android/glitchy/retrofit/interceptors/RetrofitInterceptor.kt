@@ -25,15 +25,12 @@ package dev.pthomain.android.glitchy.retrofit.interceptors
 
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Interceptor
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.InterceptorFactory
-import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
 import dev.pthomain.android.glitchy.retrofit.type.ParsedType
 import retrofit2.Call
 
-abstract class RetrofitInterceptor internal constructor() : Interceptor {
+abstract class RetrofitInterceptor<M> internal constructor() : Interceptor<RetrofitMetadata<M>> {
 
-    interface Factory<E, M> : InterceptorFactory<RetrofitMetadata<M>>
-            where E : Throwable,
-                  E : NetworkErrorPredicate
+    interface Factory<M> : InterceptorFactory<RetrofitMetadata<M>>
 }
 
 class RetrofitMetadata<T>(

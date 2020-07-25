@@ -23,6 +23,7 @@
 
 package dev.pthomain.android.glitchy.core.interceptor.interceptors.base
 
-interface Interceptor {
-    fun <T : Any> intercept(upstream: T): T
+interface Interceptor<M> {
+    //TODO check if metadata can be removed
+    fun <T : Any> intercept(upstream: T, metadata: M? = null): T
 }

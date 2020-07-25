@@ -38,9 +38,9 @@ import java.lang.reflect.Type
  * @param defaultCallAdapterFactory the default Retrofit call adapter factory
  * @param logger the logger
  */
-class RetrofitCallAdapterFactory<E, M : Any> internal constructor(
+class RetrofitCallAdapterFactory<E, M> internal constructor(
     private val defaultCallAdapterFactory: CallAdapter.Factory,
-    private val compositeInterceptorFactory: RetrofitCompositeInterceptor.Factory<E>,
+    private val compositeInterceptorFactory: RetrofitCompositeInterceptor.Factory<M>,
     private val returnTypeParser: ReturnTypeParser<M>,
     private val logger: Logger
 ) : CallAdapter.Factory()
@@ -54,9 +54,13 @@ class RetrofitCallAdapterFactory<E, M : Any> internal constructor(
 
         @JvmStatic
         fun getFirstParameterUpperBound(returnType: Type) =
-            (returnType as? ParameterizedType)?.let {
-                getParameterUpperBound(0, it)
-            }
+            (returnType as? ParameterizedType)
+                ?.let { getParameterUpperBound(0, it) }
+                ?: throw IllegalStateException(
+                    returnType.javaClass.simpleName.let {
+                        "$it is missing a generic parameter: $it<T>"
+                    }
+                )
     }
 
     /**
@@ -83,7 +87,7 @@ class RetrofitCallAdapterFactory<E, M : Any> internal constructor(
             retrofit
         ) as CallAdapter<Any, Any>
 
-        return RetrofitCallAdapter(
+        return RetrofitCallAdapter<E, M>(
             compositeInterceptorFactory,
             parsedReturnType,
             defaultCallAdapter

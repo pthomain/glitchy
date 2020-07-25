@@ -23,24 +23,34 @@
 
 package dev.pthomain.android.glitchy.rxjava.interceptors.base
 
-import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Interceptor
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.InterceptorFactory
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Interceptors
 
-sealed class RxInterceptors(
-    override val before: List<Interceptor>,
-    override val after: List<Interceptor>
-) : Interceptors {
+sealed class RxInterceptors<M, out F : InterceptorFactory<M>>(
+    override val before: List<F>,
+    override val after: List<F>
+) : Interceptors<M, F> {
 
-    class None : RxInterceptors(emptyList(), emptyList())
+    class None<M, F : InterceptorFactory<M>> : RxInterceptors<M, F>(
+        emptyList(),
+        emptyList()
+    )
 
-    class Before(vararg inOrder: RxInterceptor<*, *>) :
-        RxInterceptors(inOrder.asList(), emptyList())
+    class Before<M, F : InterceptorFactory<M>>(vararg inOrder: F) :
+        RxInterceptors<M, F>(
+            inOrder.asList(),
+            emptyList()
+        )
 
-    class After(vararg inOrder: RxInterceptor<*, *>) : RxInterceptors(emptyList(), inOrder.asList())
+    class After<M, F : InterceptorFactory<M>>(vararg inOrder: F) :
+        RxInterceptors<M, F>(
+            emptyList(),
+            inOrder.asList()
+        )
 
-    class Around(
-        before: List<RxInterceptor<*, *>>,
-        after: List<RxInterceptor<*, *>>
-    ) : RxInterceptors(before, after)
+    class Around<M, F : InterceptorFactory<M>>(
+        before: List<F>,
+        after: List<F>
+    ) : RxInterceptors<M, F>(before, after)
 
 }

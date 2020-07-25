@@ -24,10 +24,11 @@
 package dev.pthomain.android.glitchy.core.interceptor.builder
 
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Interceptor
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.InterceptorFactory
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Interceptors
 
-interface InterceptorProvider {
-    val errorInterceptor: Interceptor
-    val outcomeInterceptor: Interceptor
-    val interceptors: Interceptors<*, *>
+interface InterceptorProvider<M, out F : InterceptorFactory<M>> {
+    val errorInterceptor: Interceptor<M>
+    val outcomeInterceptor: Interceptor<M>
+    val interceptors: Interceptors<M, F>
 }

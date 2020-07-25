@@ -26,6 +26,7 @@ package dev.pthomain.android.glitchy.retrofit.flow
 import dev.pthomain.android.glitchy.core.Glitchy
 import dev.pthomain.android.glitchy.core.interceptor.builder.GlitchyBuilder
 import dev.pthomain.android.glitchy.core.interceptor.builder.InterceptorProvider
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.InterceptorFactory
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.ErrorFactory
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
 import dev.pthomain.android.glitchy.flow.GlitchyFlow
@@ -39,9 +40,9 @@ class GlitchyRetrofitFlow internal constructor(
 ) {
 
     companion object {
-        fun <E, M : Any> extension(
-            metadataResolver: (Type) -> M,
-            defaultCallAdapterFactory: CallAdapter.Factory
+        fun <E, M> extension(
+            defaultCallAdapterFactory: CallAdapter.Factory,
+            metadataResolver: (Type) -> M
         ) where E : Throwable,
                 E : NetworkErrorPredicate =
             GlitchyRetrofitFlowBuilder<E, M>(
@@ -49,52 +50,49 @@ class GlitchyRetrofitFlow internal constructor(
                 defaultCallAdapterFactory
             )
 
-        fun <E, M : Any> builder(
+        fun <E, M> builder(
             glitchyBuilder: GlitchyBuilder<E>,
-            metadataResolver: (Type) -> M,
-            defaultCallAdapterFactory: CallAdapter.Factory
+            defaultCallAdapterFactory: CallAdapter.Factory,
+            metadataResolver: (Type) -> M
         ) where E : Throwable,
                 E : NetworkErrorPredicate =
             glitchyBuilder.extend(
                 extension<E, M>(
-                    metadataResolver,
-                    defaultCallAdapterFactory
+                    defaultCallAdapterFactory,
+                    metadataResolver
                 )
             )
 
-        fun <E, M : Any> builder(
+        fun <E, M, F : InterceptorFactory<M>> builder(
             errorFactory: ErrorFactory<E>,
-            interceptorProvider: InterceptorProvider,
+            interceptorProvider: InterceptorProvider<M, F>,
             metadataResolver: (Type) -> M,
             defaultCallAdapterFactory: CallAdapter.Factory
         ) where E : Throwable,
                 E : NetworkErrorPredicate =
             builder(
                 Glitchy.builder(errorFactory, interceptorProvider),
-                metadataResolver,
-                defaultCallAdapterFactory
+                defaultCallAdapterFactory,
+                metadataResolver
             )
 
-        fun <E> defaultExtension(): GlitchyRetrofitFlowBuilder<E, Any>
+        fun <E> defaultExtension(): GlitchyRetrofitFlowBuilder<E, Unit>
                 where E : Throwable,
                       E : NetworkErrorPredicate =
-            GlitchyRetrofitFlowBuilder(
-                { Unit },
-                RetrofitFlowCallAdapterFactory()
-            )
+            extension(RetrofitFlowCallAdapterFactory()) { Unit }
 
-        fun <E> defaultBuilder(glitchyBuilder: GlitchyBuilder<E>): GlitchyRetrofitFlowBuilder<E, Any>
+        fun <E> defaultBuilder(glitchyBuilder: GlitchyBuilder<E>): GlitchyRetrofitFlowBuilder<E, Unit>
                 where E : Throwable,
                       E : NetworkErrorPredicate =
             glitchyBuilder.extend(defaultExtension())
 
         fun <E> defaultBuilder(
             errorFactory: ErrorFactory<E>,
-            interceptors: FlowInterceptors
+            interceptors: FlowInterceptors<Unit>
         ): GlitchyRetrofitFlowBuilder<E, Any>
                 where E : Throwable,
                       E : NetworkErrorPredicate =
-            defaultBuilder(
+            builder(
                 Glitchy.builder(
                     errorFactory,
                     GlitchyFlow.getInterceptorProvider(errorFactory, interceptors)

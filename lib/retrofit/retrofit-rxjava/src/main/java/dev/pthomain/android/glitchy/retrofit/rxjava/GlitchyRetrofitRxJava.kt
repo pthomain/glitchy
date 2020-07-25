@@ -25,10 +25,10 @@ package dev.pthomain.android.glitchy.retrofit.rxjava
 
 import dev.pthomain.android.glitchy.core.Glitchy
 import dev.pthomain.android.glitchy.core.interceptor.builder.GlitchyBuilder
-import dev.pthomain.android.glitchy.core.interceptor.builder.InterceptorProvider
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.ErrorFactory
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
-import dev.pthomain.android.glitchy.rxjava.GlitchyRxJava
+import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitInterceptor
+import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitMetadata
 import dev.pthomain.android.glitchy.rxjava.interceptors.base.RxInterceptors
 import retrofit2.CallAdapter
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
@@ -39,9 +39,9 @@ class GlitchyRetrofitRxJava internal constructor(
 ) {
 
     companion object {
-        fun <E, M : Any> extension(
-            metadataResolver: (Type) -> M,
-            defaultCallAdapterFactory: CallAdapter.Factory
+        fun <E, M> extension(
+            defaultCallAdapterFactory: CallAdapter.Factory,
+            metadataResolver: (Type) -> M
         ) where E : Throwable,
                 E : NetworkErrorPredicate =
             GlitchyRetrofitRxJavaBuilder<E, M>(
@@ -49,65 +49,61 @@ class GlitchyRetrofitRxJava internal constructor(
                 defaultCallAdapterFactory
             )
 
-        fun <E, M : Any> builder(
+        fun <E, M> builder(
             glitchyBuilder: GlitchyBuilder<E>,
-            metadataResolver: (Type) -> M,
-            defaultCallAdapterFactory: CallAdapter.Factory
+            defaultCallAdapterFactory: CallAdapter.Factory,
+            metadataResolver: (Type) -> M
         ) where E : Throwable,
                 E : NetworkErrorPredicate =
             glitchyBuilder.extend(
                 extension<E, M>(
-                    metadataResolver,
-                    defaultCallAdapterFactory
+                    defaultCallAdapterFactory,
+                    metadataResolver
                 )
             )
 
-        fun <E, M : Any> builder(
+        fun <E, M> builder(
             errorFactory: ErrorFactory<E>,
-            interceptorProvider: InterceptorProvider,
-            metadataResolver: (Type) -> M,
-            defaultCallAdapterFactory: CallAdapter.Factory
+            interceptors: RxInterceptors<RetrofitMetadata<Unit>, RetrofitInterceptor.Factory<Unit>>,
+            defaultCallAdapterFactory: CallAdapter.Factory,
+            metadataResolver: (Type) -> M
         ) where E : Throwable,
                 E : NetworkErrorPredicate =
             builder(
-                Glitchy.builder(errorFactory, interceptorProvider),
-                metadataResolver,
-                defaultCallAdapterFactory
+                Glitchy.builder(errorFactory, interceptors),
+                defaultCallAdapterFactory,
+                metadataResolver
             )
 
-        fun <E> defaultExtension(
-            isAsync: Boolean = true
-        ): GlitchyRetrofitRxJavaBuilder<E, Any>
+        fun <E> defaultExtension(isAsync: Boolean = true): GlitchyRetrofitRxJavaBuilder<E, Unit>
                 where E : Throwable,
                       E : NetworkErrorPredicate =
-            GlitchyRetrofitRxJavaBuilder(
-                { Unit },
+            extension(
                 if (isAsync) RxJava2CallAdapterFactory.createAsync()
                 else RxJava2CallAdapterFactory.create()
-            )
+            ) { Unit }
 
         fun <E> defaultBuilder(
             glitchyBuilder: GlitchyBuilder<E>,
             isAsync: Boolean = true
-        ): GlitchyRetrofitRxJavaBuilder<E, Any>
+        ): GlitchyRetrofitRxJavaBuilder<E, Unit>
                 where E : Throwable,
                       E : NetworkErrorPredicate =
             glitchyBuilder.extend(defaultExtension(isAsync))
 
         fun <E> defaultBuilder(
             errorFactory: ErrorFactory<E>,
-            interceptors: RxInterceptors,
+            interceptors: RxInterceptors<RetrofitMetadata<Unit>, RetrofitInterceptor.Factory<Unit>>,
             isAsync: Boolean = true
-        ): GlitchyRetrofitRxJavaBuilder<E, Any>
+        ): GlitchyRetrofitRxJavaBuilder<E, Unit>
                 where E : Throwable,
                       E : NetworkErrorPredicate =
-            defaultBuilder(
-                Glitchy.builder(
-                    errorFactory,
-                    GlitchyRxJava.getInterceptorProvider(errorFactory, interceptors)
-                ),
-                isAsync
-            )
+            builder(
+                errorFactory,
+                interceptors,
+                if (isAsync) RxJava2CallAdapterFactory.createAsync()
+                else RxJava2CallAdapterFactory.create()
+            ) { Unit }
 
     }
 

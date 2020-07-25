@@ -30,8 +30,8 @@ import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkE
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
-internal class GlitchyModule<E>(
-    private val interceptorProvider: InterceptorProvider,
+internal class GlitchyModule<E, M>(
+    private val interceptorProvider: InterceptorProvider<>,
     private val errorFactory: ErrorFactory<E>,
     private val asOutcome: Boolean,
     private val logger: Logger
@@ -48,7 +48,7 @@ internal class GlitchyModule<E>(
         single(named(OUTCOME)) { interceptorProvider.outcomeInterceptor }
 
         single {
-            CompositeInterceptor<E>(
+            CompositeInterceptor<E, M, *>(
                 interceptorProvider.interceptors,
                 get(named(ERROR)),
                 if (asOutcome) get(named(OUTCOME)) else null

@@ -25,41 +25,37 @@ package dev.pthomain.android.glitchy.retrofit.interceptors
 
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.BaseCompositeInterceptor
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Interceptor
-import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
 
-class RetrofitCompositeInterceptor<E, M> private constructor(
-    private val interceptors: RetrofitInterceptors<E>,
-    private val errorInterceptor: Interceptor,
-    private val outcomeInterceptorFactory: RetrofitOutcomeInterceptor.Factory<E>,
-    private val metadata: RetrofitMetadata<M>
-) : BaseCompositeInterceptor<RetrofitMetadata<M>>()
-        where  E : Throwable,
-               E : NetworkErrorPredicate {
+class RetrofitCompositeInterceptor<M> private constructor(
+    private val interceptors: RetrofitInterceptors<M>,
+    private val errorInterceptor: Interceptor<RetrofitMetadata<M>>,
+    private val outcomeInterceptorFactory: RetrofitOutcomeInterceptor.Factory<M>,
+    private val metadata: RetrofitMetadata<M>?
+) : BaseCompositeInterceptor<RetrofitMetadata<M>>() {
 
-    private fun List<RetrofitInterceptor.Factory<E, M>>.create() =
+    private fun List<RetrofitInterceptor.Factory<M>>.create() =
         asSequence().mapNotNull { it.create(metadata) }
 
-    override fun interceptors(metadata: RetrofitMetadata<M>) =
+    override fun interceptors(metadata: RetrofitMetadata<M>?): Sequence<Interceptor<RetrofitMetadata<M>>> =
         interceptors.before.create()
             .plus(errorInterceptor)
-            .plus(outcomeInterceptorFactory.create(metadata))
+            .plus(outcomeInterceptorFactory.create())
             .plus(interceptors.after.create())
 
-    class Factory<E, M> internal constructor(
-        private val interceptors: RetrofitInterceptors<E>,
-        private val errorInterceptor: Interceptor,
-        private val outcomeInterceptorFactory: RetrofitOutcomeInterceptor.Factory<E>
-    ) : RetrofitInterceptor.Factory<E, M>
-            where  E : Throwable,
-                   E : NetworkErrorPredicate {
+    class Factory<M> internal constructor(
+        private val interceptors: RetrofitInterceptors<M>,
+        private val errorInterceptor: Interceptor<RetrofitMetadata<M>>,
+        private val outcomeInterceptorFactory: RetrofitOutcomeInterceptor.Factory<M>
+    ) : RetrofitInterceptor.Factory<M> {
 
-        override fun create(metadata: RetrofitMetadata<M>)=
+        override fun create(metadata: RetrofitMetadata<M>?) =
             RetrofitCompositeInterceptor(
                 interceptors,
                 errorInterceptor,
                 outcomeInterceptorFactory,
                 metadata
             )
+
     }
 
 }
