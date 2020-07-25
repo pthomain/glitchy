@@ -25,13 +25,14 @@ package dev.pthomain.android.glitchy.core.interceptor.builder
 
 import dev.pthomain.android.boilerplate.core.utils.log.Logger
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.CompositeInterceptor
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.InterceptorFactory
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.ErrorFactory
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
-internal class GlitchyModule<E, M>(
-    private val interceptorProvider: InterceptorProvider<>,
+internal class GlitchyModule<E, M, out F : InterceptorFactory<M>>(
+    private val interceptorProvider: InterceptorProvider<M, F>,
     private val errorFactory: ErrorFactory<E>,
     private val asOutcome: Boolean,
     private val logger: Logger
@@ -48,10 +49,10 @@ internal class GlitchyModule<E, M>(
         single(named(OUTCOME)) { interceptorProvider.outcomeInterceptor }
 
         single {
-            CompositeInterceptor<E, M, *>(
+            CompositeInterceptor.Factory<E, M, F>(
                 interceptorProvider.interceptors,
                 get(named(ERROR)),
-                if (asOutcome) get(named(OUTCOME)) else null
+                if (asOutcome) get(named(OUTCOME)) else null,
             )
         }
     }

@@ -30,11 +30,10 @@ class RetrofitOutcomeInterceptor<M> private constructor(
     private val metadata: RetrofitMetadata<M>?
 ) : RetrofitInterceptor<M>() {
 
-    override fun <T : Any> intercept(upstream: T, metadata: RetrofitMetadata<M>?) =
+    override fun <T : Any> intercept(upstream: T) =
         if (metadata is IsOutcome) outcomeInterceptor.intercept(upstream)
         else upstream
 
-    //TODO remove
     class Factory<M> internal constructor(
         private val outcomeInterceptor: RetrofitInterceptor<M>
     ) : RetrofitInterceptor.Factory<M> {

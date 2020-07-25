@@ -21,13 +21,19 @@
  *
  */
 
-package dev.pthomain.android.glitchy.core.interceptor.interceptors.base
+package dev.pthomain.android.glitchy.demo.api
 
-interface Interceptors<M, out F : InterceptorFactory<M>> {
-    val before: List<F>
-    val after: List<F>
-}
+import com.google.gson.Gson
+import retrofit2.CallAdapter
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
-interface InterceptorFactory<M> {
-    fun create(metadata: M?): Interceptor?
-}
+internal const val BASE_URL = "https://catfact.ninja/"
+internal const val ENDPOINT = "fact"
+
+fun getRetrofit(callAdapterFactory: CallAdapter.Factory) =
+    Retrofit.Builder()
+        .baseUrl(BASE_URL)
+        .addConverterFactory(GsonConverterFactory.create(Gson()))
+        .addCallAdapterFactory(callAdapterFactory)
+        .build()

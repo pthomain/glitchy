@@ -28,7 +28,7 @@ import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Intercept
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Interceptors
 
 interface InterceptorProvider<M, out F : InterceptorFactory<M>> {
-    val errorInterceptor: Interceptor<M>
-    val outcomeInterceptor: Interceptor<M>
+    val errorInterceptor: Interceptor
+    val outcomeInterceptor: Interceptor
     val interceptors: Interceptors<M, F>
 }

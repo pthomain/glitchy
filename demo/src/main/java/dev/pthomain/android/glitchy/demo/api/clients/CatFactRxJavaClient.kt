@@ -21,18 +21,15 @@
  *
  */
 
-package dev.pthomain.android.glitchy.demo
+package dev.pthomain.android.glitchy.demo.api.clients
 
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.outcome.Outcome
+import dev.pthomain.android.glitchy.demo.api.CatFactResponse
+import dev.pthomain.android.glitchy.demo.api.ENDPOINT
 import io.reactivex.Single
 import retrofit2.http.GET
 
-interface CatFactClient {
+interface CatFactRxJavaClient {
     @GET(ENDPOINT)
     fun getFact(): Single<Outcome<CatFactResponse>>
-
-    companion object {
-        internal const val BASE_URL = "https://catfact.ninja/"
-        internal const val ENDPOINT = "fact"
-    }
 }

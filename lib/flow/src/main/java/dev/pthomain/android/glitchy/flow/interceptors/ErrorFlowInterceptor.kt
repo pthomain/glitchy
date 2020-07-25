@@ -35,9 +35,9 @@ import kotlinx.coroutines.flow.catch
  * @see ErrorFactory
  * @param errorFactory the factory converting throwables to custom exceptions
  */
-class ErrorFlowInterceptor<E, M> internal constructor(
+class ErrorFlowInterceptor<E> internal constructor(
     private val errorFactory: ErrorFactory<E>
-) : FlowInterceptor<M>()
+) : FlowInterceptor()
         where E : Throwable,
               E : NetworkErrorPredicate {
 

@@ -21,13 +21,15 @@
  *
  */
 
-package dev.pthomain.android.glitchy.core.interceptor.interceptors.base
+package dev.pthomain.android.glitchy.demo.api.clients
 
-interface Interceptors<M, out F : InterceptorFactory<M>> {
-    val before: List<F>
-    val after: List<F>
-}
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.outcome.Outcome
+import dev.pthomain.android.glitchy.demo.api.CatFactResponse
+import dev.pthomain.android.glitchy.demo.api.ENDPOINT
+import kotlinx.coroutines.flow.Flow
+import retrofit2.http.GET
 
-interface InterceptorFactory<M> {
-    fun create(metadata: M?): Interceptor?
+interface CatFactFlowClient {
+    @GET(ENDPOINT)
+    fun getFact(): Flow<Outcome<CatFactResponse>>
 }

@@ -50,7 +50,7 @@ internal class GlitchyRetrofitModule<E, M >(
         }
 
         single<CallAdapter.Factory> {
-            RetrofitCallAdapterFactory<E, M>(
+            RetrofitCallAdapterFactory(
                 defaultCallAdapterFactory,
                 get(),
                 returnTypeParser,
