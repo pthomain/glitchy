@@ -24,33 +24,24 @@
 package dev.pthomain.android.glitchy.retrofit.interceptors
 
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Interceptors
-import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
 
-sealed class RetrofitInterceptors<E>(
-    override val before: List<RetrofitInterceptor.Factory<E>>,
-    override val after: List<RetrofitInterceptor.Factory<E>>
-) : Interceptors<RetrofitMetadata<*>, RetrofitInterceptor.Factory<E>> where E : Throwable,
-                       E : NetworkErrorPredicate {
+sealed class RetrofitInterceptors<M>(
+    override val before: List<RetrofitInterceptor.Factory<M>>,
+    override val after: List<RetrofitInterceptor.Factory<M>>
+) : Interceptors<RetrofitMetadata<M>,
+        RetrofitInterceptor.Factory<M>> {
 
-    class None<E> : RetrofitInterceptors<E>(emptyList(), emptyList())
-            where E : Throwable,
-                  E : NetworkErrorPredicate
+    class None<M> : RetrofitInterceptors<M>(emptyList(), emptyList())
 
-    class Before<E>(vararg inOrder: RetrofitInterceptor.Factory<E>) :
-        RetrofitInterceptors<E>(inOrder.asList(), emptyList())
-            where E : Throwable,
-                  E : NetworkErrorPredicate
+    class Before<M>(vararg inOrder: RetrofitInterceptor.Factory<M>) :
+        RetrofitInterceptors<M>(inOrder.asList(), emptyList())
 
-    class After<E>(vararg inOrder: RetrofitInterceptor.Factory<E>) :
-        RetrofitInterceptors<E>(emptyList(), inOrder.asList())
-            where E : Throwable,
-                  E : NetworkErrorPredicate
+    class After<M>(vararg inOrder: RetrofitInterceptor.Factory<M>) :
+        RetrofitInterceptors<M>(emptyList(), inOrder.asList())
 
-    class Around<E>(
-        before: List<RetrofitInterceptor.Factory<E>>,
-        after: List<RetrofitInterceptor.Factory<E>>
-    ) : RetrofitInterceptors<E>(before, after)
-            where E : Throwable,
-                  E : NetworkErrorPredicate
+    class Around<M>(
+        before: List<RetrofitInterceptor.Factory<M>>,
+        after: List<RetrofitInterceptor.Factory<M>>
+    ) : RetrofitInterceptors<M>(before, after)
 
 }

@@ -23,31 +23,27 @@
 
 package dev.pthomain.android.glitchy.retrofit.interceptors
 
-import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Interceptor
-import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
 import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser.Companion.IsOutcome
 
-class RetrofitOutcomeInterceptor<E> private constructor(
-    private val outcomeInterceptor: Interceptor,
-    private val metadata: RetrofitMetadata<*>
-) : RetrofitInterceptor()
-        where E : Throwable,
-              E : NetworkErrorPredicate {
+class RetrofitOutcomeInterceptor<M> private constructor(
+    private val outcomeInterceptor: RetrofitInterceptor<M>,
+    private val metadata: RetrofitMetadata<M>?
+) : RetrofitInterceptor<M>() {
 
-    override fun <T : Any> intercept(upstream: T) =
-        if (metadata.parsedType.metadata is IsOutcome) outcomeInterceptor.intercept(upstream)
+    override fun <T : Any> intercept(upstream: T, metadata: RetrofitMetadata<M>?) =
+        if (metadata is IsOutcome) outcomeInterceptor.intercept(upstream)
         else upstream
 
-    class Factory<E> internal constructor(
-        private val outcomeInterceptor: Interceptor
-    ) : RetrofitInterceptor.Factory<E>
-            where E : Throwable,
-                  E : NetworkErrorPredicate {
+    //TODO remove
+    class Factory<M> internal constructor(
+        private val outcomeInterceptor: RetrofitInterceptor<M>
+    ) : RetrofitInterceptor.Factory<M> {
 
-        override fun create(metadata: RetrofitMetadata<*>) = RetrofitOutcomeInterceptor<E>(
+        override fun create(metadata: RetrofitMetadata<M>?) = RetrofitOutcomeInterceptor(
             outcomeInterceptor,
             metadata
         )
+
     }
 
 }

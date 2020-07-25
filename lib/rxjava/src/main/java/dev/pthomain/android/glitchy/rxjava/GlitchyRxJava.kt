@@ -24,6 +24,7 @@
 package dev.pthomain.android.glitchy.rxjava
 
 import dev.pthomain.android.glitchy.core.interceptor.builder.InterceptorProvider
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.InterceptorFactory
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Interceptors
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.ErrorFactory
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
@@ -32,13 +33,13 @@ import dev.pthomain.android.glitchy.rxjava.interceptors.OutcomeRxInterceptor
 
 object GlitchyRxJava {
 
-    fun <E> getInterceptorProvider(
+    fun <E, M, F : InterceptorFactory<M>> getInterceptorProvider(
         errorFactory: ErrorFactory<E>,
-        interceptors: Interceptors
+        interceptors: Interceptors<M, F>
     ) where E : Throwable,
-            E : NetworkErrorPredicate = object : InterceptorProvider {
-        override val errorInterceptor = ErrorRxInterceptor(errorFactory)
-        override val outcomeInterceptor = OutcomeRxInterceptor(errorFactory)
+            E : NetworkErrorPredicate = object : InterceptorProvider<M, F> {
+        override val errorInterceptor = ErrorRxInterceptor<M, E>(errorFactory)
+        override val outcomeInterceptor = OutcomeRxInterceptor<M, E>(errorFactory)
         override val interceptors = interceptors
     }
 

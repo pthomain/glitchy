@@ -25,8 +25,9 @@ package dev.pthomain.android.glitchy.rxjava.interceptors
 
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.ErrorFactory
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
-import dev.pthomain.android.glitchy.rxjava.interceptors.base.RxInterceptor
+import dev.pthomain.android.glitchy.rxjava.interceptors.base.RxInterceptor.CombinedRxInterceptor
 import io.reactivex.Observable
+import io.reactivex.functions.Function
 
 /**
  * Interceptor handling network exceptions and converting them using the chosen ErrorFactory.
@@ -34,9 +35,9 @@ import io.reactivex.Observable
  * @see ErrorFactory
  * @param errorFactory the factory converting throwables to custom exceptions
  */
-class ErrorRxInterceptor<E> internal constructor(
+class ErrorRxInterceptor<M, E> internal constructor(
     private val errorFactory: ErrorFactory<E>
-) : RxInterceptor.CombinedRxInterceptor()
+) : CombinedRxInterceptor<M>()
         where E : Throwable,
               E : NetworkErrorPredicate {
 
@@ -47,7 +48,9 @@ class ErrorRxInterceptor<E> internal constructor(
      * @param upstream the upstream response Observable, typically as emitted by a Retrofit client.
      * @return the composed Observable emitting the converted exception
      */
-    override fun apply(upstream: Observable<Any>) =
-        upstream.onErrorReturn(errorFactory::invoke)!!
+    override fun apply(upstream: Observable<Any>): Observable<Any> =
+        upstream.onErrorResumeNext(Function {
+            Observable.error(errorFactory.invoke(it))
+        })
 
 }

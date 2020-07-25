@@ -25,15 +25,15 @@ package dev.pthomain.android.glitchy.core.interceptor.interceptors.base
 
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
 
-internal class CompositeInterceptor<E, M>(
-    private val interceptors: Interceptors<*, *>,
-    private val errorInterceptor: Interceptor,
-    private val outcomeInterceptor: Interceptor?
+internal class CompositeInterceptor<E, M, F : InterceptorFactory<M>>(
+    private val interceptors: Interceptors<M, F>,
+    private val errorInterceptor: Interceptor<M>,
+    private val outcomeInterceptor: Interceptor<M>?
 ) : BaseCompositeInterceptor<M>()
         where  E : Throwable,
                E : NetworkErrorPredicate {
 
-    override fun interceptors(metadata: M): Sequence<Interceptor> =
+    override fun interceptors(metadata: M?): Sequence<Interceptor<M>> =
         interceptors.before.asSequence().map { it.create(metadata) }
             .plus(errorInterceptor)
             .plus(outcomeInterceptor)

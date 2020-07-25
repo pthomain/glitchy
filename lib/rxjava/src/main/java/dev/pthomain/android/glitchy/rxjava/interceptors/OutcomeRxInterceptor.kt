@@ -26,23 +26,22 @@ package dev.pthomain.android.glitchy.rxjava.interceptors
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.ErrorFactory
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.outcome.Outcome
-import dev.pthomain.android.glitchy.rxjava.interceptors.base.RxInterceptor
+import dev.pthomain.android.glitchy.rxjava.interceptors.base.RxInterceptor.CombinedRxInterceptor
 import io.reactivex.Observable
 import io.reactivex.functions.Function
 
- class OutcomeRxInterceptor<E> internal constructor(
-     private val errorFactory: ErrorFactory<E>
- ) : RxInterceptor.CombinedRxInterceptor()
-         where E : Throwable,
-               E : NetworkErrorPredicate {
+class OutcomeRxInterceptor<M, E> internal constructor(
+    private val errorFactory: ErrorFactory<E>
+) : CombinedRxInterceptor<M>()
+        where E : Throwable,
+              E : NetworkErrorPredicate {
 
-     override fun apply(upstream: Observable<Any>): Observable<Any> =
-         upstream
-             .map { Outcome.Success(it) as Any }
-             .onErrorResumeNext(Function {
-                 errorFactory.asHandledError(it)
-                    ?.let { Observable.just<Any>(it) }
-                    ?: Observable.error<Any>(it)
-            })!!
+    override fun apply(upstream: Observable<Any>) = upstream
+        .map { Outcome.Success(it) as Any }
+        .onErrorResumeNext(Function {
+            errorFactory.asHandledError(it)
+                ?.let { Observable.just<Any>(it) }
+                ?: Observable.error<Any>(it)
+        })!!
 
 }

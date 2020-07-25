@@ -29,7 +29,7 @@ import dev.pthomain.android.glitchy.retrofit.rxjava.type.RxReturnTypeParser
 import retrofit2.CallAdapter
 import java.lang.reflect.Type
 
-class GlitchyRetrofitRxJavaBuilder<E, M : Any> internal constructor(
+class GlitchyRetrofitRxJavaBuilder<E, M> internal constructor(
     metadataResolver: (Type) -> M,
     defaultCallAdapterFactory: CallAdapter.Factory
 ) : BaseGlitchyRetrofitBuilder<E, M, GlitchyRetrofitRxJavaBuilder<E, M>, GlitchyRetrofitRxJava>(

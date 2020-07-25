@@ -29,7 +29,7 @@ import dev.pthomain.android.glitchy.retrofit.flow.type.FlowReturnTypeParser
 import retrofit2.CallAdapter
 import java.lang.reflect.Type
 
-class GlitchyRetrofitFlowBuilder<E, M : Any> internal constructor(
+class GlitchyRetrofitFlowBuilder<E, M> internal constructor(
     metadataResolver: (Type) -> M,
     defaultCallAdapterFactory: CallAdapter.Factory
 ) : BaseGlitchyRetrofitBuilder<E, M, GlitchyRetrofitFlowBuilder<E, M>, GlitchyRetrofitFlow>(
