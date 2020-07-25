@@ -53,7 +53,7 @@ abstract class BaseGlitchyRetrofitBuilder<E, M, B : BaseGlitchyRetrofitBuilder<E
         }.koin.get<CallAdapter.Factory>()
             .run(::getInstance)
 
-    abstract fun getInstance(callAdapterFactory: CallAdapter.Factory): R
+    protected abstract fun getInstance(callAdapterFactory: CallAdapter.Factory): R
 
     private fun modules() = listOf(
         GlitchyRetrofitModule(

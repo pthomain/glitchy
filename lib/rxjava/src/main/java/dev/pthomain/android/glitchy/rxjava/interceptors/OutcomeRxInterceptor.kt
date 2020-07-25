@@ -30,9 +30,9 @@ import dev.pthomain.android.glitchy.rxjava.interceptors.base.RxInterceptor.Combi
 import io.reactivex.Observable
 import io.reactivex.functions.Function
 
-class OutcomeRxInterceptor<M, E> internal constructor(
+class OutcomeRxInterceptor<E> internal constructor(
     private val errorFactory: ErrorFactory<E>
-) : CombinedRxInterceptor<M>()
+) : CombinedRxInterceptor()
         where E : Throwable,
               E : NetworkErrorPredicate {
 

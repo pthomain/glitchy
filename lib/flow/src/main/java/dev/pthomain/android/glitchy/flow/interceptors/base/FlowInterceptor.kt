@@ -24,21 +24,19 @@
 package dev.pthomain.android.glitchy.flow.interceptors.base
 
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Interceptor
-import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.InterceptorFactory
 import kotlinx.coroutines.flow.Flow
 
-abstract class FlowInterceptor<M> : Interceptor<M> {
+abstract class FlowInterceptor : Interceptor {
 
     @Suppress("UNCHECKED_CAST")
-    final override fun <T : Any> intercept(upstream: T, metadata: M?) = when (upstream) {
+    final override fun <T : Any> intercept(upstream: T) = when (upstream) {
         is Flow<*> -> interceptFlow(upstream) as T
         else -> throw IllegalArgumentException("Invalid argument: $upstream")
     }
 
     abstract fun interceptFlow(upstream: Flow<*>): Flow<*>
 
-    interface Factory<M> : InterceptorFactory<M>
 }
 
-fun Flow<*>.intercept(interceptor: FlowInterceptor<*>): Flow<*> =
+fun Flow<*>.intercept(interceptor: FlowInterceptor): Flow<*> =
     run(interceptor::interceptFlow)

@@ -35,9 +35,9 @@ import io.reactivex.functions.Function
  * @see ErrorFactory
  * @param errorFactory the factory converting throwables to custom exceptions
  */
-class ErrorRxInterceptor<M, E> internal constructor(
+class ErrorRxInterceptor<E> internal constructor(
     private val errorFactory: ErrorFactory<E>
-) : CombinedRxInterceptor<M>()
+) : CombinedRxInterceptor()
         where E : Throwable,
               E : NetworkErrorPredicate {
 

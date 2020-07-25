@@ -55,6 +55,6 @@ class RxReturnTypeParser<M>(
 
     companion object {
         @JvmStatic
-        fun getDefaultInstance() = RxReturnTypeParser { Unit }
+        val DEFAULT = RxReturnTypeParser { Unit }
     }
 }

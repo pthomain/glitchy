@@ -44,7 +44,7 @@ class OutcomeReturnTypeParser<M : Any>(
         val parsedType = parsedRxType.parsedType
 
         val (parsedResultType, outcomeType) = if (rawType(parsedType) == Outcome::class.java) {
-            val outcomeType = getFirstParameterUpperBound(parsedType)!!
+            val outcomeType = getFirstParameterUpperBound(parsedType)
             wrapToSingle(outcomeType) to parsedType
         } else parsedRxType.returnType to parsedType
 

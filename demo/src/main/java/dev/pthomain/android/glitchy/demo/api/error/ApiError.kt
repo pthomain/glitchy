@@ -21,7 +21,7 @@
  *
  */
 
-package dev.pthomain.android.glitchy.demo
+package dev.pthomain.android.glitchy.demo.api.error
 
 import dev.pthomain.android.boilerplate.core.utils.kotlin.ifElse
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.ErrorFactory

@@ -53,6 +53,6 @@ class FlowReturnTypeParser<M>(
 
     companion object {
         @JvmStatic
-        fun getDefaultInstance() = FlowReturnTypeParser { Unit }
+        val DEFAULT = FlowReturnTypeParser { Unit }
     }
 }

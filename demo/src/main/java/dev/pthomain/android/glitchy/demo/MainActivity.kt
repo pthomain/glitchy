@@ -28,32 +28,28 @@ import android.widget.Button
 import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.google.gson.Gson
 import dev.pthomain.android.boilerplate.core.utils.kotlin.ifElse
 import dev.pthomain.android.boilerplate.core.utils.rx.On
 import dev.pthomain.android.boilerplate.core.utils.rx.schedule
-import dev.pthomain.android.glitchy.core.Glitchy
-import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.glitch.Glitch
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.outcome.Outcome
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.outcome.Outcome.Error
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.outcome.Outcome.Success
-import dev.pthomain.android.glitchy.demo.CatFactClient.Companion.BASE_URL
-import dev.pthomain.android.glitchy.retrofit.error.RetrofitGlitchFactory
-import dev.pthomain.android.glitchy.retrofit.flow.GlitchyRetrofitFlow
-import dev.pthomain.android.glitchy.rxjava.GlitchyRxJava
+import dev.pthomain.android.glitchy.demo.api.CatFactResponse
+import dev.pthomain.android.glitchy.demo.api.clients.CatFactFlowClient
+import dev.pthomain.android.glitchy.demo.api.clients.CatFactRxJavaClient
+import dev.pthomain.android.glitchy.demo.factories.apiErrorRetrofitFlow
+import dev.pthomain.android.glitchy.demo.factories.apiErrorRetrofitRxJava
+import dev.pthomain.android.glitchy.demo.factories.glitchRetrofitFlow
+import dev.pthomain.android.glitchy.demo.factories.glitchRetrofitRxJava
 import io.reactivex.disposables.Disposable
-import retrofit2.CallAdapter
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.atomic.AtomicBoolean
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var glitchRetrofit: Retrofit
-    private lateinit var apiErrorRetrofit: Retrofit
     private lateinit var textView: TextView
-
     private var disposable: Disposable? = null
     private var useGlitch = true
+    private var useFlow = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,43 +61,16 @@ class MainActivity : AppCompatActivity() {
         val handledExceptionButton = findViewById<Button>(R.id.throw_handled_exception)
         val unhandledExceptionButton = findViewById<Button>(R.id.throw_unhandled_exception)
 
-        val glitchCallAdapterFactory = with(RetrofitGlitchFactory()) {
-            GlitchyRetrofitFlow.defaultBuilder(
-                Glitchy.builder(
-                    this,
-                    GlitchyRxJava.getInterceptorProvider(
-                        this,
-                        GlitchyFactory.getRxInterceptors<Glitch>() //FIXME simplify this
-                    )
-                )
-            )
-        }.build().callAdapterFactory
-
-        val apiErrorCallAdapterFactory = with(ApiError.Factory()) {
-            GlitchyRetrofitFlow.defaultBuilder(
-                Glitchy.builder(
-                    this,
-                    GlitchyRxJava.getInterceptorProvider(
-                        this,
-                        GlitchyFactory.getRxInterceptors<Glitch>() //FIXME simplify this
-                    )
-                )
-            )
-        }.build().callAdapterFactory
-
-        glitchRetrofit = getRetrofit(glitchCallAdapterFactory)
-        apiErrorRetrofit = getRetrofit(apiErrorCallAdapterFactory)
-
         radioGroup.setOnCheckedChangeListener { _, checkedId ->
             useGlitch = checkedId == R.id.glitch
         }
 
         handledExceptionButton.setOnClickListener {
-            GlitchyFactory.throwHandledException.set(true)
+            throwHandledException.set(true)
             loadFact()
         }
         unhandledExceptionButton.setOnClickListener {
-            GlitchyFactory.throwUnhandledException.set(true)
+            throwUnhandledException.set(true)
             loadFact()
         }
 
@@ -113,16 +82,25 @@ class MainActivity : AppCompatActivity() {
     private fun loadFact() {
         textView.text = getString(R.string.loading)
 
-        val client = ifElse(
-            useGlitch,
-            glitchRetrofit,
-            apiErrorRetrofit
-        ).create(CatFactClient::class.java)
+        if (useFlow) {
+            val flowClient = ifElse(
+                useGlitch,
+                glitchRetrofitFlow,
+                apiErrorRetrofitFlow
+            ).create(CatFactFlowClient::class.java)
 
-        disposable = client.getFact()
-            .schedule(On.Io, On.MainThread)
-            .doOnError { resetState() }
-            .subscribe(::onOutcome)
+        } else {
+            val rxJavaClient = ifElse(
+                useGlitch,
+                glitchRetrofitRxJava,
+                apiErrorRetrofitRxJava
+            ).create(CatFactRxJavaClient::class.java)
+
+            disposable = rxJavaClient.getFact()
+                .schedule(On.Io, On.MainThread)
+                .doOnError { resetState() }
+                .subscribe(::onOutcome)
+        }
     }
 
     private fun onOutcome(outcome: Outcome<CatFactResponse>) {
@@ -141,8 +119,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun resetState() {
         textView.post { textView.text = "" }
-        GlitchyFactory.throwHandledException.set(false)
-        GlitchyFactory.throwUnhandledException.set(false)
+        throwHandledException.set(false)
+        throwUnhandledException.set(false)
     }
 
     override fun onDestroy() {
@@ -150,11 +128,7 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
-    private fun getRetrofit(callAdapterFactory: CallAdapter.Factory) =
-        Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create(Gson()))
-            .addCallAdapterFactory(callAdapterFactory)
-            .build()
-
 }
+
+val throwHandledException = AtomicBoolean(false)
+val throwUnhandledException = AtomicBoolean(false)

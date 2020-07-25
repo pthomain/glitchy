@@ -23,28 +23,29 @@
 
 package dev.pthomain.android.glitchy.flow.interceptors.base
 
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.InterceptorFactory
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Interceptors
 
 sealed class FlowInterceptors<M>(
-    override val before: List<FlowInterceptor.Factory<M>>,
-    override val after: List<FlowInterceptor.Factory<M>>
-) : Interceptors<M, FlowInterceptor.Factory<M>> {
+    override val before: List<InterceptorFactory<M>>,
+    override val after: List<InterceptorFactory<M>>
+) : Interceptors<M, InterceptorFactory<M>> {
 
     class None<M> : FlowInterceptors<M>(emptyList(), emptyList())
 
-    class Before<M>(vararg inOrder: FlowInterceptor.Factory<M>) : FlowInterceptors<M>(
+    class Before<M>(vararg inOrder: InterceptorFactory<M>) : FlowInterceptors<M>(
         inOrder.asList(),
         emptyList()
     )
 
-    class After<M>(vararg inOrder: FlowInterceptor.Factory<M>) : FlowInterceptors<M>(
+    class After<M>(vararg inOrder: InterceptorFactory<M>) : FlowInterceptors<M>(
         emptyList(),
         inOrder.asList()
     )
 
     class Around<M>(
-        before: List<FlowInterceptor.Factory<M>>,
-        after: List<FlowInterceptor.Factory<M>>
+        before: List<InterceptorFactory<M>>,
+        after: List<InterceptorFactory<M>>
     ) : FlowInterceptors<M>(before, after)
 
 }

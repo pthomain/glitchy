@@ -27,26 +27,22 @@ import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Intercept
 import io.reactivex.Observable
 import io.reactivex.Single
 
-sealed class RxInterceptor<M> : Interceptor<M> {
+sealed class RxInterceptor : Interceptor {
 
-    abstract class ObservableInterceptor<M>
-        : RxInterceptor<M>(),
-        ObservableComposer {
+    abstract class ObservableInterceptor : RxInterceptor(), ObservableComposer {
 
         @Suppress("UNCHECKED_CAST")
-        final override fun <T : Any> intercept(upstream: T, metadata: M?) = when (upstream) {
+        final override fun <T : Any> intercept(upstream: T) = when (upstream) {
             is Observable<*> -> apply(upstream as Observable<Any>) as T
             else -> throw IllegalArgumentException("Expected an Observable, was: $upstream")
         }
 
     }
 
-    abstract class SingleInterceptor<M>
-        : RxInterceptor<M>(),
-        SingleComposer {
+    abstract class SingleInterceptor : RxInterceptor(), SingleComposer {
 
         @Suppress("UNCHECKED_CAST")
-        final override fun <T : Any> intercept(upstream: T, metadata: M?): T =
+        final override fun <T : Any> intercept(upstream: T): T =
             when (upstream) {
                 is Single<*> -> apply(upstream as Single<Any>) as T
                 else -> throw IllegalArgumentException("Expected a Single, was: $upstream")
@@ -54,9 +50,7 @@ sealed class RxInterceptor<M> : Interceptor<M> {
 
     }
 
-    abstract class CombinedRxInterceptor<M>
-        : ObservableInterceptor<M>(),
-        SingleComposer {
+    abstract class CombinedRxInterceptor : ObservableInterceptor(), SingleComposer {
 
         override fun apply(upstream: Single<Any>) = upstream
             .toObservable()
