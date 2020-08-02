@@ -23,14 +23,29 @@
 
 package dev.pthomain.android.glitchy.rxjava
 
+import dev.pthomain.android.glitchy.core.Glitchy
 import dev.pthomain.android.glitchy.core.interceptor.builder.InterceptorProvider
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.InterceptorFactory
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Interceptors
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.ErrorFactory
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
 import dev.pthomain.android.glitchy.rxjava.interceptors.ErrorRxInterceptor
 import dev.pthomain.android.glitchy.rxjava.interceptors.OutcomeRxInterceptor
 
 object GlitchyRxJava {
+
+    fun <E, M, F : InterceptorFactory<M>> builder(
+        errorFactory: ErrorFactory<E>,
+        interceptors: Interceptors<M, F>,
+        outcomePredicate: (M) -> Boolean
+    ) where E : Throwable,
+            E : NetworkErrorPredicate =
+        Glitchy.builder(
+            errorFactory,
+            interceptorProvider(errorFactory),
+            interceptors,
+            outcomePredicate
+        )
 
     fun <E, M, F : InterceptorFactory<M>> interceptorProvider(errorFactory: ErrorFactory<E>)
             where E : Throwable,

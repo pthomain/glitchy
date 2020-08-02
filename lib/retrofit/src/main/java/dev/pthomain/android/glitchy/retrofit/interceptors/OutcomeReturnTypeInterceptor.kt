@@ -32,7 +32,7 @@ internal class OutcomeReturnTypeInterceptor<M> private constructor(
 ) : RetrofitInterceptor<M>() {
 
     override fun <T : Any> intercept(upstream: T) =
-        if (metadata is IsOutcome) outcomeInterceptor.intercept(upstream)
+        if (metadata?.parsedType is IsOutcome) outcomeInterceptor.intercept(upstream)
         else upstream
 
     class Factory<M> internal constructor(

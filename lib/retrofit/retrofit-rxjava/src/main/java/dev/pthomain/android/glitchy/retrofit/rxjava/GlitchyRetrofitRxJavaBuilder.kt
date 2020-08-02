@@ -47,8 +47,6 @@ class GlitchyRetrofitRxJavaBuilder<E, M> internal constructor(
 ) where E : Throwable,
         E : NetworkErrorPredicate {
 
-    override val builder = this
-
     override fun getInstance(callAdapterFactory: CallAdapter.Factory) =
         GlitchyRetrofitRxJava(callAdapterFactory)
 

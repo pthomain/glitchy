@@ -36,7 +36,7 @@ internal class GlitchyModule<E, M, out F : InterceptorFactory<M>>(
     private val interceptorProvider: InterceptorProvider<M, F>,
     private val interceptors: Interceptors<M, F>,
     private val errorFactory: ErrorFactory<E>,
-    private val asOutcome: Boolean,
+    private val outcomePredicate: (M) -> Boolean,
     private val logger: Logger
 ) where E : Throwable,
         E : NetworkErrorPredicate {
@@ -50,11 +50,12 @@ internal class GlitchyModule<E, M, out F : InterceptorFactory<M>>(
 
         single(named(OUTCOME)) { interceptorProvider.outcomeInterceptor }
 
-        single {
+        single<InterceptorFactory<M>> {
             CompositeInterceptor.Factory<E, M, F>(
                 interceptors,
                 get(named(ERROR)),
-                if (asOutcome) get(named(OUTCOME)) else null,
+                get(named(OUTCOME)),
+                outcomePredicate
             )
         }
     }
