@@ -28,11 +28,13 @@ import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.ErrorFac
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitInterceptor
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitMetadata
+import dev.pthomain.android.glitchy.retrofit.rxjava.type.RxReturnTypeParser
+import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser
+import dev.pthomain.android.glitchy.retrofit.type.ReturnTypeParser
 import dev.pthomain.android.glitchy.rxjava.GlitchyRxJava
 import dev.pthomain.android.glitchy.rxjava.interceptors.base.RxInterceptors
 import retrofit2.CallAdapter
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import java.lang.reflect.Type
 
 class GlitchyRetrofitRxJava internal constructor(
     val callAdapterFactory: CallAdapter.Factory
@@ -41,24 +43,24 @@ class GlitchyRetrofitRxJava internal constructor(
     object Custom {
         fun <E, M> extension(
             defaultCallAdapterFactory: CallAdapter.Factory,
-            metadataResolver: (Type) -> M
+            returnTypeParser: ReturnTypeParser<M>
         ) where E : Throwable,
                 E : NetworkErrorPredicate =
             GlitchyRetrofitRxJavaBuilder<E, M>(
-                metadataResolver,
-                defaultCallAdapterFactory
+                defaultCallAdapterFactory,
+                returnTypeParser
             )
 
         fun <E, M> builder(
             glitchyBuilder: GlitchyBuilder<E, RetrofitMetadata<M>, RetrofitInterceptor.Factory<M>>,
             defaultCallAdapterFactory: CallAdapter.Factory,
-            metadataResolver: (Type) -> M
+            returnTypeParser: ReturnTypeParser<M>
         ) where E : Throwable,
                 E : NetworkErrorPredicate =
             glitchyBuilder.extend(
                 extension<E, M>(
                     defaultCallAdapterFactory,
-                    metadataResolver
+                    returnTypeParser
                 )
             )
 
@@ -66,13 +68,13 @@ class GlitchyRetrofitRxJava internal constructor(
             errorFactory: ErrorFactory<E>,
             interceptors: RxInterceptors<RetrofitMetadata<M>, RetrofitInterceptor.Factory<M>>,
             defaultCallAdapterFactory: CallAdapter.Factory,
-            metadataResolver: (Type) -> M
+            returnTypeParser: ReturnTypeParser<M>
         ) where E : Throwable,
                 E : NetworkErrorPredicate =
             builder(
                 GlitchyRxJava.builder(errorFactory, interceptors),
                 defaultCallAdapterFactory,
-                metadataResolver
+                returnTypeParser
             )
 
     }
@@ -83,8 +85,9 @@ class GlitchyRetrofitRxJava internal constructor(
                 where E : Throwable,
                       E : NetworkErrorPredicate =
             Custom.extension(
-                getRxJava2CallAdapterFactory(isAsync)
-            ) { Unit }
+                getRxJava2CallAdapterFactory(isAsync),
+                returnTypeParser
+            )
 
         fun <E> builder(
             glitchyBuilder: GlitchyBuilder<E, RetrofitMetadata<Unit>, RetrofitInterceptor.Factory<Unit>>,
@@ -104,13 +107,17 @@ class GlitchyRetrofitRxJava internal constructor(
             Custom.builder(
                 errorFactory,
                 interceptors,
-                getRxJava2CallAdapterFactory(isAsync)
-            ) { Unit }
+                getRxJava2CallAdapterFactory(isAsync),
+                returnTypeParser
+            )
 
         private fun getRxJava2CallAdapterFactory(isAsync: Boolean) =
             if (isAsync) RxJava2CallAdapterFactory.createAsync()
             else RxJava2CallAdapterFactory.create()
 
+        private val returnTypeParser = OutcomeReturnTypeParser.getDefaultInstance(
+            RxReturnTypeParser.DEFAULT
+        )
     }
 }
 

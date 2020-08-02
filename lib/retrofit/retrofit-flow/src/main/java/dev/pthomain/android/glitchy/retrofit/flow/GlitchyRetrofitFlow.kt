@@ -30,8 +30,10 @@ import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkE
 import dev.pthomain.android.glitchy.flow.GlitchyFlow
 import dev.pthomain.android.glitchy.flow.interceptors.base.FlowInterceptors
 import dev.pthomain.android.glitchy.retrofit.flow.adapter.RetrofitFlowCallAdapterFactory
+import dev.pthomain.android.glitchy.retrofit.flow.type.FlowReturnTypeParser
+import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser
+import dev.pthomain.android.glitchy.retrofit.type.ReturnTypeParser
 import retrofit2.CallAdapter
-import java.lang.reflect.Type
 
 class GlitchyRetrofitFlow internal constructor(
     val callAdapterFactory: CallAdapter.Factory
@@ -40,24 +42,24 @@ class GlitchyRetrofitFlow internal constructor(
     object Custom {
         fun <E, M> extension(
             defaultCallAdapterFactory: CallAdapter.Factory,
-            metadataResolver: (Type) -> M
+            returnTypeParser: ReturnTypeParser<M>
         ) where E : Throwable,
                 E : NetworkErrorPredicate =
             GlitchyRetrofitFlowBuilder<E, M>(
-                metadataResolver,
-                defaultCallAdapterFactory
+                defaultCallAdapterFactory,
+                returnTypeParser
             )
 
         fun <E, M> builder(
             glitchyBuilder: GlitchyBuilder<E, M, InterceptorFactory<M>>,
             defaultCallAdapterFactory: CallAdapter.Factory,
-            metadataResolver: (Type) -> M
+            returnTypeParser: ReturnTypeParser<M>
         ) where E : Throwable,
                 E : NetworkErrorPredicate =
             glitchyBuilder.extend(
                 extension<E, M>(
                     defaultCallAdapterFactory,
-                    metadataResolver
+                    returnTypeParser
                 )
             )
 
@@ -65,13 +67,13 @@ class GlitchyRetrofitFlow internal constructor(
             errorFactory: ErrorFactory<E>,
             interceptors: FlowInterceptors<M>,
             defaultCallAdapterFactory: CallAdapter.Factory,
-            metadataResolver: (Type) -> M
+            returnTypeParser: ReturnTypeParser<M>
         ) where E : Throwable,
                 E : NetworkErrorPredicate =
             builder(
                 GlitchyFlow.builder(errorFactory, interceptors),
                 defaultCallAdapterFactory,
-                metadataResolver
+                returnTypeParser
             )
     }
 
@@ -79,7 +81,10 @@ class GlitchyRetrofitFlow internal constructor(
         fun <E> extension(): GlitchyRetrofitFlowBuilder<E, Unit>
                 where E : Throwable,
                       E : NetworkErrorPredicate =
-            Custom.extension(RetrofitFlowCallAdapterFactory()) { Unit }
+            Custom.extension(
+                RetrofitFlowCallAdapterFactory(),
+                returnTypeParser
+            )
 
         fun <E> builder(glitchyBuilder: GlitchyBuilder<E, Unit, InterceptorFactory<Unit>>)
                 : GlitchyRetrofitFlowBuilder<E, Unit>
@@ -92,12 +97,19 @@ class GlitchyRetrofitFlow internal constructor(
             interceptors: FlowInterceptors<Unit>
         ): GlitchyRetrofitFlowBuilder<E, Unit>
                 where E : Throwable,
-                      E : NetworkErrorPredicate =
-            Custom.builder(
+                      E : NetworkErrorPredicate {
+            return Custom.builder(
                 errorFactory,
                 interceptors,
-                RetrofitFlowCallAdapterFactory()
-            ) { Unit }
+                RetrofitFlowCallAdapterFactory(),
+                returnTypeParser
+            )
+        }
+
+        private val returnTypeParser = OutcomeReturnTypeParser.getDefaultInstance(
+            FlowReturnTypeParser.DEFAULT
+        )
+
     }
 
 }

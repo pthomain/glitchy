@@ -49,7 +49,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var textView: TextView
     private var disposable: Disposable? = null
     private var useGlitch = true
-    private var useFlow = true
+    private var useFlow = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -98,7 +98,10 @@ class MainActivity : AppCompatActivity() {
 
             disposable = rxJavaClient.getFact()
                 .schedule(On.Io, On.MainThread)
-                .doOnError { resetState() }
+                .doOnError {
+                    logger.e(this, it)
+                    resetState()
+                }
                 .subscribe(::onOutcome)
         }
     }

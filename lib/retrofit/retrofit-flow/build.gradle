@@ -216,8 +216,8 @@ dependencies {
     implementation appDependencies.koinCore
     implementation appDependencies.koinCoreExt
 
-    implementation appDependencies.kotlinCoroutines
-    implementation appDependencies.kotlinCoroutinesAndroid
+    implementation appDependencies.coroutines
+    implementation appDependencies.coroutinesAndroid
 
     implementation appDependencies.retrofit
 

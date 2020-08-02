@@ -25,15 +25,14 @@ package dev.pthomain.android.glitchy.retrofit.rxjava
 
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
 import dev.pthomain.android.glitchy.retrofit.builder.BaseGlitchyRetrofitBuilder
-import dev.pthomain.android.glitchy.retrofit.rxjava.type.RxReturnTypeParser
+import dev.pthomain.android.glitchy.retrofit.type.ReturnTypeParser
 import retrofit2.CallAdapter
-import java.lang.reflect.Type
 
 class GlitchyRetrofitRxJavaBuilder<E, M> internal constructor(
-    metadataResolver: (Type) -> M,
-    defaultCallAdapterFactory: CallAdapter.Factory
+    defaultCallAdapterFactory: CallAdapter.Factory,
+    returnTypeParser: ReturnTypeParser<M>
 ) : BaseGlitchyRetrofitBuilder<E, M, GlitchyRetrofitRxJavaBuilder<E, M>, GlitchyRetrofitRxJava>(
-    RxReturnTypeParser(metadataResolver),
+    returnTypeParser,
     defaultCallAdapterFactory
 ) where E : Throwable,
         E : NetworkErrorPredicate {

@@ -23,18 +23,21 @@
 
 package dev.pthomain.android.glitchy.retrofit.builder
 
+import dev.pthomain.android.glitchy.core.interceptor.builder.ERROR
+import dev.pthomain.android.glitchy.core.interceptor.builder.OUTCOME
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
 import dev.pthomain.android.glitchy.retrofit.adapter.RetrofitCallAdapterFactory
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitCompositeInterceptor
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitInterceptors
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitOutcomeInterceptor
 import dev.pthomain.android.glitchy.retrofit.type.ReturnTypeParser
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import retrofit2.CallAdapter
 
-internal class GlitchyRetrofitModule<E, M >(
+internal class GlitchyRetrofitModule<E, M>(
     returnTypeParser: ReturnTypeParser<M>,
-    defaultCallAdapterFactory:CallAdapter.Factory,
+    defaultCallAdapterFactory: CallAdapter.Factory,
     interceptors: RetrofitInterceptors<E>
 ) where E : Throwable,
         E : NetworkErrorPredicate {
@@ -44,8 +47,10 @@ internal class GlitchyRetrofitModule<E, M >(
         single {
             RetrofitCompositeInterceptor.Factory(
                 interceptors,
-                get(),
-                RetrofitOutcomeInterceptor.Factory(get())
+                get(named(ERROR)),
+                RetrofitOutcomeInterceptor.Factory(
+                    get(named(OUTCOME))
+                )
             )
         }
 

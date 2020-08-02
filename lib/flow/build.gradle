@@ -212,8 +212,8 @@ dependencies {
     implementation appDependencies.boilerplate
     implementation appDependencies.multiDex
 
-    implementation appDependencies.kotlinCoroutines
-    implementation appDependencies.kotlinCoroutinesAndroid
+    implementation appDependencies.coroutines
+    implementation appDependencies.coroutinesAndroid
 
     implementation appDependencies.koinCore
     implementation appDependencies.koinCoreExt
