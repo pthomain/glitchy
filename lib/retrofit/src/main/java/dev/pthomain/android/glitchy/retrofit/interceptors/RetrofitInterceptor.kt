@@ -28,11 +28,9 @@ import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Intercept
 import dev.pthomain.android.glitchy.retrofit.type.ParsedType
 import retrofit2.Call
 
-abstract class RetrofitInterceptor<M> internal constructor() : Interceptor {
+abstract class RetrofitInterceptor<M> internal constructor() : Interceptor
 
-    interface Factory<M> : InterceptorFactory<RetrofitMetadata<M>>
-
-}
+typealias RetrofitInterceptorFactory<M> = InterceptorFactory<RetrofitMetadata<M>>
 
 class RetrofitMetadata<M>(
     val parsedType: ParsedType<M>,

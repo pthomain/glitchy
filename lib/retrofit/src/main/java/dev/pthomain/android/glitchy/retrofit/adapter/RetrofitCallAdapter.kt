@@ -23,7 +23,7 @@
 
 package dev.pthomain.android.glitchy.retrofit.adapter
 
-import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitCompositeInterceptor
+import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitInterceptorFactory
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitMetadata
 import dev.pthomain.android.glitchy.retrofit.type.ParsedType
 import retrofit2.Call
@@ -37,7 +37,7 @@ import java.lang.reflect.Type
  * @see dev.pthomain.android.glitchy.interceptor.error.ErrorFactory
  */
 internal class RetrofitCallAdapter<M>(
-    private val compositeInterceptorFactory: RetrofitCompositeInterceptor.Factory<M>,
+    private val compositeInterceptorFactory: RetrofitInterceptorFactory<M>,
     private val parsedType: ParsedType<M>,
     private val defaultCallAdapter: CallAdapter<Any, Any>
 ) : CallAdapter<Any, Any> {
@@ -51,9 +51,11 @@ internal class RetrofitCallAdapter<M>(
      * @return the call adapted to RxJava type
      */
     override fun adapt(call: Call<Any>) =
-        compositeInterceptorFactory
-            .create(RetrofitMetadata(parsedType, call))
-            .intercept(defaultCallAdapter.adapt(call))
+        with(defaultCallAdapter.adapt(call)) {
+            compositeInterceptorFactory.create(RetrofitMetadata(parsedType, call))
+                ?.intercept(this)
+                ?: this
+        }
 
     /**
      * @return the value type as defined by the default RxJava adapter.

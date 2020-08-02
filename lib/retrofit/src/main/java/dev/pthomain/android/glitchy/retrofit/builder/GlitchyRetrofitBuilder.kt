@@ -26,40 +26,58 @@ package dev.pthomain.android.glitchy.retrofit.builder
 import dev.pthomain.android.boilerplate.core.builder.BaseExtensionBuilder
 import dev.pthomain.android.boilerplate.core.builder.Extendable
 import dev.pthomain.android.boilerplate.core.builder.ExtensionBuilder
+import dev.pthomain.android.glitchy.core.Glitchy
+import dev.pthomain.android.glitchy.core.interceptor.builder.InterceptorProvider
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.InterceptorFactory
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Interceptors
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.ErrorFactory
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
+import dev.pthomain.android.glitchy.retrofit.interceptors.OutcomeReturnTypeInterceptor
+import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitInterceptorFactory
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitInterceptors
+import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitMetadata
 import dev.pthomain.android.glitchy.retrofit.type.ReturnTypeParser
 import org.koin.core.module.Module
 import org.koin.dsl.koinApplication
 import retrofit2.CallAdapter
 
 abstract class BaseGlitchyRetrofitBuilder<E, M, B : BaseGlitchyRetrofitBuilder<E, M, B, R>, R>(
-    private var returnTypeParser: ReturnTypeParser<M>,
-    private val defaultCallAdapterFactory: CallAdapter.Factory
+    errorFactory: ErrorFactory<E>,
+    private val returnTypeParser: ReturnTypeParser<M>,
+    private val defaultCallAdapterFactory: CallAdapter.Factory,
+    interceptors: Interceptors<RetrofitMetadata<M>, InterceptorFactory<RetrofitMetadata<M>>>,
+    interceptorProvider: InterceptorProvider<RetrofitMetadata<M>, RetrofitInterceptorFactory<M>>
 ) : BaseExtensionBuilder<R, Module, B>(),
     Extendable<Module>
         where E : Throwable,
               E : NetworkErrorPredicate {
 
-    private var interceptors: RetrofitInterceptors<E> = RetrofitInterceptors.None()
+    protected abstract val builder: B
 
-    fun withInterceptors(interceptors: RetrofitInterceptors<E>) = apply {
-        this.interceptors = interceptors
+    init {
+        Glitchy.builder(
+            errorFactory,
+            interceptorProvider,
+            RetrofitInterceptors(
+                OutcomeReturnTypeInterceptor.Factory(interceptorProvider.outcomeInterceptor),
+                interceptors
+            )
+        ).extend(builder)
     }
 
     override fun buildInternal(parentModules: List<Module>): R =
         koinApplication {
             modules(parentModules + this@BaseGlitchyRetrofitBuilder.modules())
-        }.koin.get<CallAdapter.Factory>()
-            .run(::getInstance)
+        }.koin.run {
+            getInstance(get())
+        }
 
     protected abstract fun getInstance(callAdapterFactory: CallAdapter.Factory): R
 
     private fun modules() = listOf(
-        GlitchyRetrofitModule(
+        GlitchyRetrofitModule<E, M>(
             returnTypeParser,
-            defaultCallAdapterFactory,
-            interceptors
+            defaultCallAdapterFactory
         ).module
     )
 
