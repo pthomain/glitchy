@@ -58,5 +58,5 @@ internal class GlitchyModule<E, M, out F : InterceptorFactory<M>>(
     }
 }
 
-internal const val ERROR = "ERROR"
-internal const val OUTCOME = "OUTCOME"
+const val ERROR = "ERROR"
+const val OUTCOME = "OUTCOME"

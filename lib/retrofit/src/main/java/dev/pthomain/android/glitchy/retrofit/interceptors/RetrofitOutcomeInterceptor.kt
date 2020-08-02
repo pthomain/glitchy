@@ -23,10 +23,11 @@
 
 package dev.pthomain.android.glitchy.retrofit.interceptors
 
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Interceptor
 import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser.Companion.IsOutcome
 
 class RetrofitOutcomeInterceptor<M> private constructor(
-    private val outcomeInterceptor: RetrofitInterceptor<M>,
+    private val outcomeInterceptor: Interceptor,
     private val metadata: RetrofitMetadata<M>?
 ) : RetrofitInterceptor<M>() {
 
@@ -35,7 +36,7 @@ class RetrofitOutcomeInterceptor<M> private constructor(
         else upstream
 
     class Factory<M> internal constructor(
-        private val outcomeInterceptor: RetrofitInterceptor<M>
+        private val outcomeInterceptor: Interceptor
     ) : RetrofitInterceptor.Factory<M> {
 
         override fun create(metadata: RetrofitMetadata<M>?) = RetrofitOutcomeInterceptor(

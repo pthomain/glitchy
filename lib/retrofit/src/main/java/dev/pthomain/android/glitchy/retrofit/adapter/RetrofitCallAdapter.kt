@@ -53,7 +53,7 @@ internal class RetrofitCallAdapter<M>(
     override fun adapt(call: Call<Any>) =
         compositeInterceptorFactory
             .create(RetrofitMetadata(parsedType, call))
-            .intercept(call)
+            .intercept(defaultCallAdapter.adapt(call))
 
     /**
      * @return the value type as defined by the default RxJava adapter.

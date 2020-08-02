@@ -37,11 +37,12 @@ class OutcomeRxInterceptor<E> internal constructor(
               E : NetworkErrorPredicate {
 
     override fun apply(upstream: Observable<Any>) = upstream
-        .map { Outcome.Success(it) as Any }
+        .map { Outcome.Success(it) }
+        .cast(Any::class.java)
         .onErrorResumeNext(Function {
             errorFactory.asHandledError(it)
-                ?.let { Observable.just<Any>(it) }
-                ?: Observable.error<Any>(it)
+                ?.let { Observable.just(it) }
+                ?: Observable.error(it)
         })!!
 
 }

@@ -31,7 +31,7 @@ import io.reactivex.Single
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 
-class OutcomeReturnTypeParser<M : Any>(
+class OutcomeReturnTypeParser<M>(
     private val metadataResolver: (ParsedType<*>) -> M,
     private val returnSuperTypeParser: ReturnTypeParser<M>
 ) : ReturnTypeParser<M> {

@@ -50,9 +50,16 @@ sealed class RxInterceptor : Interceptor {
 
     }
 
-    abstract class CombinedRxInterceptor : ObservableInterceptor(), SingleComposer {
+    abstract class CombinedRxInterceptor : RxInterceptor(), ObservableComposer, SingleComposer {
 
-        override fun apply(upstream: Single<Any>) = upstream
+        @Suppress("UNCHECKED_CAST")
+        final override fun <T : Any> intercept(upstream: T) = when (upstream) {
+            is Observable<*> -> apply(upstream as Observable<Any>) as T
+            is Single<*> -> apply(upstream as Single<Any>) as T
+            else -> throw IllegalArgumentException("Expected an Observable or Single, was: $upstream")
+        }
+
+        final override fun apply(upstream: Single<Any>) = upstream
             .toObservable()
             .compose { apply(it) }
             .firstOrError()!!
