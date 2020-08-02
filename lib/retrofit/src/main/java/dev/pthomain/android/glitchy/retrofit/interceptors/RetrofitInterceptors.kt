@@ -31,7 +31,7 @@ internal class RetrofitInterceptors<M>(
     interceptors: Interceptors<RetrofitMetadata<M>, InterceptorFactory<RetrofitMetadata<M>>>
 ) : Interceptors<RetrofitMetadata<M>, InterceptorFactory<RetrofitMetadata<M>>> by interceptors {
 
-    override val after = interceptors.after.run {
+    override val before = interceptors.before.run {
         toMutableList().apply { add(outcomeReturnTypeInterceptorFactory) }.toList()
     }
 

@@ -42,12 +42,14 @@ class Glitchy<E, M, out F : InterceptorFactory<M>> internal constructor(
         fun <E, M, F : InterceptorFactory<M>> builder(
             errorFactory: ErrorFactory<E>,
             interceptorProvider: InterceptorProvider<M, F>,
-            interceptors: Interceptors<M, F>
+            interceptors: Interceptors<M, F>,
+            outcomePredicate: (M) -> Boolean
         ) where E : Throwable, E : NetworkErrorPredicate =
             GlitchyBuilder(
                 errorFactory,
                 interceptorProvider,
-                interceptors
+                interceptors,
+                outcomePredicate
             )
     }
 }

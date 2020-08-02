@@ -32,6 +32,7 @@ import dev.pthomain.android.glitchy.retrofit.flow.type.FlowReturnTypeParser
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitInterceptorFactory
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitMetadata
 import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser
+import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser.Companion.OutcomeToken
 import dev.pthomain.android.glitchy.retrofit.type.ReturnTypeParser
 import retrofit2.CallAdapter
 
@@ -54,76 +55,14 @@ class GlitchyRetrofitFlow internal constructor(
                 returnTypeParser,
                 interceptors
             )
-//
-//        fun <E, M> extension(
-//            defaultCallAdapterFactory: CallAdapter.Factory,
-//            returnTypeParser: ReturnTypeParser<M>
-//        ) where E : Throwable,
-//                E : NetworkErrorPredicate =
-//            GlitchyRetrofitFlowBuilder<E, M>(
-//                defaultCallAdapterFactory,
-//                returnTypeParser
-//            )
-//
-//        fun <E, M> builder(
-//            glitchyBuilder: GlitchyBuilder<E, M, InterceptorFactory<M>>,
-//            defaultCallAdapterFactory: CallAdapter.Factory,
-//            returnTypeParser: ReturnTypeParser<M>
-//        ) where E : Throwable,
-//                E : NetworkErrorPredicate =
-//            glitchyBuilder.extend(
-//                extension<E, M>(
-//                    defaultCallAdapterFactory,
-//                    returnTypeParser
-//                )
-//            )
-//
-//        fun <E, M> builder(
-//            errorFactory: ErrorFactory<E>,
-//            interceptors: FlowInterceptors<M>,
-//            defaultCallAdapterFactory: CallAdapter.Factory,
-//            returnTypeParser: ReturnTypeParser<M>
-//        ) where E : Throwable,
-//                E : NetworkErrorPredicate =
-//            builder(
-//                GlitchyFlow.builder(errorFactory, interceptors),
-//                defaultCallAdapterFactory,
-//                returnTypeParser
-//            )
+
     }
 
     object Default {
-//        fun <E> extension(): GlitchyRetrofitFlowBuilder<E, Unit>
-//                where E : Throwable,
-//                      E : NetworkErrorPredicate =
-//            Custom.extension(
-//                RetrofitFlowCallAdapterFactory(),
-//                returnTypeParser
-//            )
-//
-//        fun <E> builder(glitchyBuilder: GlitchyBuilder<E, Unit, InterceptorFactory<Unit>>)
-//                : GlitchyRetrofitFlowBuilder<E, Unit>
-//                where E : Throwable,
-//                      E : NetworkErrorPredicate =
-//            glitchyBuilder.extend(extension())
-//
-//        fun <E> builder(
-//            errorFactory: ErrorFactory<E>,
-//            interceptors: FlowInterceptors<Unit>
-//        ): GlitchyRetrofitFlowBuilder<E, Unit>
-//                where E : Throwable,
-//                      E : NetworkErrorPredicate {
-//            return Custom.builder(
-//                errorFactory,
-//                interceptors,
-//                RetrofitFlowCallAdapterFactory(),
-//                returnTypeParser
-//            )
-//        }
 
         fun <E> builder(
             errorFactory: ErrorFactory<E>,
-            interceptors: Interceptors<RetrofitMetadata<Unit>, InterceptorFactory<RetrofitMetadata<Unit>>>
+            interceptors: Interceptors<RetrofitMetadata<OutcomeToken>, InterceptorFactory<RetrofitMetadata<OutcomeToken>>>
         ) where E : Throwable,
                 E : NetworkErrorPredicate =
             GlitchyRetrofitFlowBuilder(

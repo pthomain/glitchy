@@ -28,7 +28,8 @@ import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkE
 internal class CompositeInterceptor<E, M, out F : InterceptorFactory<M>> private constructor(
     private val interceptors: Interceptors<M, F>,
     private val errorInterceptor: Interceptor,
-    private val outcomeInterceptor: Interceptor?,
+    private val outcomeInterceptor: Interceptor,
+    private val outcomePredicate: (M) -> Boolean,
     private val metadata: M?
 ) : Interceptor
         where  E : Throwable,
@@ -45,14 +46,15 @@ internal class CompositeInterceptor<E, M, out F : InterceptorFactory<M>> private
     private fun interceptors() =
         interceptors.before.create(metadata)
             .plus(errorInterceptor)
-            .plus(outcomeInterceptor)
+            .plus(if (metadata != null && outcomePredicate(metadata)) outcomeInterceptor else null)
             .plus(interceptors.after.create(metadata))
             .filterNotNull()
 
     class Factory<E, M, F : InterceptorFactory<M>>(
         private val interceptors: Interceptors<M, F>,
         private val errorInterceptor: Interceptor,
-        private val outcomeInterceptor: Interceptor?,
+        private val outcomeInterceptor: Interceptor,
+        private val outcomePredicate: (M) -> Boolean
     ) : InterceptorFactory<M>
             where  E : Throwable,
                    E : NetworkErrorPredicate {
@@ -61,6 +63,7 @@ internal class CompositeInterceptor<E, M, out F : InterceptorFactory<M>> private
             interceptors,
             errorInterceptor,
             outcomeInterceptor,
+            outcomePredicate,
             metadata
         )
     }

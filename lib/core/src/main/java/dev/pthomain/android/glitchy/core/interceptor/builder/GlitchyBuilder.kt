@@ -36,7 +36,8 @@ import org.koin.dsl.koinApplication
 class GlitchyBuilder<E, M, out F : InterceptorFactory<M>> internal constructor(
     private val errorFactory: ErrorFactory<E>,
     private val interceptorProvider: InterceptorProvider<M, F>,
-    private val interceptors: Interceptors<M, F>
+    private val interceptors: Interceptors<M, F>,
+    private val outcomePredicate: (M) -> Boolean
 ) : BaseExtendable<Module>()
         where E : Throwable,
               E : NetworkErrorPredicate {
@@ -47,14 +48,8 @@ class GlitchyBuilder<E, M, out F : InterceptorFactory<M>> internal constructor(
         override fun e(tagOrCaller: Any, t: Throwable, message: String?) = Unit
     }
 
-    private var asOutcome: Boolean = false
-
     fun withLogger(logger: Logger) = apply {
         this.logger = logger
-    }
-
-    fun emitOutcome(asOutcome: Boolean) = apply {
-        this.asOutcome = asOutcome
     }
 
     override fun modules() = listOf(
@@ -62,7 +57,7 @@ class GlitchyBuilder<E, M, out F : InterceptorFactory<M>> internal constructor(
             interceptorProvider,
             interceptors,
             errorFactory,
-            asOutcome,
+            outcomePredicate,
             logger
         ).module
     )

@@ -32,7 +32,7 @@ abstract class RetrofitInterceptor<M> internal constructor() : Interceptor
 
 typealias RetrofitInterceptorFactory<M> = InterceptorFactory<RetrofitMetadata<M>>
 
-class RetrofitMetadata<M>(
+data class RetrofitMetadata<M>(
     val parsedType: ParsedType<M>,
     val call: Call<Any>
 )

@@ -36,6 +36,7 @@ import dev.pthomain.android.glitchy.retrofit.interceptors.OutcomeReturnTypeInter
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitInterceptorFactory
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitInterceptors
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitMetadata
+import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser.Companion.IsOutcome
 import dev.pthomain.android.glitchy.retrofit.type.ReturnTypeParser
 import org.koin.core.module.Module
 import org.koin.dsl.koinApplication
@@ -52,17 +53,17 @@ abstract class BaseGlitchyRetrofitBuilder<E, M, B : BaseGlitchyRetrofitBuilder<E
         where E : Throwable,
               E : NetworkErrorPredicate {
 
-    protected abstract val builder: B
-
     init {
         Glitchy.builder(
             errorFactory,
             interceptorProvider,
             RetrofitInterceptors(
                 OutcomeReturnTypeInterceptor.Factory(interceptorProvider.outcomeInterceptor),
-                interceptors
+                interceptors,
             )
-        ).extend(builder)
+        ) {
+            it.parsedType.typeToken is IsOutcome
+        }.extend(this as B)
     }
 
     override fun buildInternal(parentModules: List<Module>): R =

@@ -25,8 +25,8 @@ package dev.pthomain.android.glitchy.retrofit.type
 
 import java.lang.reflect.Type
 
-data class ParsedType<M>(
-    val metadata: M,
+data class ParsedType<T>(
+    val typeToken: T,
     val returnType: Type,
     val parsedType: Type
 )
