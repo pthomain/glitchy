@@ -24,7 +24,7 @@
 package dev.pthomain.android.glitchy.retrofit.adapter
 
 import dev.pthomain.android.boilerplate.core.utils.log.Logger
-import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitCompositeInterceptor
+import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitInterceptorFactory
 import dev.pthomain.android.glitchy.retrofit.type.ReturnTypeParser
 import retrofit2.CallAdapter
 import retrofit2.Retrofit
@@ -39,7 +39,7 @@ import java.lang.reflect.Type
  */
 class RetrofitCallAdapterFactory<M> internal constructor(
     private val defaultCallAdapterFactory: CallAdapter.Factory,
-    private val compositeInterceptorFactory: RetrofitCompositeInterceptor.Factory<M>,
+    private val compositeInterceptorFactory: RetrofitInterceptorFactory<M>,
     private val returnTypeParser: ReturnTypeParser<M>,
     private val logger: Logger
 ) : CallAdapter.Factory() {

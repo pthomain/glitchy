@@ -23,11 +23,8 @@
 
 package dev.pthomain.android.glitchy.flow
 
-import dev.pthomain.android.glitchy.core.Glitchy
-import dev.pthomain.android.glitchy.core.interceptor.builder.GlitchyBuilder
 import dev.pthomain.android.glitchy.core.interceptor.builder.InterceptorProvider
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.InterceptorFactory
-import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Interceptors
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.ErrorFactory
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
 import dev.pthomain.android.glitchy.flow.interceptors.ErrorFlowInterceptor
@@ -35,20 +32,12 @@ import dev.pthomain.android.glitchy.flow.interceptors.OutcomeFlowInterceptor
 
 object GlitchyFlow {
 
-
-    fun <E, M, F : InterceptorFactory<M>> builder(
-        errorFactory: ErrorFactory<E>,
-        interceptors: Interceptors<M, F>
-    ): GlitchyBuilder<E, M, F>
+    fun <E, M, F : InterceptorFactory<M>> interceptorProvider(errorFactory: ErrorFactory<E>)
             where E : Throwable,
                   E : NetworkErrorPredicate =
-        Glitchy.builder(
-            errorFactory,
-            object : InterceptorProvider<M, F> {
-                override val errorInterceptor = ErrorFlowInterceptor(errorFactory)
-                override val outcomeInterceptor = OutcomeFlowInterceptor(errorFactory)
-                override val interceptors = interceptors
-            }
-        )
+        object : InterceptorProvider<M, F> {
+            override val errorInterceptor = ErrorFlowInterceptor(errorFactory)
+            override val outcomeInterceptor = OutcomeFlowInterceptor(errorFactory)
+        }
 
 }

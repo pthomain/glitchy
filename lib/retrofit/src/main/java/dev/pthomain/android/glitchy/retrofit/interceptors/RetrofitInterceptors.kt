@@ -23,25 +23,16 @@
 
 package dev.pthomain.android.glitchy.retrofit.interceptors
 
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.InterceptorFactory
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Interceptors
 
-sealed class RetrofitInterceptors<M>(
-    override val before: List<RetrofitInterceptor.Factory<M>>,
-    override val after: List<RetrofitInterceptor.Factory<M>>
-) : Interceptors<RetrofitMetadata<M>,
-        RetrofitInterceptor.Factory<M>> {
+internal class RetrofitInterceptors<M>(
+    outcomeReturnTypeInterceptorFactory: OutcomeReturnTypeInterceptor.Factory<M>,
+    interceptors: Interceptors<RetrofitMetadata<M>, InterceptorFactory<RetrofitMetadata<M>>>
+) : Interceptors<RetrofitMetadata<M>, InterceptorFactory<RetrofitMetadata<M>>> by interceptors {
 
-    class None<M> : RetrofitInterceptors<M>(emptyList(), emptyList())
-
-    class Before<M>(vararg inOrder: RetrofitInterceptor.Factory<M>) :
-        RetrofitInterceptors<M>(inOrder.asList(), emptyList())
-
-    class After<M>(vararg inOrder: RetrofitInterceptor.Factory<M>) :
-        RetrofitInterceptors<M>(emptyList(), inOrder.asList())
-
-    class Around<M>(
-        before: List<RetrofitInterceptor.Factory<M>>,
-        after: List<RetrofitInterceptor.Factory<M>>
-    ) : RetrofitInterceptors<M>(before, after)
+    override val after = interceptors.after.run {
+        toMutableList().apply { add(outcomeReturnTypeInterceptorFactory) }.toList()
+    }
 
 }

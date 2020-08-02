@@ -30,15 +30,23 @@ internal class CompositeInterceptor<E, M, out F : InterceptorFactory<M>> private
     private val errorInterceptor: Interceptor,
     private val outcomeInterceptor: Interceptor?,
     private val metadata: M?
-) : BaseCompositeInterceptor()
+) : Interceptor
         where  E : Throwable,
                E : NetworkErrorPredicate {
 
-    override fun interceptors() =
-        interceptors.before.asSequence().map { it.create(metadata) }
+    override fun <T : Any> intercept(upstream: T) =
+        interceptors().fold(upstream) { intercepted, interceptor ->
+            interceptor.intercept(intercepted)
+        }
+
+    private fun List<F>.create(metadata: M?) =
+        asSequence().map { it.create(metadata) }
+
+    private fun interceptors() =
+        interceptors.before.create(metadata)
             .plus(errorInterceptor)
             .plus(outcomeInterceptor)
-            .plus(interceptors.after.asSequence().map { it.create(metadata) })
+            .plus(interceptors.after.create(metadata))
             .filterNotNull()
 
     class Factory<E, M, F : InterceptorFactory<M>>(

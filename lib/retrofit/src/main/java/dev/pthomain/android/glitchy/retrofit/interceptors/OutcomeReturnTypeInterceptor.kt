@@ -21,14 +21,29 @@
  *
  */
 
-package dev.pthomain.android.glitchy.core.interceptor.interceptors.base
+package dev.pthomain.android.glitchy.retrofit.interceptors
 
-abstract class BaseCompositeInterceptor : Interceptor {
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Interceptor
+import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser.Companion.IsOutcome
 
-    protected abstract fun interceptors(): Sequence<Interceptor>
+internal class OutcomeReturnTypeInterceptor<M> private constructor(
+    private val outcomeInterceptor: Interceptor,
+    private val metadata: RetrofitMetadata<M>?
+) : RetrofitInterceptor<M>() {
 
-    final override fun <T : Any> intercept(upstream: T) =
-        interceptors().fold(upstream) { intercepted, interceptor ->
-            interceptor.intercept(intercepted)
-        }
+    override fun <T : Any> intercept(upstream: T) =
+        if (metadata is IsOutcome) outcomeInterceptor.intercept(upstream)
+        else upstream
+
+    class Factory<M> internal constructor(
+        private val outcomeInterceptor: Interceptor
+    ) : RetrofitInterceptorFactory<M> {
+
+        override fun create(metadata: RetrofitMetadata<M>?) = OutcomeReturnTypeInterceptor(
+            outcomeInterceptor,
+            metadata
+        )
+
+    }
+
 }

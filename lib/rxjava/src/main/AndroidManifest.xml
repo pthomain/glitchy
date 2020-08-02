@@ -22,6 +22,4 @@
   ~
   -->
 
-<manifest package="dev.pthomain.android.glitchy.rxjava">
-
-</manifest>
+<manifest package="dev.pthomain.android.glitchy.rxjava" />

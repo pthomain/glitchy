@@ -27,6 +27,7 @@ import dev.pthomain.android.glitchy.core.interceptor.builder.GlitchyBuilder
 import dev.pthomain.android.glitchy.core.interceptor.builder.InterceptorProvider
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.CompositeInterceptor
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.InterceptorFactory
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Interceptors
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.ErrorFactory
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
 
@@ -41,7 +42,12 @@ class Glitchy<E, M, out F : InterceptorFactory<M>> internal constructor(
         fun <E, M, F : InterceptorFactory<M>> builder(
             errorFactory: ErrorFactory<E>,
             interceptorProvider: InterceptorProvider<M, F>,
+            interceptors: Interceptors<M, F>
         ) where E : Throwable, E : NetworkErrorPredicate =
-            GlitchyBuilder(errorFactory, interceptorProvider)
+            GlitchyBuilder(
+                errorFactory,
+                interceptorProvider,
+                interceptors
+            )
     }
 }
