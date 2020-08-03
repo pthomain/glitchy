@@ -42,6 +42,10 @@ import dev.pthomain.android.glitchy.demo.factories.apiErrorRetrofitRxJava
 import dev.pthomain.android.glitchy.demo.factories.glitchRetrofitFlow
 import dev.pthomain.android.glitchy.demo.factories.glitchRetrofitRxJava
 import io.reactivex.disposables.Disposable
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
 
 class MainActivity : AppCompatActivity() {
@@ -49,7 +53,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var textView: TextView
     private var disposable: Disposable? = null
     private var useGlitch = true
-    private var useFlow = false
+    private var useFlow = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,6 +93,9 @@ class MainActivity : AppCompatActivity() {
                 apiErrorRetrofitFlow
             ).create(CatFactFlowClient::class.java)
 
+            GlobalScope.launch(Dispatchers.IO) {
+                flowClient.getFact().collect(::onOutcome)
+            }
         } else {
             val rxJavaClient = ifElse(
                 useGlitch,
