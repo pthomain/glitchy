@@ -38,20 +38,23 @@ class RxReturnTypeParser(
     override fun parseReturnType(
         returnType: Type,
         annotations: Array<Annotation>
-    ) = ParsedType(
-        typeTokenResolver(returnType),
-        returnType,
-        extractParam(returnType)
-    )
-
-    private fun extractParam(returnType: Type) =
+    ) =
         with(rawType(returnType)) {
-            when (this) {
-                Single::class.java,
-                Observable::class.java -> getFirstParameterUpperBound(returnType)
-                else -> this
-            }
+            ParsedType(
+                typeTokenResolver(returnType),
+                this,
+                returnType,
+                extractParam(returnType, this)
+            )
         }
+
+    private fun extractParam(returnType: Type, rawType: Type) =
+        when (rawType) {
+            Single::class.java,
+            Observable::class.java -> getFirstParameterUpperBound(returnType)
+            else -> returnType
+        }
+
 
     companion object {
         @JvmStatic

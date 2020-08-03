@@ -28,7 +28,6 @@ import dev.pthomain.android.glitchy.core.interceptor.interceptors.outcome.Outcom
 import dev.pthomain.android.glitchy.retrofit.adapter.RetrofitCallAdapterFactory.Companion.getFirstParameterUpperBound
 import dev.pthomain.android.glitchy.retrofit.adapter.RetrofitCallAdapterFactory.Companion.rawType
 import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser.Companion.OutcomeToken
-import io.reactivex.Single
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 
@@ -47,22 +46,24 @@ class OutcomeReturnTypeParser(
 
         val (parsedResultType, outcomeType) = if (rawType(parsedType) == Outcome::class.java) {
             val outcomeType = getFirstParameterUpperBound(parsedType)
-            wrapToSingle(outcomeType) to parsedType
+            wrapReturnType(outcomeType, parsedRxType.rawType) to parsedType
         } else parsedRxType.returnType to parsedType
 
         return ParsedType(
             typeToken,
+            parsedRxType.rawType,
             parsedResultType,
             outcomeType
         )
     }
 
-    private fun wrapToSingle(outcomeType: Type): Type = object : ParameterizedType {
-        override fun getRawType() = Single::class.java
-        override fun getOwnerType() = null
-        override fun getActualTypeArguments() = arrayOf(outcomeType)
-        override fun toString() = "Single<${outcomeType}>"
-    }
+    private fun wrapReturnType(wrappedType: Type, wrappingType: Type) =
+        object : ParameterizedType {
+            override fun getRawType() = wrappingType
+            override fun getOwnerType() = null
+            override fun getActualTypeArguments() = arrayOf(wrappedType)
+            override fun toString() = "$wrappingType"
+        }
 
     companion object {
         @JvmStatic

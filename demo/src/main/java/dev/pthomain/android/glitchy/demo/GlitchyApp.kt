@@ -52,7 +52,6 @@ class GlitchyApp : Application(), Consumer<Throwable> {
             "${t.javaClass.simpleName}: ${t.message}"
         )
         logger.e(this, t, message)
-        logger.e(this, t.cause!!)
         Toast.makeText(
             this,
             message,
