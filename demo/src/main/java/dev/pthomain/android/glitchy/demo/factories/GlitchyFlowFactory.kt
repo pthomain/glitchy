@@ -35,7 +35,6 @@ import dev.pthomain.android.glitchy.flow.interceptors.base.FlowInterceptors
 import dev.pthomain.android.glitchy.retrofit.error.RetrofitGlitchFactory
 import dev.pthomain.android.glitchy.retrofit.flow.GlitchyRetrofitFlow
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitMetadata
-import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser.Companion.OutcomeToken
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.io.IOException
@@ -55,8 +54,8 @@ private val exceptionFlowInterceptor = object : FlowInterceptor() {
 }
 
 private val flowInterceptors = FlowInterceptors.Before(
-    object : InterceptorFactory<RetrofitMetadata<OutcomeToken>> {
-        override fun create(metadata: RetrofitMetadata<OutcomeToken>?) = exceptionFlowInterceptor
+    object : InterceptorFactory<RetrofitMetadata<Any>> {
+        override fun create(metadata: RetrofitMetadata<Any>?) = exceptionFlowInterceptor
     }
 )
 

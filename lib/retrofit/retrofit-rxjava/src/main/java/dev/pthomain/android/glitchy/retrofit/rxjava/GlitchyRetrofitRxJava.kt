@@ -30,7 +30,6 @@ import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitInterceptorFac
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitMetadata
 import dev.pthomain.android.glitchy.retrofit.rxjava.type.RxReturnTypeParser
 import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser
-import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser.Companion.OutcomeToken
 import dev.pthomain.android.glitchy.retrofit.type.ReturnTypeParser
 import retrofit2.CallAdapter
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
@@ -61,7 +60,7 @@ class GlitchyRetrofitRxJava internal constructor(
 
         fun <E> builder(
             errorFactory: ErrorFactory<E>,
-            interceptors: Interceptors<RetrofitMetadata<OutcomeToken>, RetrofitInterceptorFactory<OutcomeToken>>,
+            interceptors: Interceptors<RetrofitMetadata<Any>, RetrofitInterceptorFactory<Any>>,
             isAsync: Boolean = true
         ) where E : Throwable,
                 E : NetworkErrorPredicate =
@@ -77,7 +76,7 @@ class GlitchyRetrofitRxJava internal constructor(
             else RxJava2CallAdapterFactory.create()
 
         private val returnTypeParser = OutcomeReturnTypeParser.getDefaultInstance(
-            RxReturnTypeParser.DEFAULT
+            RxReturnTypeParser()
         )
     }
 }

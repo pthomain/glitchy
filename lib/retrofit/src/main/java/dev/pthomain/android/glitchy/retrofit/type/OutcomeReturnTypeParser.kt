@@ -27,19 +27,18 @@ import dev.pthomain.android.boilerplate.core.utils.kotlin.ifElse
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.outcome.Outcome
 import dev.pthomain.android.glitchy.retrofit.adapter.RetrofitCallAdapterFactory.Companion.getFirstParameterUpperBound
 import dev.pthomain.android.glitchy.retrofit.adapter.RetrofitCallAdapterFactory.Companion.rawType
-import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser.Companion.OutcomeToken
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 
-class OutcomeReturnTypeParser(
-    private val typeTokenResolver: (ParsedType<*>) -> OutcomeToken,
+class OutcomeReturnTypeParser<M : Any>(
+    private val typeTokenResolver: (ParsedType<*>) -> M,
     private val returnSuperTypeParser: ReturnTypeParser<*>
-) : ReturnTypeParser<OutcomeToken> {
+) : ReturnTypeParser<M> {
 
     override fun parseReturnType(
         returnType: Type,
         annotations: Array<Annotation>
-    ): ParsedType<OutcomeToken> {
+    ): ParsedType<M> {
         val parsedRxType = returnSuperTypeParser.parseReturnType(returnType, annotations)
         val typeToken = typeTokenResolver(parsedRxType)
         val parsedType = parsedRxType.parsedType
@@ -72,17 +71,14 @@ class OutcomeReturnTypeParser(
                 {
                     ifElse(
                         rawType(it.parsedType) == Outcome::class.java,
-                        OutcomeToken.Positive,
-                        OutcomeToken.Negative
+                        OutcomeToken,
+                        Unit
                     )
                 },
                 returnSuperTypeParser
             )
 
         interface IsOutcome
-        sealed class OutcomeToken {
-            internal object Positive : OutcomeToken(), IsOutcome
-            internal object Negative : OutcomeToken()
-        }
+        internal object OutcomeToken : IsOutcome
     }
 }
