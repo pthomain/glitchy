@@ -44,6 +44,7 @@ import dev.pthomain.android.glitchy.demo.factories.glitchRetrofitRxJava
 import io.reactivex.disposables.Disposable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
@@ -53,20 +54,25 @@ class MainActivity : AppCompatActivity() {
     private lateinit var textView: TextView
     private var disposable: Disposable? = null
     private var useGlitch = true
-    private var useFlow = true
+    private var useFlow = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_main)
         textView = findViewById(R.id.fact)
-        val radioGroup = findViewById<RadioGroup>(R.id.radio_group)
+        val radioGroupException = findViewById<RadioGroup>(R.id.radio_exception)
+        val radioGroupAsync = findViewById<RadioGroup>(R.id.radio_async)
         val loadButton = findViewById<Button>(R.id.load)
         val handledExceptionButton = findViewById<Button>(R.id.throw_handled_exception)
         val unhandledExceptionButton = findViewById<Button>(R.id.throw_unhandled_exception)
 
-        radioGroup.setOnCheckedChangeListener { _, checkedId ->
+        radioGroupException.setOnCheckedChangeListener { _, checkedId ->
             useGlitch = checkedId == R.id.glitch
+        }
+
+        radioGroupAsync.setOnCheckedChangeListener { _, checkedId ->
+            useFlow = checkedId == R.id.flow
         }
 
         handledExceptionButton.setOnClickListener {
@@ -94,7 +100,9 @@ class MainActivity : AppCompatActivity() {
             ).create(CatFactFlowClient::class.java)
 
             GlobalScope.launch(Dispatchers.IO) {
-                flowClient.getFact().collect(::onOutcome)
+                flowClient.getFact()
+                    .catch { GlitchyApp.INSTANCE.showUnhandledError(it) }
+                    .collect(::onOutcome)
             }
         } else {
             val rxJavaClient = ifElse(
@@ -113,18 +121,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun getAsyncContext() = "Using ${if (useFlow) "Coroutines Flow" else "RxJava"}"
+
     private fun onOutcome(outcome: Outcome<CatFactResponse>) {
-        textView.text = when (outcome) {
+        textView.text = getAsyncContext() + ":\n" +
+                when (outcome) {
+                    is Success -> getString(R.string.cat_fact, outcome.response.fact)
 
-            is Success -> getString(R.string.cat_fact, outcome.response.fact)
-
-            is Error<*> -> with(outcome.exception) {
-                getString(
-                    R.string.handled_error,
-                    "${javaClass.simpleName}: $message"
-                )
-            }
-        }
+                    is Error<*> -> with(outcome.exception) {
+                        getString(
+                            R.string.handled_error,
+                            "${javaClass.simpleName}: $message"
+                        )
+                    }
+                }
     }
 
     private fun resetState() {

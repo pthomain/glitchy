@@ -33,7 +33,6 @@ import dev.pthomain.android.glitchy.demo.throwUnhandledException
 import dev.pthomain.android.glitchy.retrofit.error.RetrofitGlitchFactory
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitMetadata
 import dev.pthomain.android.glitchy.retrofit.rxjava.GlitchyRetrofitRxJava
-import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser.Companion.OutcomeToken
 import dev.pthomain.android.glitchy.rxjava.interceptors.base.RxInterceptor
 import dev.pthomain.android.glitchy.rxjava.interceptors.base.RxInterceptors
 import io.reactivex.Observable
@@ -54,8 +53,8 @@ private val exceptionRxInterceptor = object : RxInterceptor.CombinedRxIntercepto
 }
 
 private val rxInterceptors = RxInterceptors.Before(
-    object : InterceptorFactory<RetrofitMetadata<OutcomeToken>> {
-        override fun create(metadata: RetrofitMetadata<OutcomeToken>?) = exceptionRxInterceptor
+    object : InterceptorFactory<RetrofitMetadata<Any>> {
+        override fun create(metadata: RetrofitMetadata<Any>?) = exceptionRxInterceptor
     }
 )
 

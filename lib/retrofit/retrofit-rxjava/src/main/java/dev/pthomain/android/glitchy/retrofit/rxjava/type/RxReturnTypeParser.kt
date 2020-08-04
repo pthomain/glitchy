@@ -31,9 +31,7 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import java.lang.reflect.Type
 
-class RxReturnTypeParser(
-    private val typeTokenResolver: (Type) -> Class<*>
-) : ReturnTypeParser<Class<*>> {
+internal class RxReturnTypeParser : ReturnTypeParser<Class<*>> {
 
     override fun parseReturnType(
         returnType: Type,
@@ -41,7 +39,11 @@ class RxReturnTypeParser(
     ) =
         with(rawType(returnType)) {
             ParsedType(
-                typeTokenResolver(returnType),
+                when (returnType) {
+                    Single::class.java,
+                    Observable::class.java -> this
+                    else -> Unit.javaClass
+                },
                 this,
                 returnType,
                 extractParam(returnType, this)
@@ -55,17 +57,4 @@ class RxReturnTypeParser(
             else -> returnType
         }
 
-
-    companion object {
-        @JvmStatic
-        val DEFAULT = RxReturnTypeParser {
-            with(rawType(it)) {
-                when (this) {
-                    Single::class.java,
-                    Observable::class.java -> this
-                    else -> Unit.javaClass
-                }
-            }
-        }
-    }
 }
