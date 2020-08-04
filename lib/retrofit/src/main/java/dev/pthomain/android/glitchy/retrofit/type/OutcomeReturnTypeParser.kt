@@ -74,7 +74,7 @@ class OutcomeReturnTypeParser(
                         rawType(it.parsedType) == Outcome::class.java,
                         OutcomeToken.Positive,
                         OutcomeToken.Negative
-                    ) as OutcomeToken
+                    )
                 },
                 returnSuperTypeParser
             )
@@ -82,7 +82,7 @@ class OutcomeReturnTypeParser(
         interface IsOutcome
         sealed class OutcomeToken {
             internal object Positive : OutcomeToken(), IsOutcome
-            internal object Negative
+            internal object Negative : OutcomeToken()
         }
     }
 }
