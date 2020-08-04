@@ -23,33 +23,16 @@
 
 package dev.pthomain.android.glitchy.retrofit.interceptors
 
-import dev.pthomain.android.glitchy.core.interceptor.error.NetworkErrorPredicate
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.InterceptorFactory
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Interceptors
 
-sealed class RetrofitInterceptors<E>(
-    val before: List<RetrofitInterceptor.Factory<E>>,
-    val after: List<RetrofitInterceptor.Factory<E>>
-) where E : Throwable,
-        E : NetworkErrorPredicate {
+internal class RetrofitInterceptors<M>(
+    outcomeReturnTypeInterceptorFactory: OutcomeReturnTypeInterceptor.Factory<M>,
+    interceptors: Interceptors<RetrofitMetadata<M>, InterceptorFactory<RetrofitMetadata<M>>>
+) : Interceptors<RetrofitMetadata<M>, InterceptorFactory<RetrofitMetadata<M>>> by interceptors {
 
-    class None<E> : RetrofitInterceptors<E>(emptyList(), emptyList())
-            where E : Throwable,
-                  E : NetworkErrorPredicate
-
-    class Before<E>(vararg inOrder: RetrofitInterceptor.Factory<E>) :
-        RetrofitInterceptors<E>(inOrder.asList(), emptyList())
-            where E : Throwable,
-                  E : NetworkErrorPredicate
-
-    class After<E>(vararg inOrder: RetrofitInterceptor.Factory<E>) :
-        RetrofitInterceptors<E>(emptyList(), inOrder.asList())
-            where E : Throwable,
-                  E : NetworkErrorPredicate
-
-    class Around<E>(
-        before: List<RetrofitInterceptor.Factory<E>>,
-        after: List<RetrofitInterceptor.Factory<E>>
-    ) : RetrofitInterceptors<E>(before, after)
-            where E : Throwable,
-                  E : NetworkErrorPredicate
+    override val before = interceptors.before.run {
+        toMutableList().apply { add(outcomeReturnTypeInterceptorFactory) }.toList()
+    }
 
 }

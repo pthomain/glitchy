@@ -209,7 +209,7 @@ bintray {
 apply from: 'https://raw.githubusercontent.com/sky-uk/gradle-maven-plugin/master/gradle-mavenizer.gradle'
 
 dependencies {
-    implementation project(':lib:core')
+    api project(':lib:core')
 
     implementation appDependencies.multiDex
 
@@ -217,15 +217,7 @@ dependencies {
 
     implementation appDependencies.koinCore
     implementation appDependencies.koinCoreExt
-
-    implementation appDependencies.rxJava
-    implementation appDependencies.rxKotlin
-    implementation appDependencies.rxAndroid
-    implementation appDependencies.rxDogTag
-
     implementation appDependencies.kotlinJdk8
 
     implementation appDependencies.retrofit
-    implementation appDependencies.retrofitAdapterRxJava
-
 }

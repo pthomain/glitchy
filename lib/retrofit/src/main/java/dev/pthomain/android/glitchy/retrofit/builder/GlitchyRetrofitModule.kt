@@ -23,37 +23,23 @@
 
 package dev.pthomain.android.glitchy.retrofit.builder
 
-import dev.pthomain.android.glitchy.core.interceptor.error.NetworkErrorPredicate
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
 import dev.pthomain.android.glitchy.retrofit.adapter.RetrofitCallAdapterFactory
-import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitCompositeInterceptor
-import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitInterceptors
-import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitOutcomeInterceptor
 import dev.pthomain.android.glitchy.retrofit.type.ReturnTypeParser
 import org.koin.dsl.module
 import retrofit2.CallAdapter
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 
-internal class GlitchyRetrofitModule<E, M : Any>(
-    returnTypeParser: ReturnTypeParser<M>?,
-    interceptors: RetrofitInterceptors<E>
+internal class GlitchyRetrofitModule<E, M>(
+    returnTypeParser: ReturnTypeParser<M>,
+    defaultCallAdapterFactory: CallAdapter.Factory
 ) where E : Throwable,
         E : NetworkErrorPredicate {
 
     val module = module {
 
-        single {
-            RetrofitCompositeInterceptor.Factory(
-                interceptors,
-                get(),
-                RetrofitOutcomeInterceptor.Factory(get())
-            )
-        }
-
-        single { RxJava2CallAdapterFactory.create() }
-
         single<CallAdapter.Factory> {
-            RetrofitCallAdapterFactory<E, M>(
-                get(),
+            RetrofitCallAdapterFactory(
+                defaultCallAdapterFactory,
                 get(),
                 returnTypeParser,
                 get()

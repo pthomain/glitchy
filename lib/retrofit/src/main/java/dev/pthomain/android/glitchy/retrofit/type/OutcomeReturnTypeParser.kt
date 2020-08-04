@@ -24,54 +24,65 @@
 package dev.pthomain.android.glitchy.retrofit.type
 
 import dev.pthomain.android.boilerplate.core.utils.kotlin.ifElse
-import dev.pthomain.android.glitchy.core.interceptor.outcome.Outcome
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.outcome.Outcome
 import dev.pthomain.android.glitchy.retrofit.adapter.RetrofitCallAdapterFactory.Companion.getFirstParameterUpperBound
 import dev.pthomain.android.glitchy.retrofit.adapter.RetrofitCallAdapterFactory.Companion.rawType
-import io.reactivex.Single
+import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser.Companion.OutcomeToken
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 
-class OutcomeReturnTypeParser<M : Any>(
-    private val metadataResolver: (ParsedType<*>) -> M
-) : ReturnTypeParser<M> {
+class OutcomeReturnTypeParser(
+    private val typeTokenResolver: (ParsedType<*>) -> OutcomeToken,
+    private val returnSuperTypeParser: ReturnTypeParser<*>
+) : ReturnTypeParser<OutcomeToken> {
 
     override fun parseReturnType(
         returnType: Type,
         annotations: Array<Annotation>
-    ): ParsedType<M> {
-        val parsedRxType = RxReturnTypeParser.INSTANCE.parseReturnType(returnType, annotations)
+    ): ParsedType<OutcomeToken> {
+        val parsedRxType = returnSuperTypeParser.parseReturnType(returnType, annotations)
+        val typeToken = typeTokenResolver(parsedRxType)
         val parsedType = parsedRxType.parsedType
 
         val (parsedResultType, outcomeType) = if (rawType(parsedType) == Outcome::class.java) {
-            val outcomeType = getFirstParameterUpperBound(parsedType)!!
-            wrapToSingle(outcomeType) to parsedType
+            val outcomeType = getFirstParameterUpperBound(parsedType)
+            wrapReturnType(outcomeType, parsedRxType.rawType) to parsedType
         } else parsedRxType.returnType to parsedType
 
         return ParsedType(
-            metadataResolver(parsedRxType),
+            typeToken,
+            parsedRxType.rawType,
             parsedResultType,
             outcomeType
         )
     }
 
-    private fun wrapToSingle(outcomeType: Type): Type = object : ParameterizedType {
-        override fun getRawType() = Single::class.java
-        override fun getOwnerType() = null
-        override fun getActualTypeArguments() = arrayOf(outcomeType)
-    }
+    private fun wrapReturnType(wrappedType: Type, wrappingType: Type) =
+        object : ParameterizedType {
+            override fun getRawType() = wrappingType
+            override fun getOwnerType() = null
+            override fun getActualTypeArguments() = arrayOf(wrappedType)
+            override fun toString() = "$wrappingType"
+        }
 
     companion object {
         @JvmStatic
-        val INSTANCE = OutcomeReturnTypeParser {
-            ifElse(
-                rawType(it.parsedType) == Outcome::class.java,
-                OutcomeToken,
-                Unit
+        fun getDefaultInstance(returnSuperTypeParser: ReturnTypeParser<*>) =
+            OutcomeReturnTypeParser(
+                {
+                    ifElse(
+                        rawType(it.parsedType) == Outcome::class.java,
+                        OutcomeToken.Positive,
+                        OutcomeToken.Negative
+                    )
+                },
+                returnSuperTypeParser
             )
-        }
 
         interface IsOutcome
-        object OutcomeToken : IsOutcome
+        sealed class OutcomeToken {
+            internal object Positive : OutcomeToken(), IsOutcome
+            internal object Negative : OutcomeToken()
+        }
     }
-
 }

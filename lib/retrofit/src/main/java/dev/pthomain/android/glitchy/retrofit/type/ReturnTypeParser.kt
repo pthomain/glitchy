@@ -25,12 +25,12 @@ package dev.pthomain.android.glitchy.retrofit.type
 
 import java.lang.reflect.Type
 
-interface ReturnTypeParser<M : Any> {
+interface ReturnTypeParser<T> {
 
     fun parseReturnType(
         returnType: Type,
         annotations: Array<Annotation>
-    ): ParsedType<M>
+    ): ParsedType<T>
 
 }
 

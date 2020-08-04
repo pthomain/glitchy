@@ -24,18 +24,19 @@
 package dev.pthomain.android.glitchy.core.interceptor.builder
 
 import dev.pthomain.android.boilerplate.core.utils.log.Logger
-import dev.pthomain.android.glitchy.core.interceptor.error.ErrorFactory
-import dev.pthomain.android.glitchy.core.interceptor.error.ErrorInterceptor
-import dev.pthomain.android.glitchy.core.interceptor.error.NetworkErrorPredicate
-import dev.pthomain.android.glitchy.core.interceptor.interceptors.CompositeInterceptor
-import dev.pthomain.android.glitchy.core.interceptor.interceptors.Interceptors
-import dev.pthomain.android.glitchy.core.interceptor.outcome.OutcomeInterceptor
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.CompositeInterceptor
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.InterceptorFactory
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Interceptors
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.ErrorFactory
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
-internal class GlitchyModule<E>(
-    private val interceptors: Interceptors,
+internal class GlitchyModule<E, M, out F : InterceptorFactory<M>>(
+    private val interceptorProvider: InterceptorProvider<M, F>,
+    private val interceptors: Interceptors<M, F>,
     private val errorFactory: ErrorFactory<E>,
-    private val asOutcome: Boolean,
+    private val outcomePredicate: (M) -> Boolean,
     private val logger: Logger
 ) where E : Throwable,
         E : NetworkErrorPredicate {
@@ -45,17 +46,20 @@ internal class GlitchyModule<E>(
 
         single { errorFactory }
 
-        single { ErrorInterceptor(get<ErrorFactory<E>>()) }
+        single(named(ERROR)) { interceptorProvider.errorInterceptor }
 
-        single { OutcomeInterceptor(get<ErrorFactory<E>>()) }
+        single(named(OUTCOME)) { interceptorProvider.outcomeInterceptor }
 
-        single {
-            CompositeInterceptor(
+        single<InterceptorFactory<M>> {
+            CompositeInterceptor.Factory<E, M, F>(
                 interceptors,
-                get<ErrorInterceptor<E>>(),
-                if (asOutcome) get<OutcomeInterceptor<E>>() else null
+                get(named(ERROR)),
+                get(named(OUTCOME)),
+                outcomePredicate
             )
         }
     }
-
 }
+
+const val ERROR = "ERROR"
+const val OUTCOME = "OUTCOME"

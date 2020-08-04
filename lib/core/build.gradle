@@ -211,11 +211,6 @@ dependencies {
 
     implementation appDependencies.multiDex
 
-    implementation appDependencies.rxJava
-    implementation appDependencies.rxKotlin
-    implementation appDependencies.rxAndroid
-    implementation appDependencies.rxDogTag
-
     implementation appDependencies.koinCore
     implementation appDependencies.koinCoreExt
 

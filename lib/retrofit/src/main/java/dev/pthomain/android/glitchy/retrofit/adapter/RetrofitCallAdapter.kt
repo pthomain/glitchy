@@ -23,11 +23,9 @@
 
 package dev.pthomain.android.glitchy.retrofit.adapter
 
-import dev.pthomain.android.glitchy.core.interceptor.error.NetworkErrorPredicate
-import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitCompositeInterceptor
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.InterceptorFactory
+import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitMetadata
 import dev.pthomain.android.glitchy.retrofit.type.ParsedType
-import io.reactivex.Observable
-import io.reactivex.Single
 import retrofit2.Call
 import retrofit2.CallAdapter
 import java.lang.reflect.Type
@@ -38,13 +36,11 @@ import java.lang.reflect.Type
  *
  * @see dev.pthomain.android.glitchy.interceptor.error.ErrorFactory
  */
-internal class RetrofitCallAdapter<E, M>(
-    private val compositeInterceptorFactory: RetrofitCompositeInterceptor.Factory<E>,
+internal class RetrofitCallAdapter<M>(
+    private val compositeInterceptorFactory: InterceptorFactory<RetrofitMetadata<M>>,
     private val parsedType: ParsedType<M>,
-    private val glitchyCallAdapter: CallAdapter<Any, Any>
-) : CallAdapter<Any, Any>
-        where E : Throwable,
-              E : NetworkErrorPredicate {
+    private val defaultCallAdapter: CallAdapter<Any, Any>
+) : CallAdapter<Any, Any> {
 
     /**
      * Adapts the call by composing it with a CompositeInterceptor if a cache operation is provided
@@ -55,19 +51,15 @@ internal class RetrofitCallAdapter<E, M>(
      * @return the call adapted to RxJava type
      */
     override fun adapt(call: Call<Any>) =
-        with(glitchyCallAdapter.adapt(call)) {
-            val interceptor = compositeInterceptorFactory.create(parsedType, call)
-
-            when (this) {
-                is Single<*> -> compose(interceptor)
-                is Observable<*> -> compose(interceptor)
-                else -> this
-            }
-        }!!
+        with(defaultCallAdapter.adapt(call)) {
+            compositeInterceptorFactory.create(RetrofitMetadata(parsedType, call))
+                ?.intercept(this)
+                ?: this
+        }
 
     /**
      * @return the value type as defined by the default RxJava adapter.
      */
-    override fun responseType(): Type = glitchyCallAdapter.responseType()
+    override fun responseType(): Type = defaultCallAdapter.responseType()
 
 }

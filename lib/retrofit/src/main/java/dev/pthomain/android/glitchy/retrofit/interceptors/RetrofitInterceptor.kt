@@ -23,22 +23,16 @@
 
 package dev.pthomain.android.glitchy.retrofit.interceptors
 
-import dev.pthomain.android.glitchy.core.interceptor.error.NetworkErrorPredicate
-import dev.pthomain.android.glitchy.core.interceptor.interceptors.Interceptor
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Interceptor
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.InterceptorFactory
 import dev.pthomain.android.glitchy.retrofit.type.ParsedType
 import retrofit2.Call
 
-interface RetrofitInterceptor : Interceptor {
+abstract class RetrofitInterceptor<M> internal constructor() : Interceptor
 
-    abstract class SimpleInterceptor : RetrofitInterceptor, Interceptor.SimpleInterceptor()
+typealias RetrofitInterceptorFactory<M> = InterceptorFactory<RetrofitMetadata<M>>
 
-    interface Factory<E> where E : Throwable,
-                               E : NetworkErrorPredicate {
-
-        fun <M> create(
-            parsedType: ParsedType<M>,
-            call: Call<Any>
-        ): RetrofitInterceptor?
-
-    }
-}
+data class RetrofitMetadata<M>(
+    val parsedType: ParsedType<M>,
+    val call: Call<Any>
+)

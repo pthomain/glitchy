@@ -24,30 +24,26 @@
 package dev.pthomain.android.glitchy.retrofit.adapter
 
 import dev.pthomain.android.boilerplate.core.utils.log.Logger
-import dev.pthomain.android.glitchy.core.interceptor.error.NetworkErrorPredicate
-import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitCompositeInterceptor
-import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.InterceptorFactory
+import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitMetadata
 import dev.pthomain.android.glitchy.retrofit.type.ReturnTypeParser
 import retrofit2.CallAdapter
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 
 /**
  * Implements the call adapter factory for Retrofit composing the calls with CompositeInterceptor.
  *
- * @param rxJava2CallAdapterFactory the default RxJava call adapter factory
+ * @param defaultCallAdapterFactory the default Retrofit call adapter factory
  * @param logger the logger
  */
-class RetrofitCallAdapterFactory<E, M : Any> internal constructor(
-    private val rxJava2CallAdapterFactory: RxJava2CallAdapterFactory,
-    private val compositeInterceptorFactory: RetrofitCompositeInterceptor.Factory<E>,
-    private val returnTypeParser: ReturnTypeParser<M>?,
+class RetrofitCallAdapterFactory<M> internal constructor(
+    private val defaultCallAdapterFactory: CallAdapter.Factory,
+    private val compositeInterceptorFactory: InterceptorFactory<RetrofitMetadata<M>>,
+    private val returnTypeParser: ReturnTypeParser<M>,
     private val logger: Logger
-) : CallAdapter.Factory()
-        where E : Throwable,
-              E : NetworkErrorPredicate {
+) : CallAdapter.Factory() {
 
     companion object {
 
@@ -56,9 +52,13 @@ class RetrofitCallAdapterFactory<E, M : Any> internal constructor(
 
         @JvmStatic
         fun getFirstParameterUpperBound(returnType: Type) =
-            (returnType as? ParameterizedType)?.let {
-                getParameterUpperBound(0, it)
-            }
+            (returnType as? ParameterizedType)
+                ?.let { getParameterUpperBound(0, it) }
+                ?: throw IllegalStateException(
+                    returnType.javaClass.simpleName.let {
+                        "$it is missing a generic parameter: $it<T>"
+                    }
+                )
     }
 
     /**
@@ -77,10 +77,9 @@ class RetrofitCallAdapterFactory<E, M : Any> internal constructor(
         annotations: Array<Annotation>,
         retrofit: Retrofit
     ): CallAdapter<*, *> {
-        val parser = returnTypeParser ?: OutcomeReturnTypeParser.INSTANCE
-        val parsedReturnType = parser.parseReturnType(returnType, annotations)
+        val parsedReturnType = returnTypeParser.parseReturnType(returnType, annotations)
 
-        val glitchyCallAdapter = rxJava2CallAdapterFactory.get(
+        val defaultCallAdapter = defaultCallAdapterFactory.get(
             parsedReturnType.returnType,
             annotations,
             retrofit
@@ -89,7 +88,7 @@ class RetrofitCallAdapterFactory<E, M : Any> internal constructor(
         return RetrofitCallAdapter(
             compositeInterceptorFactory,
             parsedReturnType,
-            glitchyCallAdapter
+            defaultCallAdapter
         )
     }
 }
