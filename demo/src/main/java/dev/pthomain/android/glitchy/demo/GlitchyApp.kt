@@ -24,17 +24,21 @@
 package dev.pthomain.android.glitchy.demo
 
 import android.app.Application
+import android.os.Handler
+import android.os.Looper
 import android.widget.Toast
 import dev.pthomain.android.boilerplate.core.utils.log.Logger
 import dev.pthomain.android.boilerplate.core.utils.log.SimpleLogger
-import io.reactivex.functions.Consumer
 import io.reactivex.plugins.RxJavaPlugins
 
-class GlitchyApp : Application(), Consumer<Throwable> {
+class GlitchyApp : Application() {
+
+    private val mainHandler = Handler(Looper.getMainLooper())
 
     override fun onCreate() {
         super.onCreate()
-        RxJavaPlugins.setErrorHandler(this)
+        INSTANCE = this
+        RxJavaPlugins.setErrorHandler(::showUnhandledError)
         logger = SimpleLogger(true, packageName)
     }
 
@@ -46,17 +50,24 @@ class GlitchyApp : Application(), Consumer<Throwable> {
      *
      * @see dev.pthomain.android.glitchy.interceptor.error.ErrorFactory
      */
-    override fun accept(t: Throwable) {
+    fun showUnhandledError(t: Throwable) {
         val message = getString(
             R.string.unhandled_error,
             "${t.javaClass.simpleName}: ${t.message}"
         )
         logger.e(this, t, message)
-        Toast.makeText(
-            this,
-            message,
-            Toast.LENGTH_LONG
-        ).show()
+        mainHandler.post {
+            Toast.makeText(
+                this,
+                message,
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
+    companion object {
+        lateinit var INSTANCE: GlitchyApp
+            private set
     }
 }
 

@@ -32,7 +32,6 @@ import dev.pthomain.android.glitchy.retrofit.flow.type.FlowReturnTypeParser
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitInterceptorFactory
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitMetadata
 import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser
-import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser.Companion.OutcomeToken
 import dev.pthomain.android.glitchy.retrofit.type.ReturnTypeParser
 import retrofit2.CallAdapter
 
@@ -62,7 +61,7 @@ class GlitchyRetrofitFlow internal constructor(
 
         fun <E> builder(
             errorFactory: ErrorFactory<E>,
-            interceptors: Interceptors<RetrofitMetadata<OutcomeToken>, InterceptorFactory<RetrofitMetadata<OutcomeToken>>>
+            interceptors: Interceptors<RetrofitMetadata<Any>, InterceptorFactory<RetrofitMetadata<Any>>>
         ) where E : Throwable,
                 E : NetworkErrorPredicate =
             GlitchyRetrofitFlowBuilder(
@@ -73,7 +72,7 @@ class GlitchyRetrofitFlow internal constructor(
             )
 
         private val returnTypeParser = OutcomeReturnTypeParser.getDefaultInstance(
-            FlowReturnTypeParser.DEFAULT
+            FlowReturnTypeParser()
         )
 
     }
