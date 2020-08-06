@@ -30,13 +30,17 @@ The motive here is to define a different logic for unhandled exceptions, such as
 Set up
 ------
 
-- Core (contains the interceptors only): ```implementation 'dev.pthomain.glitchy:core:3.0'```
-- RxJava (contains the Rx interceptors): ```implementation 'dev.pthomain.glitchy:rxjava:3.0'```
-- Coroutines Flow (contains the Flow interceptors): ```implementation 'dev.pthomain.glitchy:flow:3.0'```
+| Interceptors | | |
+|--- |--- |--- |
+| Core | Contains the interceptors only | ```implementation 'dev.pthomain.glitchy:core:3.0'``` |
+| RxJava | Contains the Rx interceptors | ```implementation 'dev.pthomain.glitchy:rxjava:3.0'``` |
+| Coroutines Flow | Contains the Flow interceptors | ```implementation 'dev.pthomain.glitchy:flow:3.0'``` |
 
-- Retrofit (contains the Retrofit call adapter factory): ```implementation 'dev.pthomain.glitchy:retrofit:3.0'```
-- Retrofit RxJava (contains the Rx Retrofit interceptors): ```implementation 'dev.pthomain.glitchy:retrofit-rxjava:3.0'```
-- Retrofit Flow (contains the Flow Retrofit interceptors): ```implementation 'dev.pthomain.glitchy:retrofit-flow:3.0'```
+| Retrofit | | |
+|--- |--- |--- |
+| Retrofit | Contains the Retrofit call adapter factory | ```implementation 'dev.pthomain.glitchy:retrofit:3.0'``` |
+| Retrofit RxJava | Contains the Rx Retrofit interceptors | ```implementation 'dev.pthomain.glitchy:retrofit-rxjava:3.0'``` |
+| Retrofit Flow | Contains the Flow Retrofit interceptors | ```implementation 'dev.pthomain.glitchy:retrofit-flow:3.0'``` |
 
 (Documentation coming soon)
 
