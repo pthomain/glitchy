@@ -36,7 +36,7 @@ import dev.pthomain.android.glitchy.retrofit.interceptors.OutcomeReturnTypeInter
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitInterceptorFactory
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitInterceptors
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitMetadata
-import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser
+import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser.Companion.IsOutcome
 import dev.pthomain.android.glitchy.retrofit.type.ReturnTypeParser
 import org.koin.core.module.Module
 import org.koin.dsl.koinApplication
@@ -54,6 +54,7 @@ abstract class BaseGlitchyRetrofitBuilder<E, M, B : BaseGlitchyRetrofitBuilder<E
               E : NetworkErrorPredicate {
 
     init {
+        @Suppress("UNCHECKED_CAST")
         Glitchy.builder(
             errorFactory,
             interceptorProvider,
@@ -62,7 +63,7 @@ abstract class BaseGlitchyRetrofitBuilder<E, M, B : BaseGlitchyRetrofitBuilder<E
                 interceptors,
             )
         ) {
-            it.parsedType.typeToken is OutcomeReturnTypeParser.Companion.IsOutcome
+            it.parsedType.typeToken is IsOutcome
         }.extend(this as B)
     }
 
