@@ -31,7 +31,7 @@ internal class OutcomeReturnTypeInterceptor<M> private constructor(
     private val metadata: RetrofitMetadata<M>?
 ) : Interceptor {
 
-    override fun <T : Any> intercept(upstream: T) =
+    override fun intercept(upstream: Any) =
         if (metadata?.parsedType is IsOutcome) outcomeInterceptor.intercept(upstream)
         else upstream
 

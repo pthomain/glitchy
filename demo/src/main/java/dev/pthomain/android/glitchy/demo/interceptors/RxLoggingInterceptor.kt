@@ -21,21 +21,17 @@
  *
  */
 
-package dev.pthomain.android.glitchy.retrofit.interceptors
+package dev.pthomain.android.glitchy.demo.interceptors
 
-import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Interceptor
-import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.InterceptorFactory
-import dev.pthomain.android.glitchy.retrofit.type.ParsedType
-import retrofit2.Call
+import dev.pthomain.android.glitchy.demo.logger
+import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitMetadata
+import dev.pthomain.android.glitchy.rxjava.interceptors.base.RxInterceptor.CombinedRxInterceptor
+import io.reactivex.Observable
 
-typealias RetrofitInterceptorFactory<M> = InterceptorFactory<RetrofitMetadata<M>>
+class RxLoggingInterceptor(private val metadata: RetrofitMetadata<Any>?) : CombinedRxInterceptor() {
 
-data class RetrofitMetadata<M>(
-    val parsedType: ParsedType<M>,
-    val call: Call<Any>
-)
-
-fun <M> asRetrofitFactory(factory: (RetrofitMetadata<M>?) -> Interceptor) =
-    object : RetrofitInterceptorFactory<M> {
-        override fun invoke(p1: RetrofitMetadata<M>?) = factory(p1)
+    override fun apply(upstream: Observable<Any>) = upstream.doOnNext {
+        logger.d(this, "Intercepting value: $it with metadata: $metadata")
     }
+
+}

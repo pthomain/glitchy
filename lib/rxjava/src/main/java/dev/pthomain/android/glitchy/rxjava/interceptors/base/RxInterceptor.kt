@@ -32,8 +32,8 @@ sealed class RxInterceptor : Interceptor {
     abstract class ObservableInterceptor : RxInterceptor(), ObservableComposer {
 
         @Suppress("UNCHECKED_CAST")
-        final override fun <T : Any> intercept(upstream: T) = when (upstream) {
-            is Observable<*> -> apply(upstream as Observable<Any>) as T
+        final override fun intercept(upstream: Any) = when (upstream) {
+            is Observable<*> -> apply(upstream as Observable<Any>)
             else -> throw IllegalArgumentException("Expected an Observable, was: $upstream")
         }
 
@@ -42,20 +42,19 @@ sealed class RxInterceptor : Interceptor {
     abstract class SingleInterceptor : RxInterceptor(), SingleComposer {
 
         @Suppress("UNCHECKED_CAST")
-        final override fun <T : Any> intercept(upstream: T): T =
-            when (upstream) {
-                is Single<*> -> apply(upstream as Single<Any>) as T
-                else -> throw IllegalArgumentException("Expected a Single, was: $upstream")
-            }
+        final override fun intercept(upstream: Any) = when (upstream) {
+            is Single<*> -> apply(upstream as Single<Any>)
+            else -> throw IllegalArgumentException("Expected a Single, was: $upstream")
+        }
 
     }
 
     abstract class CombinedRxInterceptor : RxInterceptor(), ObservableComposer, SingleComposer {
 
         @Suppress("UNCHECKED_CAST")
-        final override fun <T : Any> intercept(upstream: T) = when (upstream) {
-            is Observable<*> -> apply(upstream as Observable<Any>) as T
-            is Single<*> -> apply(upstream as Single<Any>) as T
+        final override fun intercept(upstream: Any): Any = when (upstream) {
+            is Observable<*> -> apply(upstream as Observable<Any>)
+            is Single<*> -> apply(upstream as Single<Any>)
             else -> throw IllegalArgumentException("Expected an Observable or Single, was: $upstream")
         }
 

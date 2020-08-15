@@ -28,11 +28,13 @@ import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.ErrorFac
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
 import dev.pthomain.android.glitchy.demo.api.error.ApiError
 import dev.pthomain.android.glitchy.demo.api.getRetrofit
+import dev.pthomain.android.glitchy.demo.interceptors.RxLoggingInterceptor
 import dev.pthomain.android.glitchy.demo.throwHandledException
 import dev.pthomain.android.glitchy.demo.throwUnhandledException
 import dev.pthomain.android.glitchy.retrofit.error.RetrofitGlitchFactory
+import dev.pthomain.android.glitchy.retrofit.flow.RetrofitFlowInterceptors
+import dev.pthomain.android.glitchy.retrofit.interceptors.asRetrofitFactory
 import dev.pthomain.android.glitchy.retrofit.rxjava.GlitchyRetrofitRxJava
-import dev.pthomain.android.glitchy.retrofit.rxjava.RetrofitRxInterceptors
 import dev.pthomain.android.glitchy.rxjava.interceptors.base.RxInterceptor
 import io.reactivex.Observable
 import java.io.IOException
@@ -50,9 +52,9 @@ private val exceptionRxInterceptor = object : RxInterceptor.CombinedRxIntercepto
         else -> upstream
     }
 }
-
-private val rxInterceptors = RetrofitRxInterceptors.before<Any>(
-    exceptionRxInterceptor.asFactory()
+private val rxInterceptors = RetrofitFlowInterceptors.around(
+    listOf(exceptionRxInterceptor.asFactory()),
+    listOf(asRetrofitFactory(::RxLoggingInterceptor))
 )
 
 private fun <E> getRxJavaCallAdapterFactory(errorFactory: ErrorFactory<E>)
