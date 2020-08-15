@@ -38,7 +38,7 @@ class OutcomeFlowInterceptor<E> internal constructor(
               E : NetworkErrorPredicate {
 
     override fun flatMap(upstream: Flow<Any>) = upstream
-        .map { Outcome.Success(it) }
+        .map { Outcome.Success(it) as Outcome<*> }
         .catch { exception ->
             errorFactory.asHandledError(exception)
                 ?.also { emit(it) }
