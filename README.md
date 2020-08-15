@@ -58,8 +58,10 @@ Set up
 | Retrofit | | |
 |--- |--- |--- |
 | Retrofit | Contains the Retrofit call adapter factory | ```implementation 'dev.pthomain.glitchy:retrofit:3.1'``` |
-| Retrofit RxJava | Contains the Rx Retrofit interceptors | ```implementation 'dev.pthomain.glitchy:retrofit-rxjava:3.1'``` |
-| Retrofit Flow | Contains the Flow Retrofit interceptors | ```implementation 'dev.pthomain.glitchy:retrofit-flow:3.1'``` |
+| Retrofit RxJava (1) | Contains the Rx Retrofit interceptors | ```implementation 'dev.pthomain.glitchy:retrofit-rxjava:3.1'``` |
+| Retrofit Flow (2)| Contains the Flow Retrofit interceptors | ```implementation 'dev.pthomain.glitchy:retrofit-flow:3.1'``` |
+
+The most common use case is to use Retrofit with RxJava or Coroutines Flow in which case you only need to add the dependency (1) or (2) to your Gradle setup.
 
 (Documentation coming soon, see app for implementation)
 
