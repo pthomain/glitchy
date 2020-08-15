@@ -35,7 +35,7 @@ internal class CompositeInterceptor<E, M, out F : InterceptorFactory<M>> private
         where  E : Throwable,
                E : NetworkErrorPredicate {
 
-    override fun <T : Any> intercept(upstream: T) =
+    override fun intercept(upstream: Any) =
         interceptors().fold(upstream) { intercepted, interceptor ->
             interceptor.intercept(intercepted)
         }

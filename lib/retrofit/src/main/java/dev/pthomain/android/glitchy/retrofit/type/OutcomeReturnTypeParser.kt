@@ -79,6 +79,8 @@ class OutcomeReturnTypeParser<M : Any>(
             )
 
         interface IsOutcome
-        internal object OutcomeToken : IsOutcome
+        internal object OutcomeToken : IsOutcome {
+            override fun toString() = "OutcomeToken"
+        }
     }
 }

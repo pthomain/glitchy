@@ -33,9 +33,13 @@ import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkE
  */
 sealed class Outcome<R> {
 
-    class Success<R>(val response: R) : Outcome<R>()
+    class Success<R>(val response: R) : Outcome<R>() {
+        override fun toString() = "Success(response=$response)"
+    }
 
     class Error<E>(val exception: E) : Outcome<Nothing>()
-            where E : Throwable, E : NetworkErrorPredicate
+            where E : Throwable, E : NetworkErrorPredicate {
+        override fun toString() = "Error(exception=$exception)"
+    }
 
 }

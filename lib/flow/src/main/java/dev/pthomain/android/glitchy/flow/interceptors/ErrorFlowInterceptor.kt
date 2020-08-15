@@ -48,7 +48,7 @@ class ErrorFlowInterceptor<E> internal constructor(
      * @param upstream the upstream Flow, typically as emitted by a Retrofit client.
      * @return the composed Flow emitting the converted exception
      */
-    override fun interceptFlow(upstream: Flow<*>) =
+    override fun flatMap(upstream: Flow<Any>) =
         upstream.catch { throw errorFactory.invoke(it) }
 
 }

@@ -25,15 +25,20 @@ package dev.pthomain.android.glitchy.flow.interceptors.base
 
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Interceptor
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.transform
 
 abstract class FlowInterceptor : Interceptor {
 
     @Suppress("UNCHECKED_CAST")
-    final override fun <T : Any> intercept(upstream: T) = when (upstream) {
-        is Flow<*> -> interceptFlow(upstream as Flow<T>) as T
+    final override fun intercept(upstream: Any) = when (upstream) {
+        is Flow<*> -> flatMap(upstream as Flow<Any>)
         else -> throw IllegalArgumentException("Invalid argument: $upstream")
     }
 
-    abstract fun interceptFlow(upstream: Flow<*>): Flow<*>
+    open fun flatMap(upstream: Flow<Any>): Flow<Any> = upstream.transform { value ->
+        emit(map(value))
+    }
+
+    open suspend fun map(value: Any): Any = value
 
 }

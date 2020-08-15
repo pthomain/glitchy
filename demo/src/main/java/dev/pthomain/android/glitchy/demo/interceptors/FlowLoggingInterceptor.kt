@@ -21,28 +21,16 @@
  *
  */
 
-package dev.pthomain.android.glitchy.flow.interceptors
+package dev.pthomain.android.glitchy.demo.interceptors
 
-import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.ErrorFactory
-import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
-import dev.pthomain.android.glitchy.core.interceptor.interceptors.outcome.Outcome
+import dev.pthomain.android.glitchy.demo.logger
 import dev.pthomain.android.glitchy.flow.interceptors.base.FlowInterceptor
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
+import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitMetadata
 
-class OutcomeFlowInterceptor<E> internal constructor(
-    private val errorFactory: ErrorFactory<E>
-) : FlowInterceptor()
-        where E : Throwable,
-              E : NetworkErrorPredicate {
+class FlowLoggingInterceptor(private val metadata: RetrofitMetadata<Any>?) : FlowInterceptor() {
 
-    override fun flatMap(upstream: Flow<Any>) = upstream
-        .map { Outcome.Success(it) }
-        .catch { exception ->
-            errorFactory.asHandledError(exception)
-                ?.also { emit(it) }
-                ?: throw exception
-        }
+    override suspend fun map(value: Any): Any = value.apply {
+        logger.d(this, "Intercepting value: $value with metadata: $metadata")
+    }
 
 }
