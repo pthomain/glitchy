@@ -52,7 +52,7 @@ internal class RetrofitCallAdapter<M>(
      */
     override fun adapt(call: Call<Any>) =
         with(defaultCallAdapter.adapt(call)) {
-            compositeInterceptorFactory.create(RetrofitMetadata(parsedType, call))
+            compositeInterceptorFactory(RetrofitMetadata(parsedType, call))
                 ?.intercept(this)
                 ?: this
         }

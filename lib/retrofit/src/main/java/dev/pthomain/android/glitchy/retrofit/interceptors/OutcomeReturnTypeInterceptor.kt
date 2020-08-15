@@ -29,9 +29,9 @@ import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser.Compan
 internal class OutcomeReturnTypeInterceptor<M> private constructor(
     private val outcomeInterceptor: Interceptor,
     private val metadata: RetrofitMetadata<M>?
-) : RetrofitInterceptor<M>() {
+) : Interceptor {
 
-    override fun <T : Any> intercept(upstream: T) =
+    override fun intercept(upstream: Any) =
         if (metadata?.parsedType is IsOutcome) outcomeInterceptor.intercept(upstream)
         else upstream
 
@@ -39,11 +39,10 @@ internal class OutcomeReturnTypeInterceptor<M> private constructor(
         private val outcomeInterceptor: Interceptor
     ) : RetrofitInterceptorFactory<M> {
 
-        override fun create(metadata: RetrofitMetadata<M>?) = OutcomeReturnTypeInterceptor(
+        override fun invoke(metadata: RetrofitMetadata<M>?) = OutcomeReturnTypeInterceptor(
             outcomeInterceptor,
             metadata
         )
-
     }
 
 }

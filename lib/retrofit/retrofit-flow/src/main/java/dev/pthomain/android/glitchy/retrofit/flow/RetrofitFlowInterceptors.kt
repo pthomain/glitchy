@@ -21,20 +21,28 @@
  *
  */
 
-package dev.pthomain.android.glitchy.retrofit.interceptors
+package dev.pthomain.android.glitchy.retrofit.flow
 
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.InterceptorFactory
-import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Interceptors
+import dev.pthomain.android.glitchy.flow.interceptors.base.FlowInterceptors
+import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitMetadata
+import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitMetadataInterceptors
 
-typealias RetrofitMetadataInterceptors<M> = Interceptors<RetrofitMetadata<M>, InterceptorFactory<RetrofitMetadata<M>>>
+object RetrofitFlowInterceptors {
 
-internal class RetrofitInterceptors<M>(
-    outcomeReturnTypeInterceptorFactory: OutcomeReturnTypeInterceptor.Factory<M>,
-    interceptors: Interceptors<RetrofitMetadata<M>, InterceptorFactory<RetrofitMetadata<M>>>
-) : RetrofitMetadataInterceptors<M> by interceptors {
+    fun <M> none(): RetrofitMetadataInterceptors<M> =
+        FlowInterceptors.None()
 
-    override val before = interceptors.before.run {
-        toMutableList().apply { add(outcomeReturnTypeInterceptorFactory) }.toList()
-    }
+    fun <M> before(vararg inOrder: InterceptorFactory<RetrofitMetadata<M>>): RetrofitMetadataInterceptors<M> =
+        FlowInterceptors.Before(*inOrder)
+
+    fun <M> after(vararg inOrder: InterceptorFactory<RetrofitMetadata<M>>): RetrofitMetadataInterceptors<M> =
+        FlowInterceptors.After(*inOrder)
+
+    fun <M> around(
+        before: List<InterceptorFactory<RetrofitMetadata<M>>>,
+        after: List<InterceptorFactory<RetrofitMetadata<M>>>
+    ): RetrofitMetadataInterceptors<M> =
+        FlowInterceptors.Around(before, after)
 
 }

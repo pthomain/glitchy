@@ -24,5 +24,5 @@
 package dev.pthomain.android.glitchy.core.interceptor.interceptors.base
 
 interface Interceptor {
-    fun <T : Any> intercept(upstream: T): T
+    fun intercept(upstream: Any): Any
 }
