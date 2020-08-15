@@ -30,13 +30,10 @@ abstract class FlowInterceptor : Interceptor {
 
     @Suppress("UNCHECKED_CAST")
     final override fun <T : Any> intercept(upstream: T) = when (upstream) {
-        is Flow<*> -> interceptFlow(upstream) as T
+        is Flow<*> -> interceptFlow(upstream as Flow<T>) as T
         else -> throw IllegalArgumentException("Invalid argument: $upstream")
     }
 
     abstract fun interceptFlow(upstream: Flow<*>): Flow<*>
 
 }
-
-fun Flow<*>.intercept(interceptor: FlowInterceptor): Flow<*> =
-    run(interceptor::interceptFlow)

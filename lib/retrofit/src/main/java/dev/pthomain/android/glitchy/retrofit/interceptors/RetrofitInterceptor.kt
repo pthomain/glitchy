@@ -23,12 +23,9 @@
 
 package dev.pthomain.android.glitchy.retrofit.interceptors
 
-import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Interceptor
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.InterceptorFactory
 import dev.pthomain.android.glitchy.retrofit.type.ParsedType
 import retrofit2.Call
-
-abstract class RetrofitInterceptor<M> internal constructor() : Interceptor
 
 typealias RetrofitInterceptorFactory<M> = InterceptorFactory<RetrofitMetadata<M>>
 

@@ -28,6 +28,10 @@ interface Interceptors<M, out F : InterceptorFactory<M>> {
     val after: List<F>
 }
 
-interface InterceptorFactory<M> {
-    fun create(metadata: M?): Interceptor?
+typealias InterceptorFactory<M> = (M?) -> Interceptor?
+
+fun <M> Interceptor.asFactory() = let { interceptor ->
+    object : InterceptorFactory<M> {
+        override fun invoke(p1: M?) = interceptor
+    }
 }
