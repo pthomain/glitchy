@@ -23,7 +23,7 @@
 
 package dev.pthomain.android.glitchy.demo.factories
 
-import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.InterceptorFactory
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.asFactory
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.ErrorFactory
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
 import dev.pthomain.android.glitchy.demo.api.error.ApiError
@@ -31,10 +31,9 @@ import dev.pthomain.android.glitchy.demo.api.getRetrofit
 import dev.pthomain.android.glitchy.demo.throwHandledException
 import dev.pthomain.android.glitchy.demo.throwUnhandledException
 import dev.pthomain.android.glitchy.retrofit.error.RetrofitGlitchFactory
-import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitMetadata
 import dev.pthomain.android.glitchy.retrofit.rxjava.GlitchyRetrofitRxJava
+import dev.pthomain.android.glitchy.retrofit.rxjava.RetrofitRxInterceptors
 import dev.pthomain.android.glitchy.rxjava.interceptors.base.RxInterceptor
-import dev.pthomain.android.glitchy.rxjava.interceptors.base.RxInterceptors
 import io.reactivex.Observable
 import java.io.IOException
 
@@ -52,10 +51,8 @@ private val exceptionRxInterceptor = object : RxInterceptor.CombinedRxIntercepto
     }
 }
 
-private val rxInterceptors = RxInterceptors.Before(
-    object : InterceptorFactory<RetrofitMetadata<Any>> {
-        override fun create(metadata: RetrofitMetadata<Any>?) = exceptionRxInterceptor
-    }
+private val rxInterceptors = RetrofitRxInterceptors.before<Any>(
+    exceptionRxInterceptor.asFactory()
 )
 
 private fun <E> getRxJavaCallAdapterFactory(errorFactory: ErrorFactory<E>)

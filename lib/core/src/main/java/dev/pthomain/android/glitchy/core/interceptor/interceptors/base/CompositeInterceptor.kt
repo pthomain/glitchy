@@ -40,8 +40,7 @@ internal class CompositeInterceptor<E, M, out F : InterceptorFactory<M>> private
             interceptor.intercept(intercepted)
         }
 
-    private fun List<F>.create(metadata: M?) =
-        asSequence().map { it.create(metadata) }
+    private fun List<F>.create(metadata: M?) = asSequence().map { it(metadata) }
 
     private fun interceptors() =
         interceptors.before.create(metadata)
@@ -59,7 +58,7 @@ internal class CompositeInterceptor<E, M, out F : InterceptorFactory<M>> private
             where  E : Throwable,
                    E : NetworkErrorPredicate {
 
-        override fun create(metadata: M?) = CompositeInterceptor<E, M, F>(
+        override fun invoke(metadata: M?) = CompositeInterceptor<E, M, F>(
             interceptors,
             errorInterceptor,
             outcomeInterceptor,
