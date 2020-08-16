@@ -32,6 +32,7 @@ import dev.pthomain.android.glitchy.retrofit.flow.type.FlowReturnTypeParser
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitInterceptorFactory
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitMetadata
 import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser
+import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser.Companion.defaultOutcomePredicate
 import dev.pthomain.android.glitchy.retrofit.type.ReturnTypeParser
 import retrofit2.CallAdapter
 
@@ -45,6 +46,7 @@ class GlitchyRetrofitFlow internal constructor(
             errorFactory: ErrorFactory<E>,
             defaultCallAdapterFactory: CallAdapter.Factory,
             returnTypeParser: ReturnTypeParser<M>,
+            outcomePredicate: (M) -> Boolean,
             interceptors: Interceptors<RetrofitMetadata<M>, RetrofitInterceptorFactory<M>>
         ) where E : Throwable,
                 E : NetworkErrorPredicate =
@@ -52,6 +54,7 @@ class GlitchyRetrofitFlow internal constructor(
                 errorFactory,
                 defaultCallAdapterFactory,
                 returnTypeParser,
+                outcomePredicate,
                 interceptors
             )
 
@@ -61,19 +64,16 @@ class GlitchyRetrofitFlow internal constructor(
 
         fun <E> builder(
             errorFactory: ErrorFactory<E>,
-            interceptors: Interceptors<RetrofitMetadata<Any>, InterceptorFactory<RetrofitMetadata<Any>>>
+            interceptors: Interceptors<RetrofitMetadata<Class<*>>, InterceptorFactory<RetrofitMetadata<Class<*>>>>
         ) where E : Throwable,
                 E : NetworkErrorPredicate =
-            GlitchyRetrofitFlowBuilder(
+            Custom.builder(
                 errorFactory,
                 RetrofitFlowCallAdapterFactory(),
-                returnTypeParser,
+                OutcomeReturnTypeParser.getDefaultInstance(FlowReturnTypeParser()),
+                defaultOutcomePredicate,
                 interceptors
             )
-
-        private val returnTypeParser = OutcomeReturnTypeParser.getDefaultInstance(
-            FlowReturnTypeParser()
-        )
 
     }
 

@@ -39,13 +39,13 @@ internal class RxReturnTypeParser : ReturnTypeParser<Class<*>> {
     ) =
         with(rawType(returnType)) {
             ParsedType(
-                when (returnType) {
+                when (this) {
                     Single::class.java,
                     Observable::class.java -> this
                     else -> Unit.javaClass
                 },
-                this,
                 returnType,
+                this,
                 extractParam(returnType, this)
             )
         }

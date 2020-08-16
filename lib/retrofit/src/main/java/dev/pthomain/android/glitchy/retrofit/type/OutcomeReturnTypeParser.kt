@@ -23,8 +23,6 @@
 
 package dev.pthomain.android.glitchy.retrofit.type
 
-import dev.pthomain.android.boilerplate.core.utils.kotlin.ifElse
-import dev.pthomain.android.glitchy.core.interceptor.interceptors.outcome.IsOutcome
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.outcome.Outcome
 import dev.pthomain.android.glitchy.retrofit.adapter.RetrofitCallAdapterFactory.Companion.getFirstParameterUpperBound
 import dev.pthomain.android.glitchy.retrofit.adapter.RetrofitCallAdapterFactory.Companion.rawType
@@ -33,7 +31,8 @@ import java.lang.reflect.Type
 
 class OutcomeReturnTypeParser<M : Any>(
     private val typeTokenResolver: (ParsedType<*>) -> M,
-    private val returnSuperTypeParser: ReturnTypeParser<*>
+    private val returnSuperTypeParser: ReturnTypeParser<*>,
+    private val outcomePredicate: (M) -> Boolean
 ) : ReturnTypeParser<M> {
 
     override fun parseReturnType(
@@ -42,18 +41,18 @@ class OutcomeReturnTypeParser<M : Any>(
     ): ParsedType<M> {
         val parsedRxType = returnSuperTypeParser.parseReturnType(returnType, annotations)
         val typeToken = typeTokenResolver(parsedRxType)
-        val parsedType = parsedRxType.parsedType
 
-        val (parsedResultType, outcomeType) = if (rawType(parsedType) == Outcome::class.java) {
-            val outcomeType = getFirstParameterUpperBound(parsedType)
-            wrapReturnType(outcomeType, parsedRxType.rawType) to parsedType
-        } else parsedRxType.returnType to parsedType
+        val (reWrappedType, wrappedType) = if (outcomePredicate(typeToken)) {
+            val wrappedType = getFirstParameterUpperBound(parsedRxType.wrappedType!!)
+            wrapReturnType(wrappedType, parsedRxType.rawType) to wrappedType
+        } else parsedRxType.originalType to null
 
         return ParsedType(
             typeToken,
+            returnType,
             parsedRxType.rawType,
-            parsedResultType,
-            outcomeType
+            wrappedType,
+            reWrappedType
         )
     }
 
@@ -69,18 +68,11 @@ class OutcomeReturnTypeParser<M : Any>(
         @JvmStatic
         fun getDefaultInstance(returnSuperTypeParser: ReturnTypeParser<*>) =
             OutcomeReturnTypeParser(
-                {
-                    ifElse(
-                        rawType(it.parsedType) == Outcome::class.java,
-                        OutcomeToken,
-                        Unit
-                    )
-                },
-                returnSuperTypeParser
+                { it.wrappedType?.let(::rawType) ?: Unit::class.java },
+                returnSuperTypeParser,
+                defaultOutcomePredicate
             )
 
-        internal object OutcomeToken : IsOutcome {
-            override fun toString() = "OutcomeToken"
-        }
+        val defaultOutcomePredicate: (Class<*>) -> Boolean = { it == Outcome::class.java }
     }
 }

@@ -23,6 +23,7 @@
 
 package dev.pthomain.android.glitchy.flow.interceptors
 
+import android.util.Log
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.ErrorFactory
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.outcome.Outcome
@@ -38,7 +39,10 @@ class OutcomeFlowInterceptor<E> internal constructor(
               E : NetworkErrorPredicate {
 
     override fun flatMap(upstream: Flow<Any>) = upstream
-        .map { Outcome.Success(it) as Outcome<*> }
+        .map {
+            Log.d("Pierre10", it.toString())
+            Outcome.Success(it) as Outcome<*>
+        }
         .catch { exception ->
             errorFactory.asHandledError(exception)
                 ?.also { emit(it) }

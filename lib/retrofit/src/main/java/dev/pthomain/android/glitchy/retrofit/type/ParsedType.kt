@@ -27,7 +27,8 @@ import java.lang.reflect.Type
 
 data class ParsedType<T>(
     val typeToken: T,
+    val originalType: Type,
     val rawType: Type,
-    val returnType: Type,
-    val parsedType: Type
+    val wrappedType: Type? = null,
+    val adaptedType: Type = originalType,
 )
