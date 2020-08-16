@@ -24,7 +24,7 @@
 package dev.pthomain.android.glitchy.retrofit.interceptors
 
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Interceptor
-import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser.Companion.IsOutcome
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.outcome.IsOutcome
 
 internal class OutcomeReturnTypeInterceptor<M> private constructor(
     private val outcomeInterceptor: Interceptor,

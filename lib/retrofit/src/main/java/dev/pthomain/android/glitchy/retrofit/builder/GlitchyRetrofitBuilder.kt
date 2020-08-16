@@ -32,11 +32,11 @@ import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Intercept
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Interceptors
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.ErrorFactory
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.outcome.IsOutcome
 import dev.pthomain.android.glitchy.retrofit.interceptors.OutcomeReturnTypeInterceptor
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitInterceptorFactory
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitInterceptors
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitMetadata
-import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser.Companion.IsOutcome
 import dev.pthomain.android.glitchy.retrofit.type.ReturnTypeParser
 import org.koin.core.module.Module
 import org.koin.dsl.koinApplication

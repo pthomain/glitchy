@@ -43,3 +43,5 @@ sealed class Outcome<R> {
     }
 
 }
+
+interface IsOutcome

@@ -24,6 +24,7 @@
 package dev.pthomain.android.glitchy.retrofit.type
 
 import dev.pthomain.android.boilerplate.core.utils.kotlin.ifElse
+import dev.pthomain.android.glitchy.core.interceptor.interceptors.outcome.IsOutcome
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.outcome.Outcome
 import dev.pthomain.android.glitchy.retrofit.adapter.RetrofitCallAdapterFactory.Companion.getFirstParameterUpperBound
 import dev.pthomain.android.glitchy.retrofit.adapter.RetrofitCallAdapterFactory.Companion.rawType
@@ -78,7 +79,6 @@ class OutcomeReturnTypeParser<M : Any>(
                 returnSuperTypeParser
             )
 
-        interface IsOutcome
         internal object OutcomeToken : IsOutcome {
             override fun toString() = "OutcomeToken"
         }
