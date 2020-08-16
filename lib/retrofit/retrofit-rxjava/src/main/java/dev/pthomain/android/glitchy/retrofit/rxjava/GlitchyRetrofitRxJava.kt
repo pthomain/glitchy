@@ -30,6 +30,7 @@ import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitInterceptorFac
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitMetadata
 import dev.pthomain.android.glitchy.retrofit.rxjava.type.RxReturnTypeParser
 import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser
+import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser.Companion.defaultOutcomePredicate
 import dev.pthomain.android.glitchy.retrofit.type.ReturnTypeParser
 import retrofit2.CallAdapter
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
@@ -42,15 +43,17 @@ class GlitchyRetrofitRxJava internal constructor(
 
         fun <E, M> builder(
             errorFactory: ErrorFactory<E>,
-            interceptors: Interceptors<RetrofitMetadata<M>, RetrofitInterceptorFactory<M>>,
             defaultCallAdapterFactory: CallAdapter.Factory,
-            returnTypeParser: ReturnTypeParser<M>
+            returnTypeParser: ReturnTypeParser<M>,
+            outcomePredicate: (M) -> Boolean,
+            interceptors: Interceptors<RetrofitMetadata<M>, RetrofitInterceptorFactory<M>>
         ) where E : Throwable,
                 E : NetworkErrorPredicate =
             GlitchyRetrofitRxJavaBuilder(
                 errorFactory,
                 defaultCallAdapterFactory,
                 returnTypeParser,
+                outcomePredicate,
                 interceptors
             )
 
@@ -60,14 +63,15 @@ class GlitchyRetrofitRxJava internal constructor(
 
         fun <E> builder(
             errorFactory: ErrorFactory<E>,
-            interceptors: Interceptors<RetrofitMetadata<Any>, RetrofitInterceptorFactory<Any>>,
+            interceptors: Interceptors<RetrofitMetadata<Class<*>>, RetrofitInterceptorFactory<Class<*>>>,
             isAsync: Boolean = true
         ) where E : Throwable,
                 E : NetworkErrorPredicate =
-            GlitchyRetrofitRxJavaBuilder(
+            Custom.builder(
                 errorFactory,
                 getRxJava2CallAdapterFactory(isAsync),
-                returnTypeParser,
+                OutcomeReturnTypeParser.getDefaultInstance(RxReturnTypeParser()),
+                defaultOutcomePredicate,
                 interceptors
             )
 
@@ -75,9 +79,6 @@ class GlitchyRetrofitRxJava internal constructor(
             if (isAsync) RxJava2CallAdapterFactory.createAsync()
             else RxJava2CallAdapterFactory.create()
 
-        private val returnTypeParser = OutcomeReturnTypeParser.getDefaultInstance(
-            RxReturnTypeParser()
-        )
     }
 }
 

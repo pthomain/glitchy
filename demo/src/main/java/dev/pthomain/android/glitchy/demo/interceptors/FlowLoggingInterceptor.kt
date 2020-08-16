@@ -27,7 +27,8 @@ import dev.pthomain.android.glitchy.demo.logger
 import dev.pthomain.android.glitchy.flow.interceptors.base.FlowInterceptor
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitMetadata
 
-class FlowLoggingInterceptor(private val metadata: RetrofitMetadata<Any>?) : FlowInterceptor() {
+class FlowLoggingInterceptor(private val metadata: RetrofitMetadata<Class<*>>?) :
+    FlowInterceptor() {
 
     override suspend fun map(value: Any): Any = value.apply {
         logger.d(this, "Intercepting value: $value with metadata: $metadata")

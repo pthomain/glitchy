@@ -41,17 +41,19 @@ internal class FlowReturnTypeParser : ReturnTypeParser<Boolean> {
                 when (returnType) {
                     Flow::class.java -> true
                     else -> false
-                }, this,
+                },
                 returnType,
-                extractParam(returnType, this)
+                this,
+                getWrappedType(returnType, this),
+                returnType
             )
         }
 
-    private fun extractParam(returnType: Type, rawType: Type) =
+    private fun getWrappedType(returnType: Type, rawType: Type) =
         with(rawType) {
             when (this) {
                 Flow::class.java -> getFirstParameterUpperBound(returnType)
-                else -> returnType
+                else -> null
             }
         }
 }

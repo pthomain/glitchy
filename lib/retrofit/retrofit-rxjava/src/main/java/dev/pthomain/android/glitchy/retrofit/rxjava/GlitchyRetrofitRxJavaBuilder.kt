@@ -37,11 +37,13 @@ class GlitchyRetrofitRxJavaBuilder<E, M> internal constructor(
     errorFactory: ErrorFactory<E>,
     defaultCallAdapterFactory: CallAdapter.Factory,
     returnTypeParser: ReturnTypeParser<M>,
-    interceptors: Interceptors<RetrofitMetadata<M>, RetrofitInterceptorFactory<M>>,
+    outcomePredicate: (M) -> Boolean,
+    interceptors: Interceptors<RetrofitMetadata<M>, RetrofitInterceptorFactory<M>>
 ) : BaseGlitchyRetrofitBuilder<E, M, GlitchyRetrofitRxJavaBuilder<E, M>, GlitchyRetrofitRxJava>(
     errorFactory,
     returnTypeParser,
     defaultCallAdapterFactory,
+    outcomePredicate,
     interceptors,
     GlitchyRxJava.interceptorProvider(errorFactory)
 ) where E : Throwable,

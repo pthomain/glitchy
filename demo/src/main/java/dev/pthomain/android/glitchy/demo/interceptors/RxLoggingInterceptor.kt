@@ -28,7 +28,8 @@ import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitMetadata
 import dev.pthomain.android.glitchy.rxjava.interceptors.base.RxInterceptor.CombinedRxInterceptor
 import io.reactivex.Observable
 
-class RxLoggingInterceptor(private val metadata: RetrofitMetadata<Any>?) : CombinedRxInterceptor() {
+class RxLoggingInterceptor(private val metadata: RetrofitMetadata<Class<*>>?) :
+    CombinedRxInterceptor() {
 
     override fun apply(upstream: Observable<Any>) = upstream.doOnNext {
         logger.d(this, "Intercepting value: $it with metadata: $metadata")
