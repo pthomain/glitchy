@@ -30,28 +30,28 @@ import retrofit2.*
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 
-internal class RetrofitFlowCallAdapterFactory : CallAdapter.Factory() {
+ class RetrofitFlowCallAdapterFactory : CallAdapter.Factory() {
 
-    override fun get(
-        returnType: Type,
-        annotations: Array<Annotation>,
-        retrofit: Retrofit
-    ): CallAdapter<*, *>? {
-        if (Flow::class.java != getRawType(returnType)) return null
+     override fun get(
+         returnType: Type,
+         annotations: Array<Annotation>,
+         retrofit: Retrofit
+     ): CallAdapter<*, *>? {
+         if (Flow::class.java != getRawType(returnType)) return null
 
-        if (returnType !is ParameterizedType) throw IllegalArgumentException(
-            "Flow return type must be parameterized as Flow<Foo> or Flow<out Foo>"
-        )
+         if (returnType !is ParameterizedType) throw IllegalArgumentException(
+             "Flow return type must be parameterized as Flow<Foo> or Flow<out Foo>"
+         )
 
-        val responseType = getParameterUpperBound(0, returnType)
-        val rawFlowType = getRawType(responseType)
+         val responseType = getParameterUpperBound(0, returnType)
+         val rawFlowType = getRawType(responseType)
 
-        return if (rawFlowType == Response::class.java) {
-            if (responseType !is ParameterizedType) throw IllegalArgumentException(
-                "Response must be parameterized as Response<Foo> or Response<out Foo>"
-            )
+         return if (rawFlowType == Response::class.java) {
+             if (responseType !is ParameterizedType) throw IllegalArgumentException(
+                 "Response must be parameterized as Response<Foo> or Response<out Foo>"
+             )
 
-            ResponseCallAdapter<Any>(getParameterUpperBound(0, responseType))
+             ResponseCallAdapter<Any>(getParameterUpperBound(0, responseType))
         } else BodyCallAdapter<Any>(responseType)
     }
 

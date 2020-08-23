@@ -29,12 +29,5 @@ import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Intercept
 typealias RetrofitMetadataInterceptors<M> = Interceptors<RetrofitMetadata<M>, InterceptorFactory<RetrofitMetadata<M>>>
 
 internal class RetrofitInterceptors<M>(
-    outcomeReturnTypeInterceptorFactory: OutcomeReturnTypeInterceptor.Factory<M>,
     interceptors: Interceptors<RetrofitMetadata<M>, InterceptorFactory<RetrofitMetadata<M>>>
-) : RetrofitMetadataInterceptors<M> by interceptors {
-
-    override val before = interceptors.before.run {
-        toMutableList().apply { add(outcomeReturnTypeInterceptorFactory) }.toList()
-    }
-
-}
+) : RetrofitMetadataInterceptors<M> by interceptors

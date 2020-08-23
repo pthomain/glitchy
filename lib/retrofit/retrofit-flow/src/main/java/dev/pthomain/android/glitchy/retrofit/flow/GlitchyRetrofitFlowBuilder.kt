@@ -37,11 +37,13 @@ class GlitchyRetrofitFlowBuilder<E, M> internal constructor(
     errorFactory: ErrorFactory<E>,
     defaultCallAdapterFactory: CallAdapter.Factory,
     returnTypeParser: ReturnTypeParser<M>,
+    outcomePredicate: (M) -> Boolean,
     interceptors: Interceptors<RetrofitMetadata<M>, InterceptorFactory<RetrofitMetadata<M>>>
 ) : BaseGlitchyRetrofitBuilder<E, M, GlitchyRetrofitFlowBuilder<E, M>, GlitchyRetrofitFlow>(
     errorFactory,
     returnTypeParser,
     defaultCallAdapterFactory,
+    outcomePredicate,
     interceptors,
     GlitchyFlow.interceptorProvider(errorFactory)
 ) where E : Throwable,

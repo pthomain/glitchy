@@ -32,11 +32,8 @@ import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Intercept
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.base.Interceptors
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.ErrorFactory
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
-import dev.pthomain.android.glitchy.retrofit.interceptors.OutcomeReturnTypeInterceptor
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitInterceptorFactory
-import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitInterceptors
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitMetadata
-import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser.Companion.IsOutcome
 import dev.pthomain.android.glitchy.retrofit.type.ReturnTypeParser
 import org.koin.core.module.Module
 import org.koin.dsl.koinApplication
@@ -46,6 +43,7 @@ abstract class BaseGlitchyRetrofitBuilder<E, M, B : BaseGlitchyRetrofitBuilder<E
     errorFactory: ErrorFactory<E>,
     private val returnTypeParser: ReturnTypeParser<M>,
     private val defaultCallAdapterFactory: CallAdapter.Factory,
+    private val outcomePredicate: (M) -> Boolean,
     interceptors: Interceptors<RetrofitMetadata<M>, InterceptorFactory<RetrofitMetadata<M>>>,
     interceptorProvider: InterceptorProvider<RetrofitMetadata<M>, RetrofitInterceptorFactory<M>>
 ) : BaseExtensionBuilder<R, Module, B>(),
@@ -58,13 +56,9 @@ abstract class BaseGlitchyRetrofitBuilder<E, M, B : BaseGlitchyRetrofitBuilder<E
         Glitchy.builder(
             errorFactory,
             interceptorProvider,
-            RetrofitInterceptors(
-                OutcomeReturnTypeInterceptor.Factory(interceptorProvider.outcomeInterceptor),
-                interceptors,
-            )
-        ) {
-            it.parsedType.typeToken is IsOutcome
-        }.extend(this as B)
+            interceptors,
+            { outcomePredicate(it.parsedType.typeToken) }
+        ).extend(this as B)
     }
 
     override fun buildInternal(parentModules: List<Module>): R =

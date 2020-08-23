@@ -80,7 +80,7 @@ class RetrofitCallAdapterFactory<M> internal constructor(
         val parsedReturnType = returnTypeParser.parseReturnType(returnType, annotations)
 
         val defaultCallAdapter = defaultCallAdapterFactory.get(
-            parsedReturnType.returnType,
+            parsedReturnType.adaptedType,
             annotations,
             retrofit
         ) as CallAdapter<Any, Any>

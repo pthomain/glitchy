@@ -24,6 +24,7 @@
 package dev.pthomain.android.glitchy.demo
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.RadioGroup
 import android.widget.TextView

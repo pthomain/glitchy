@@ -51,15 +51,15 @@ Set up
 
 | Interceptors | | |
 |--- |--- |--- |
-| Core | Contains the interceptors only | ```implementation 'dev.pthomain.glitchy:core:3.1'``` |
-| RxJava | Contains the Rx interceptors | ```implementation 'dev.pthomain.glitchy:rxjava:3.1'``` |
-| Coroutines Flow | Contains the Flow interceptors | ```implementation 'dev.pthomain.glitchy:flow:3.1'``` |
+| Core | Contains the interceptors only | ```implementation 'dev.pthomain.glitchy:core:3.2'``` |
+| RxJava | Contains the Rx interceptors | ```implementation 'dev.pthomain.glitchy:rxjava:3.2'``` |
+| Coroutines Flow | Contains the Flow interceptors | ```implementation 'dev.pthomain.glitchy:flow:3.2'``` |
 
 | Retrofit | | |
 |--- |--- |--- |
-| Retrofit | Contains the Retrofit call adapter factory | ```implementation 'dev.pthomain.glitchy:retrofit:3.1'``` |
-| Retrofit RxJava (1) | Contains the Rx Retrofit interceptors | ```implementation 'dev.pthomain.glitchy:retrofit-rxjava:3.1'``` |
-| Retrofit Flow (2)| Contains the Flow Retrofit interceptors | ```implementation 'dev.pthomain.glitchy:retrofit-flow:3.1'``` |
+| Retrofit | Contains the Retrofit call adapter factory | ```implementation 'dev.pthomain.glitchy:retrofit:3.2'``` |
+| Retrofit RxJava (1) | Contains the Rx Retrofit interceptors | ```implementation 'dev.pthomain.glitchy:retrofit-rxjava:3.2'``` |
+| Retrofit Flow (2)| Contains the Flow Retrofit interceptors | ```implementation 'dev.pthomain.glitchy:retrofit-flow:3.2'``` |
 
 The most common use case is to use Retrofit with RxJava or Coroutines Flow in which case you only need to add the dependency (1) or (2) to your Gradle setup.
 
@@ -69,5 +69,4 @@ More
 ----
 
 This library was originally part of __DejaVu__ (https://github.com/pthomain/dejavu). Check it out if you're also interested in adding a cache layer to your API calls 😉
-
 
