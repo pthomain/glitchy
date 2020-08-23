@@ -125,8 +125,6 @@ class MainActivity : AppCompatActivity() {
     private fun getAsyncContext() = "Using ${if (useFlow) "Coroutines Flow" else "RxJava"}"
 
     private fun onOutcome(outcome: Outcome<CatFactResponse>) {
-        Log.d("Pierre1", outcome.toString())
-
         textView.text = getAsyncContext() + ":\n" +
                 when (outcome) {
                     is Success -> getString(R.string.cat_fact, outcome.response.fact)
