@@ -29,21 +29,19 @@ import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkE
 import dev.pthomain.android.glitchy.retrofit.builder.BaseGlitchyRetrofitBuilder
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitInterceptorFactory
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitMetadata
-import dev.pthomain.android.glitchy.retrofit.type.ReturnTypeParser
+import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser
 import dev.pthomain.android.glitchy.rxjava.GlitchyRxJava
 import retrofit2.CallAdapter
 
-class GlitchyRetrofitRxJavaBuilder<E, M> internal constructor(
+class GlitchyRetrofitRxJavaBuilder<E, M : Any> internal constructor(
     errorFactory: ErrorFactory<E>,
     defaultCallAdapterFactory: CallAdapter.Factory,
-    returnTypeParser: ReturnTypeParser<M>,
-    outcomePredicate: (M) -> Boolean,
+    returnTypeParser: OutcomeReturnTypeParser<M>,
     interceptors: Interceptors<RetrofitMetadata<M>, RetrofitInterceptorFactory<M>>
 ) : BaseGlitchyRetrofitBuilder<E, M, GlitchyRetrofitRxJavaBuilder<E, M>, GlitchyRetrofitRxJava>(
     errorFactory,
     returnTypeParser,
     defaultCallAdapterFactory,
-    outcomePredicate,
     interceptors,
     GlitchyRxJava.interceptorProvider(errorFactory)
 ) where E : Throwable,

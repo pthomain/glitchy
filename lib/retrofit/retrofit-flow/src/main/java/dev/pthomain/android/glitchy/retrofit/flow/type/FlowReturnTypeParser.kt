@@ -30,7 +30,7 @@ import dev.pthomain.android.glitchy.retrofit.type.ReturnTypeParser
 import kotlinx.coroutines.flow.Flow
 import java.lang.reflect.Type
 
-internal class FlowReturnTypeParser : ReturnTypeParser<Boolean> {
+object FlowReturnTypeParser : ReturnTypeParser<Boolean> {
 
     override fun parseReturnType(
         returnType: Type,

@@ -29,11 +29,19 @@ import dev.pthomain.android.glitchy.retrofit.adapter.RetrofitCallAdapterFactory.
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 
-class OutcomeReturnTypeParser<M : Any>(
+interface OutcomeReturnTypeParser<M : Any> : ReturnTypeParser<M> {
+    val outcomePredicate: (M) -> Boolean
+    override fun parseReturnType(
+        returnType: Type,
+        annotations: Array<Annotation>
+    ): ParsedType<M>
+}
+
+class DefaultOutcomeReturnTypeParser<M : Any>(
     private val typeTokenResolver: (ParsedType<*>) -> M,
     private val returnSuperTypeParser: ReturnTypeParser<*>,
-    private val outcomePredicate: (M) -> Boolean
-) : ReturnTypeParser<M> {
+    override val outcomePredicate: (M) -> Boolean
+) : OutcomeReturnTypeParser<M> {
 
     override fun parseReturnType(
         returnType: Type,
@@ -66,12 +74,14 @@ class OutcomeReturnTypeParser<M : Any>(
 
     companion object {
         @JvmStatic
-        fun getDefaultInstance(returnSuperTypeParser: ReturnTypeParser<*>) =
-            OutcomeReturnTypeParser(
-                { it.wrappedType?.let(::rawType) ?: Unit::class.java },
-                returnSuperTypeParser,
-                defaultOutcomePredicate
-            )
+        fun getDefaultInstance(
+            returnSuperTypeParser: ReturnTypeParser<*>,
+            outcomePredicate: (Class<*>) -> Boolean = defaultOutcomePredicate
+        ): OutcomeReturnTypeParser<Class<*>> = DefaultOutcomeReturnTypeParser(
+            { it.wrappedType?.let(::rawType) ?: Unit::class.java },
+            returnSuperTypeParser,
+            outcomePredicate
+        )
 
         val defaultOutcomePredicate: (Class<*>) -> Boolean = { it == Outcome::class.java }
     }

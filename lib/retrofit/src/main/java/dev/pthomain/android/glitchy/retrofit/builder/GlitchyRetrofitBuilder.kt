@@ -34,16 +34,15 @@ import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.ErrorFac
 import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkErrorPredicate
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitInterceptorFactory
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitMetadata
-import dev.pthomain.android.glitchy.retrofit.type.ReturnTypeParser
+import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser
 import org.koin.core.module.Module
 import org.koin.dsl.koinApplication
 import retrofit2.CallAdapter
 
-abstract class BaseGlitchyRetrofitBuilder<E, M, B : BaseGlitchyRetrofitBuilder<E, M, B, R>, R>(
+abstract class BaseGlitchyRetrofitBuilder<E, M : Any, B : BaseGlitchyRetrofitBuilder<E, M, B, R>, R>(
     errorFactory: ErrorFactory<E>,
-    private val returnTypeParser: ReturnTypeParser<M>,
+    private val returnTypeParser: OutcomeReturnTypeParser<M>,
     private val defaultCallAdapterFactory: CallAdapter.Factory,
-    private val outcomePredicate: (M) -> Boolean,
     interceptors: Interceptors<RetrofitMetadata<M>, InterceptorFactory<RetrofitMetadata<M>>>,
     interceptorProvider: InterceptorProvider<RetrofitMetadata<M>, RetrofitInterceptorFactory<M>>
 ) : BaseExtensionBuilder<R, Module, B>(),
@@ -57,7 +56,7 @@ abstract class BaseGlitchyRetrofitBuilder<E, M, B : BaseGlitchyRetrofitBuilder<E
             errorFactory,
             interceptorProvider,
             interceptors,
-            { outcomePredicate(it.parsedType.typeToken) }
+            { returnTypeParser.outcomePredicate(it.parsedType.typeToken) }
         ).extend(this as B)
     }
 

@@ -31,9 +31,8 @@ import dev.pthomain.android.glitchy.retrofit.flow.adapter.RetrofitFlowCallAdapte
 import dev.pthomain.android.glitchy.retrofit.flow.type.FlowReturnTypeParser
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitInterceptorFactory
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitMetadata
+import dev.pthomain.android.glitchy.retrofit.type.DefaultOutcomeReturnTypeParser
 import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser
-import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser.Companion.defaultOutcomePredicate
-import dev.pthomain.android.glitchy.retrofit.type.ReturnTypeParser
 import retrofit2.CallAdapter
 
 class GlitchyRetrofitFlow internal constructor(
@@ -42,11 +41,10 @@ class GlitchyRetrofitFlow internal constructor(
 
     object Custom {
 
-        fun <E, M> builder(
+        fun <E, M : Any> builder(
             errorFactory: ErrorFactory<E>,
             defaultCallAdapterFactory: CallAdapter.Factory,
-            returnTypeParser: ReturnTypeParser<M>,
-            outcomePredicate: (M) -> Boolean,
+            returnTypeParser: OutcomeReturnTypeParser<M>,
             interceptors: Interceptors<RetrofitMetadata<M>, RetrofitInterceptorFactory<M>>
         ) where E : Throwable,
                 E : NetworkErrorPredicate =
@@ -54,7 +52,6 @@ class GlitchyRetrofitFlow internal constructor(
                 errorFactory,
                 defaultCallAdapterFactory,
                 returnTypeParser,
-                outcomePredicate,
                 interceptors
             )
 
@@ -70,8 +67,7 @@ class GlitchyRetrofitFlow internal constructor(
             Custom.builder(
                 errorFactory,
                 RetrofitFlowCallAdapterFactory(),
-                OutcomeReturnTypeParser.getDefaultInstance(FlowReturnTypeParser()),
-                defaultOutcomePredicate,
+                DefaultOutcomeReturnTypeParser.getDefaultInstance(FlowReturnTypeParser),
                 interceptors
             )
 

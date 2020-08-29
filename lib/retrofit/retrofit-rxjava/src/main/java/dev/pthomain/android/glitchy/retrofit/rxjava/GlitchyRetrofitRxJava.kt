@@ -29,9 +29,8 @@ import dev.pthomain.android.glitchy.core.interceptor.interceptors.error.NetworkE
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitInterceptorFactory
 import dev.pthomain.android.glitchy.retrofit.interceptors.RetrofitMetadata
 import dev.pthomain.android.glitchy.retrofit.rxjava.type.RxReturnTypeParser
+import dev.pthomain.android.glitchy.retrofit.type.DefaultOutcomeReturnTypeParser
 import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser
-import dev.pthomain.android.glitchy.retrofit.type.OutcomeReturnTypeParser.Companion.defaultOutcomePredicate
-import dev.pthomain.android.glitchy.retrofit.type.ReturnTypeParser
 import retrofit2.CallAdapter
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 
@@ -41,11 +40,10 @@ class GlitchyRetrofitRxJava internal constructor(
 
     object Custom {
 
-        fun <E, M> builder(
+        fun <E, M : Any> builder(
             errorFactory: ErrorFactory<E>,
             defaultCallAdapterFactory: CallAdapter.Factory,
-            returnTypeParser: ReturnTypeParser<M>,
-            outcomePredicate: (M) -> Boolean,
+            returnTypeParser: OutcomeReturnTypeParser<M>,
             interceptors: Interceptors<RetrofitMetadata<M>, RetrofitInterceptorFactory<M>>
         ) where E : Throwable,
                 E : NetworkErrorPredicate =
@@ -53,7 +51,6 @@ class GlitchyRetrofitRxJava internal constructor(
                 errorFactory,
                 defaultCallAdapterFactory,
                 returnTypeParser,
-                outcomePredicate,
                 interceptors
             )
 
@@ -70,8 +67,7 @@ class GlitchyRetrofitRxJava internal constructor(
             Custom.builder(
                 errorFactory,
                 getRxJava2CallAdapterFactory(isAsync),
-                OutcomeReturnTypeParser.getDefaultInstance(RxReturnTypeParser()),
-                defaultOutcomePredicate,
+                DefaultOutcomeReturnTypeParser.getDefaultInstance(RxReturnTypeParser),
                 interceptors
             )
 

@@ -31,7 +31,7 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import java.lang.reflect.Type
 
-internal class RxReturnTypeParser : ReturnTypeParser<Class<*>> {
+object RxReturnTypeParser : ReturnTypeParser<Class<*>> {
 
     override fun parseReturnType(
         returnType: Type,
