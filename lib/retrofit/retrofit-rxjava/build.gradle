@@ -22,10 +22,9 @@
  */
 
 plugins {
-    id "com.jfrog.bintray"
+    id 'maven-publish'
+    id 'signing'
 }
-apply plugin: 'com.jfrog.bintray'
-apply plugin: 'maven-publish'
 
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
@@ -153,13 +152,42 @@ project.ext {
 Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
+
+signing {
+    sign publishing.publications.release
+}
+
 publishing {
     publications {
         release(MavenPublication) {
-            groupId 'dev.pthomain.glitchy'
+            groupId 'io.github.pthomain'
             artifactId 'retrofit-rxjava'
             version glitchyVersion
             artifact("$buildDir/outputs/aar/retrofit-rxjava-release.aar")
+
+            pom {
+                name = 'Glitchy'
+                description = 'Make sense of your API errors'
+                url = 'https://github.com/pthomain/glitchy'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'pthomain'
+                        name = 'Pierre Thomain'
+                        email = 'pierre.thom@gmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/pthomain/glitchy.git'
+                    developerConnection = 'scm:git:ssh://github.com/pthomain/glitchy.git'
+                    url = 'https://github.com/pthomain/glitchy'
+                }
+            }
 
             // Define this explicitly if using implementation or api configurations
             pom.withXml {
@@ -178,35 +206,22 @@ publishing {
             }
         }
     }
-}
-
-bintray {
-    user = 'pthomain'
-    key = properties.getProperty("bintray_api_key")
-    publications = ['release']
-    configurations = ['archives']
-    override = true
-
-    pkg {
-        repo = 'releases'
-        name = "Glitchy"
-        description = "Make sense of your API errors"
-        licenses = ['Apache-2.0']
-        publicDownloadNumbers = false
-        vcsUrl = 'https://github.com/pthomain/glitchy.git'
-        version {
-            licenses = ['Apache-2.0']
-            desc = "Version $glitchyVersion"
-            name = glitchyVersion
-            released = new Date()
-            vcsTag = glitchyVersion
+    repositories {
+        maven {
+            name = "sonatype"
+            url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            credentials {
+                username = System.getenv("SONATYPE_USERNAME")
+                password = System.getenv("SONATYPE_PASSWORD")
+            }
         }
     }
 }
 
-apply from: 'https://raw.githubusercontent.com/sky-uk/gradle-maven-plugin/master/gradle-mavenizer.gradle'
 
-dependencies {
+
+
+
     api project(':lib:retrofit')
     api project(':lib:rxjava')
 
