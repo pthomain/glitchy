@@ -1,5 +1,3 @@
-<img src="https://github.com/pthomain/glitchy/blob/master/github/glitchy-header.png" style="height: 256px; width: auto;"/>
-
 TL;DR
 -----
 
@@ -29,7 +27,7 @@ In practice, an interceptor assumes the role of a composer (e.g. `ObservableTran
 Retrofit
 --------
 
-When used with Retrofit, the library provides a builder on which the interceptors are registered and returns a call adapter factory to be used to build Retrofit, in lieu of the default one. This provides a centralised way to intercept and compose all Retrofit calls (`Single<T>`/`Observable<T>` using the RxJava adapter or `Flow<T>` with the Coroutines one).
+When used with Retrofit, the library provides a builder on which the interceptors are registered and returns a call adapter factory to be used to build Retrofit, instead of the default one. This provides a centralised way to intercept and compose all Retrofit calls (`Single<T>`/`Observable<T>` using the RxJava adapter or `Flow<T>` with the Coroutines one).
 
 Retrofit interceptors receive metadata related to the return type of the call. Return type parsers can be used to define custom types (such as wrappers around the original type, like `Outcome<T>`).
 
@@ -68,5 +66,5 @@ The most common use case is to use Retrofit with RxJava or Coroutines Flow in wh
 More
 ----
 
-This library was originally part of __DejaVu__ (https://github.com/pthomain/dejavu). Check it out if you're also interested in adding a cache layer to your API calls 😉
+This library was originally part of __DejaVu__ (https://github.com/pthomain/dejavu). Check it out if you're also interested in adding a cache layer to your API calls.
 
