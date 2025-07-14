@@ -20,7 +20,7 @@ On the other hand, handled exceptions can provide additional context to the UI t
 How does it work?
 -----------------
 
-This library can be used with or without Retrofit. It provides a set a of reactive interactors (RxJava / Coroutine Flow) that can be registered to operate in a predefined chained order on reactive streams. 
+This library can be used with or without Retrofit. It provides a set a of reactive interceptors (RxJava / Coroutine Flow) that can be registered to operate in a predefined chained order on reactive streams. 
 
 In practice, an interceptor assumes the role of a composer (e.g. `ObservableTransformer` in RxJava) but provides a common interface for both RxJava and Coroutine Flow implementations. 
 
@@ -40,7 +40,7 @@ This is helpful to handle error parsing logic for all your calls in the same cla
 
 The library provides a default `ErrorFactory` implementation (`GlitchFactory`) that handles common cases and wraps original exceptions in a `Glitch` wrapper exception.
 
-These exceptions are emitted using the default RxJava / Flow error mechanism. However you can choose to wrap your return type in an `Outcome<T>` in your Retrofit interface. Doing so will either emit a `Outcome.Success<S>` or an `Outcome.Error<E>` to the default RxJava / Flow success handlers.
+These exceptions are emitted using the default RxJava / Flow error mechanism. However, you can choose to wrap your return type in an `Outcome<T>` in your Retrofit interface. Doing so will either emit an `Outcome.Success<S>` or an `Outcome.Error<E>` to the default RxJava / Flow success handlers.
 
 Unhandled exceptions are always delivered via the normal `onError()` mechanism and can be dealt with using an RxJava uncaught error handler or using `catch` with Flow.
 
@@ -59,7 +59,7 @@ Set up
 | Retrofit RxJava (1) | Contains the Rx Retrofit interceptors | ```implementation 'dev.pthomain.glitchy:retrofit-rxjava:3.2'``` |
 | Retrofit Flow (2)| Contains the Flow Retrofit interceptors | ```implementation 'dev.pthomain.glitchy:retrofit-flow:3.2'``` |
 
-The most common use case is to use Retrofit with RxJava or Coroutines Flow in which case you only need to add the dependency (1) or (2) to your Gradle setup.
+The most common use case is to use Retrofit with RxJava or Coroutines Flow, in which case you only need to add the dependency (1) or (2) to your Gradle setup.
 
 (Documentation coming soon, see app for implementation)
 
